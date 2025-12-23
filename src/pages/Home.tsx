@@ -148,7 +148,7 @@ const HomePage = () => {
         />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-        <div className="md:col-span-3 hidden md:block">
+        <div className="md:col-span-3 col-span-1">
           <VocabularySidebar
             allWords={allWords}
             activeWordIds={activeWordIds}
