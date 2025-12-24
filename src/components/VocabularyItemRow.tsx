@@ -35,7 +35,7 @@ interface VocabularyItemRowProps {
   onToggleReveal: (id: string) => void;
   onAddToPractice: (word: VocabularyItem) => void;
   onRemoveFromPractice: (word: VocabularyItem) => void; // <--- 2. THÊM PROP
-  onUpdate: (id: string, text: string, meaning: string) => void;
+  onUpdate: (id: string, updates: Partial<VocabularyItem>) => void;
   onDelete: (id: string) => void;
   onToggleLearned: (id: string, currentStatus: boolean) => void; // <--- THÊM PROP
 }

@@ -1,6 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"; // 1. Import Popover
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -26,33 +31,27 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
   onLearned,
   remove,
 }) => {
-  // 1. State Lật/Úp (Mặt trước/Mặt sau)
   const [isFlipped, setIsFlipped] = useState(false);
-
-  // 2. State Ẩn/Hiện Nghĩa (Chỉ có tác dụng khi đã Lật)
-  const [showMeaning, setShowMeaning] = useState(false); // Mặc định che nghĩa để học thuộc
-
+  const [showMeaning, setShowMeaning] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // --- Lắng nghe lệnh Global ---
   useEffect(() => {
     if (command) {
       if (command.type === "SHOW_MEANING_ALL") setShowMeaning(true);
       if (command.type === "HIDE_MEANING_ALL") setShowMeaning(false);
       if (command.type === "RESET_FLIP") {
-        setIsFlipped(false); // Úp bài xuống
-        setShowMeaning(false); // Reset luôn nghĩa về trạng thái che
+        setIsFlipped(false);
+        setShowMeaning(false);
       }
     }
   }, [command]);
 
-  // --- Xử lý sự kiện ---
   const handleCardClick = () => {
     setIsFlipped(!isFlipped);
   };
 
   const toggleMeaning = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Không kích hoạt lật bài
+    e.stopPropagation();
     setShowMeaning((prev) => !prev);
   };
 
@@ -86,22 +85,21 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
   return (
     <div
       onClick={handleCardClick}
-      className="cursor-pointer perspective-1000 group w-full sm:w-40 h-50 transition-all duration-300 hover:-translate-y-2"
+      className="cursor-pointer perspective-1000 group w-full sm:w-40 h-50 transition-all duration-300 hover:translate-y-1"
     >
       <Card
         className={`
         relative w-full h-full flex flex-col items-center justify-center p-2 text-center shadow-lg border-2 transition-all duration-500 overflow-hidden
         ${
           isFlipped
-            ? "bg-white border-blue-200" // Đã lật (Mặt nội dung)
-            : "bg-slate-800 border-slate-700 shadow-slate-900" // Đang úp (Mặt lưng)
+            ? "bg-white border-blue-200"
+            : "bg-slate-800 border-slate-700 shadow-slate-900"
         }
       `}
       >
-        {/* --- TRƯỜNG HỢP 1: ĐANG ÚP (Back Side) --- */}
+        {/* --- MẶT ÚP --- */}
         {!isFlipped && (
           <div className="flex flex-col items-center animate-in fade-in zoom-in duration-300">
-            {/* Nút Remove vẫn hiện mờ mờ khi úp để xóa nhanh nếu muốn */}
             <div
               className="absolute top-0 left-0 p-2 rounded-full hover:bg-white/10 transition-all opacity-0 group-hover:opacity-100 text-slate-500 hover:text-red-400 z-20"
               onClick={handleRemove}
@@ -119,12 +117,10 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
           </div>
         )}
 
-        {/* --- TRƯỜNG HỢP 2: ĐÃ LẬT (Front Side) --- */}
+        {/* --- MẶT NGỬA --- */}
         {isFlipped && (
           <div className="flex flex-col h-full w-full animate-in fade-in zoom-in duration-300 pt-4 pb-1 relative">
-            {/* === HEADER CONTROLS (Chỉ hiện khi lật) === */}
-
-            {/* 1. Nút Remove (Góc trái trên) */}
+            {/* Nút Remove */}
             <div
               className="absolute top-0 left-0 p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-red-500 transition-colors cursor-pointer z-30"
               onClick={handleRemove}
@@ -133,22 +129,47 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
               <X size={18} />
             </div>
 
+            {/* Nút Loa */}
+            <div
+              className="mb-2 p-2 absolute top-0 right-0 rounded-full bg-blue-50 text-blue-600 hover:scale-110 transition-transform cursor-pointer z-30"
+              onClick={handleSpeak}
+            >
+              <Volume2 size={18} />
+            </div>
+
             {/* === MAIN CONTENT === */}
             <div className="flex-1 flex flex-col items-center justify-center">
-              {/* Nút Loa (Cạnh từ tiếng Anh) */}
-              <div
-                className="mb-2 p-2 absolute top-0 right-0 rounded-full bg-blue-50 text-blue-600 hover:scale-110 transition-transform cursor-pointer"
-                onClick={handleSpeak}
-              >
-                <Volume2 size={18} />
-              </div>
+              {/* 2. LOGIC HIỂN THỊ TỪ VỰNG + POPOVER VÍ DỤ */}
+              {item.example ? (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <h3
+                      className="text-xl font-bold text-slate-800 mb-2 cursor-help decoration-dashed underline decoration-slate-300 underline-offset-4 hover:text-blue-600 transition-colors"
+                      onClick={(e) => e.stopPropagation()} // Chặn sự kiện click để không bị lật thẻ
+                      title="Click to see note"
+                    >
+                      {item.text}
+                    </h3>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    className="w-64 p-3 bg-white/95 backdrop-blur shadow-xl text-sm"
+                    side="top"
+                  >
+                    <div className="font-semibold text-slate-700 mb-1 border-b pb-1">
+                      Note:
+                    </div>
+                    <p className="text-slate-600 italic leading-relaxed">
+                      {item.example}
+                    </p>
+                  </PopoverContent>
+                </Popover>
+              ) : (
+                <h3 className="text-xl font-bold text-slate-800 mb-2">
+                  {item.text}
+                </h3>
+              )}
+              {/* ------------------------------------------- */}
 
-              {/* TỪ VỰNG (Luôn hiện) */}
-              <h3 className="text-xl font-bold text-slate-800 mb-2">
-                {item.text}
-              </h3>
-
-              {/* NGHĨA (Ẩn/Hiện dựa vào state showMeaning) */}
               {item.meaning && (
                 <div
                   className={`
@@ -159,7 +180,6 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                       : "opacity-40 blur-sm select-none grayscale"
                   }
                 `}
-                  // Nếu đang bị che mà click vào vùng nghĩa thì cũng mở nghĩa ra luôn cho tiện
                   onClick={(e) => {
                     e.stopPropagation();
                     setShowMeaning(!showMeaning);
@@ -174,25 +194,21 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
             </div>
 
             {/* === FOOTER ACTION === */}
-
             <div className="flex justify-between">
-              {/* 2. Nút Ẩn/Hiện Nghĩa (Góc phải trên) */}
-
               {item.meaning && (
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div
-                        className=" right-0 p-2 rounded-full hover:bg-slate-100 text-blue-500 hover:text-blue-700 transition-colors cursor-pointer z-30"
+                        className="right-0 p-2 rounded-full hover:bg-slate-100 text-blue-500 hover:text-blue-700 transition-colors cursor-pointer z-30"
                         onClick={toggleMeaning}
-                        title={showMeaning ? "Ẩn nghĩa" : "Xem nghĩa"}
                       >
                         {showMeaning ? <EyeOff size={18} /> : <Eye size={18} />}
                       </div>
                     </TooltipTrigger>
                     <TooltipContent side="top">
                       <p className="text-xs">
-                        {showMeaning ? "Ẩn nghĩa" : "Xem nghĩa"}
+                        {showMeaning ? "Hidden meaning" : "View meaning"}
                       </p>
                     </TooltipContent>
                   </Tooltip>
@@ -214,7 +230,9 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                       )}
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent side="top">Đánh dấu đã thuộc</TooltipContent>
+                  <TooltipContent side="top">
+                    Mark already memorized
+                  </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </div>

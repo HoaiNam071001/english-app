@@ -158,7 +158,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
       {displayCards.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center text-slate-400">
           <div className="text-6xl mb-4 grayscale opacity-50">🎉</div>
-          <p className="text-lg font-medium">Sạch bóng từ vựng!</p>
+          <p className="text-lg font-medium">Completely clean vocabulary!</p>
         </div>
       ) : (
         <div className="flex-1 overflow-auto flex flex-wrap gap-6 justify-center content-start pb-10">

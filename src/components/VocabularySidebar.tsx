@@ -1,19 +1,22 @@
 import moment from "moment";
 import "moment/locale/vi";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react"; // <--- Import useEffect
 
-// Thêm icon RotateCcw
+// ... (Giữ nguyên các import icon và component UI) ...
 import {
   BookOpen,
   CheckSquare,
   Eye,
   EyeOff,
   RotateCcw,
+  Search,
   Trash2,
+  X,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
@@ -31,6 +34,7 @@ import { VocabularyItemRow } from "./VocabularyItemRow";
 
 moment.locale("vi");
 
+// ... (Giữ nguyên interface Props và hàm formatDateGroup) ...
 interface VocabularySidebarProps {
   allWords: VocabularyItem[];
   activeWordIds: Set<string>;
@@ -39,25 +43,22 @@ interface VocabularySidebarProps {
   onBulkAddToPractice?: (words: VocabularyItem[]) => void;
   onRemoveFromPractice?: (word: VocabularyItem) => void;
   onBulkDelete?: (ids: string[]) => void;
-  onUpdateWord?: (id: string, newText: string, newMeaning: string) => void;
+  onUpdateWord?: (id: string, updates: Partial<VocabularyItem>) => void;
   onToggleLearned: (id: string, currentStatus: boolean) => void;
-  // UPDATE: Thêm tham số status (true/false)
   onBulkMarkLearned?: (ids: string[], status: boolean) => void;
 }
 
 const formatDateGroup = (dateString: string) => {
+  // ... (Keep date format logic intact)
   const date = moment(dateString);
-  if (!date.isValid()) return "Ngày không xác định";
+  if (!date.isValid()) return "Date unknown";
   const now = moment();
-  if (date.isSame(now, "day")) return "Hôm nay";
-  if (date.isSame(now.clone().subtract(1, "days"), "day")) return "Hôm qua";
+  if (date.isSame(now, "day")) return "Today";
+  if (date.isSame(now.clone().subtract(1, "days"), "day")) return "Yesterday";
   const formatted = date.format("dddd, DD/MM/YYYY");
   return formatted.charAt(0).toUpperCase() + formatted.slice(1);
 };
 
-// ==========================================
-// MAIN COMPONENT
-// ==========================================
 const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
   allWords,
   activeWordIds,
@@ -74,15 +75,45 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
   const [revealedIds, setRevealedIds] = useState<Set<string>>(new Set());
   const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
 
+  // 1. State Input (Cập nhật tức thì để UI phản hồi khi gõ)
+  const [searchTerm, setSearchTerm] = useState("");
+
+  // 2. State Debounce (Cập nhật chậm để lọc dữ liệu)
+  const [debouncedTerm, setDebouncedTerm] = useState("");
+
+  // 3. Effect xử lý Debounce (Delay 300ms)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedTerm(searchTerm);
+    }, 300); // Chờ 300ms sau khi ngừng gõ mới update
+
+    return () => clearTimeout(timer); // Clear timeout nếu user gõ tiếp
+  }, [searchTerm]);
+
+  // 4. Performance: Lọc dựa trên debouncedTerm
+  const filteredWords = useMemo(() => {
+    if (!debouncedTerm.trim()) return allWords;
+
+    const lowerTerm = debouncedTerm.toLowerCase();
+    return allWords.filter((word) => {
+      return (
+        word.text.toLowerCase().includes(lowerTerm) ||
+        word.meaning.toLowerCase().includes(lowerTerm) ||
+        (word.example && word.example.toLowerCase().includes(lowerTerm))
+      );
+    });
+  }, [allWords, debouncedTerm]); // <--- Phụ thuộc vào debouncedTerm
+
+  // ... (Phần còn lại giữ nguyên không đổi) ...
   const groupedWords = useMemo(() => {
     const groups: Record<string, VocabularyItem[]> = {};
-    allWords.forEach((word) => {
+    filteredWords.forEach((word) => {
       const dateKey = moment(word.createdAt).format("YYYY-MM-DD");
       if (!groups[dateKey]) groups[dateKey] = [];
       groups[dateKey].push(word);
     });
     return groups;
-  }, [allWords]);
+  }, [filteredWords]);
 
   const sortedDateKeys = useMemo(
     () => Object.keys(groupedWords).sort((a, b) => b.localeCompare(a)),
@@ -90,7 +121,9 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
   );
 
   const handleSelectAll = (checked: boolean) => {
-    setSelectedIds(checked ? new Set(allWords.map((w) => w.id)) : new Set());
+    setSelectedIds(
+      checked ? new Set(filteredWords.map((w) => w.id)) : new Set()
+    );
   };
 
   const toggleSelection = (id: string) => {
@@ -99,35 +132,30 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
     setSelectedIds(newSet);
   };
 
-  // --- LOGIC MỚI: CHECK TRẠNG THÁI CÁC MỤC ĐANG CHỌN ---
   const selectedWords = useMemo(() => {
     return allWords.filter((w) => selectedIds.has(w.id));
   }, [allWords, selectedIds]);
 
-  // Kiểm tra xem tất cả mục đã chọn có phải đều đã thuộc không?
   const isAllSelectedLearned = useMemo(() => {
     return selectedWords.length > 0 && selectedWords.every((w) => w.isLearned);
   }, [selectedWords]);
 
   const handleBulkMark = () => {
     if (onBulkMarkLearned) {
-      // Nếu tất cả đã thuộc -> status mới là false (học lại)
-      // Nếu có cái chưa thuộc -> status mới là true (đã thuộc)
       const targetStatus = !isAllSelectedLearned;
       onBulkMarkLearned(Array.from(selectedIds), targetStatus);
       setSelectedIds(new Set());
     }
   };
-  // -----------------------------------------------------
 
   const isAllRevealed =
-    allWords.length > 0 && revealedIds.size === allWords.length;
+    filteredWords.length > 0 && revealedIds.size === filteredWords.length;
 
   const toggleRevealAll = () => {
     if (isAllRevealed) {
       setRevealedIds(new Set());
     } else {
-      setRevealedIds(new Set(allWords.map((w) => w.id)));
+      setRevealedIds(new Set(filteredWords.map((w) => w.id)));
     }
   };
 
@@ -154,23 +182,46 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
 
   return (
     <div className="flex flex-col bg-white border-r pr-4 h-full overflow-y-hidden">
-      {/* HEADER TOOLBAR */}
+      {/* UI SEARCH BAR */}
+      <div className="p-3 pb-0 z-20">
+        <div className="relative">
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
+          <Input
+            placeholder="Search for vocabulary..."
+            value={searchTerm} // Vẫn bind vào searchTerm để gõ mượt
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-9 pr-8 bg-slate-50 border-slate-200 focus:bg-white transition-all"
+          />
+          {searchTerm && (
+            <button
+              onClick={() => setSearchTerm("")}
+              className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              <X size={16} />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* HEADER TOOLBAR (Phần dưới giữ nguyên) */}
       <div className="p-3 border-b flex items-center justify-between bg-white z-10">
         <div className="flex items-center gap-2">
           <Checkbox
             checked={
-              allWords.length > 0 && selectedIds.size === allWords.length
+              filteredWords.length > 0 &&
+              selectedIds.size === filteredWords.length
             }
             onCheckedChange={(c) => handleSelectAll(c as boolean)}
           />
           <span className="text-sm font-semibold text-slate-700">
             {selectedIds.size > 0
-              ? `${selectedIds.size} đã chọn`
-              : "Danh sách từ"}
+              ? `${selectedIds.size} selected`
+              : `List (${filteredWords.length})`}
           </span>
         </div>
 
         <div className="flex gap-1">
+          {/* ... (Giữ nguyên các nút toolbar) ... */}
           {selectedIds.size > 0 ? (
             <>
               <TooltipProvider>
@@ -180,14 +231,12 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                       variant="ghost"
                       size="icon"
                       onClick={handleBulkMark}
-                      // Đổi màu nút dựa trên hành động sẽ thực hiện
                       className={`h-8 w-8 ${
                         isAllSelectedLearned
                           ? "text-orange-500 hover:bg-orange-50"
                           : "text-green-600 hover:bg-green-50"
                       }`}
                     >
-                      {/* Đổi icon dựa trên hành động */}
                       {isAllSelectedLearned ? (
                         <RotateCcw size={16} />
                       ) : (
@@ -197,8 +246,8 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                   </TooltipTrigger>
                   <TooltipContent>
                     {isAllSelectedLearned
-                      ? `Đánh dấu chưa thuộc (${selectedIds.size})`
-                      : `Đánh dấu đã thuộc (${selectedIds.size})`}
+                      ? `Mark not yet memorized (${selectedIds.size})`
+                      : `Mark already memorized (${selectedIds.size})`}
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -215,7 +264,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                       <BookOpen size={16} />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>Thêm vào bài học</TooltipContent>
+                  <TooltipContent>Add to lesson</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
 
@@ -235,7 +284,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                 <PopoverContent className="w-60 p-3" align="end">
                   <div className="space-y-3">
                     <p className="text-sm">
-                      Xóa {selectedIds.size} từ đã chọn?
+                      Remove the selected {selectedIds.size} word?
                     </p>
                     <div className="flex justify-end gap-2">
                       <Button
@@ -243,14 +292,14 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                         variant="outline"
                         onClick={() => setIsBulkDeleteOpen(false)}
                       >
-                        Hủy
+                        Cancel
                       </Button>
                       <Button
                         size="sm"
                         variant="destructive"
                         onClick={confirmBulkDelete}
                       >
-                        Xóa ngay
+                        Delete
                       </Button>
                     </div>
                   </div>
@@ -271,7 +320,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                  {isAllRevealed ? "Che tất cả nghĩa" : "Hiện tất cả nghĩa"}
+                  {isAllRevealed ? "Hide all meanings" : "Show all meanings"}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -280,42 +329,43 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
       </div>
 
       {/* LIST CONTENT */}
-      <ScrollArea className="flex-1 mt-4 overflow-auto">
+      <ScrollArea className="flex-1 mt-0 overflow-auto">
         <div className="pb-10">
-          {sortedDateKeys.map((dateKey) => (
-            <div key={dateKey} className="mb-6 last:mb-0">
-              <div className="sticky top-0 bg-white/95 backdrop-blur-sm z-10 px-2 py-1.5 mb-2 text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 flex items-center justify-between">
-                <span>{formatDateGroup(dateKey)}</span>
-                <span className="bg-slate-100 text-slate-500 px-1.5 rounded-full text-[10px]">
-                  {groupedWords[dateKey].length}
-                </span>
-              </div>
-
-              <div className="space-y-1">
-                {groupedWords[dateKey].map((word) => (
-                  <VocabularyItemRow
-                    key={word.id}
-                    word={word}
-                    isActive={activeWordIds.has(word.id)}
-                    isSelected={selectedIds.has(word.id)}
-                    isMeaningRevealed={revealedIds.has(word.id)}
-                    onToggleSelection={toggleSelection}
-                    onToggleReveal={toggleRevealItem}
-                    onAddToPractice={onAddToPractice}
-                    onUpdate={onUpdateWord || (() => {})}
-                    onDelete={onDelete}
-                    onToggleLearned={onToggleLearned}
-                    onRemoveFromPractice={onRemoveFromPractice}
-                  />
-                ))}
-              </div>
+          {sortedDateKeys.length === 0 ? (
+            <div className="flex flex-col items-center justify-center mt-10 text-slate-400 gap-2">
+              <Search size={32} className="opacity-20" />
+              <span className="text-sm">No results found.</span>
             </div>
-          ))}
+          ) : (
+            sortedDateKeys.map((dateKey) => (
+              <div key={dateKey} className="mb-6 last:mb-0">
+                <div className="sticky top-0 bg-white/95 backdrop-blur-sm z-10 px-2 py-2 mb-2 text-xs font-bold text-blue-600 uppercase tracking-wider border-b border-slate-100 flex items-center justify-between">
+                  <span>{formatDateGroup(dateKey)}</span>
+                  <span className="bg-slate-100 text-slate-500 px-1.5 rounded-full text-[10px]">
+                    {groupedWords[dateKey].length}
+                  </span>
+                </div>
 
-          {allWords.length === 0 && (
-            <div className="text-center text-slate-400 mt-10 text-sm">
-              Chưa có từ vựng nào.
-            </div>
+                <div className="space-y-1">
+                  {groupedWords[dateKey].map((word) => (
+                    <VocabularyItemRow
+                      key={word.id}
+                      word={word}
+                      isActive={activeWordIds.has(word.id)}
+                      isSelected={selectedIds.has(word.id)}
+                      isMeaningRevealed={revealedIds.has(word.id)}
+                      onToggleSelection={toggleSelection}
+                      onToggleReveal={toggleRevealItem}
+                      onAddToPractice={onAddToPractice}
+                      onUpdate={onUpdateWord || (() => {})}
+                      onDelete={onDelete}
+                      onToggleLearned={onToggleLearned}
+                      onRemoveFromPractice={onRemoveFromPractice}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))
           )}
         </div>
       </ScrollArea>

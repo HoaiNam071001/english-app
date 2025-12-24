@@ -7,6 +7,7 @@ export interface VocabularyItem {
   createdAt: number; // Kiểu thời gian của Firebase
   updatedAt: number;
   isLearned?: boolean;
+  example?: string;
 }
 
 // Kiểu dữ liệu cho báo cáo sau khi thêm

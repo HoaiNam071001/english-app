@@ -21,10 +21,12 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "firebase": "^12.7.0",
+    "lodash": "^4.17.21",
     "lucide-react": "^0.562.0",
     "moment": "^2.30.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
+    "skeleton-styler": "^4.6.3",
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {

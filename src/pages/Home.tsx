@@ -59,25 +59,26 @@ const HomePage = () => {
 
   const handleUpdateWord = async (
     id: string,
-    newText: string,
-    newMeaning: string
+    updates: Partial<VocabularyItem> // <--- Nhận Partial
   ) => {
-    setAllWords((prev) =>
-      prev.map((w) =>
-        w.id === id ? { ...w, text: newText, meaning: newMeaning } : w
-      )
-    );
-    setDisplayCards((prev) =>
-      prev.map((w) =>
-        w.id === id ? { ...w, text: newText, meaning: newMeaning } : w
-      )
+    // 1. Update UI (All Words)
+    setAllWords(
+      (prev) => prev.map((w) => (w.id === id ? { ...w, ...updates } : w)) // Merge update
     );
 
-    // Update Firebase
-    await updateDoc(doc(db, DataTable.Vocabulary, id), {
-      text: newText,
-      meaning: newMeaning,
-    });
+    // 2. Update UI (Display Cards - nếu cần)
+    setDisplayCards((prev) =>
+      prev.map((w) => (w.id === id ? { ...w, ...updates } : w))
+    );
+
+    // 3. Update Firebase
+    try {
+      const docRef = doc(db, DataTable.Vocabulary, id);
+      // Firestore update() cũng nhận object partial, rất tiện
+      await updateDoc(docRef, updates);
+    } catch (error) {
+      console.error("Lỗi update DB:", error);
+    }
   };
 
   useEffect(() => {
