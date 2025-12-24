@@ -161,7 +161,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
           <p className="text-lg font-medium">Sạch bóng từ vựng!</p>
         </div>
       ) : (
-        <div className="flex flex-wrap gap-6 justify-center content-start pb-10">
+        <div className="flex-1 overflow-auto flex flex-wrap gap-6 justify-center content-start pb-10">
           {displayCards.map((item) => (
             <VocabularyCard
               key={item.id}

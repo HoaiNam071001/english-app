@@ -265,11 +265,11 @@ const HomePage = () => {
       </header>
 
       {/* MAIN LAYOUT */}
-      <div className="flex flex-1 gap-6 relative overflow-hidden">
+      <div className="flex flex-1 gap-2 relative overflow-hidden">
         {/* 4. SIDEBAR AREA */}
         <div
           className={`
-                transition-all duration-300 ease-in-out border-r bg-white
+                h-[75vh] transition-all duration-300 ease-in-out border-r bg-white
                 ${
                   isSidebarOpen
                     ? "w-80 md:w-1/4 opacity-100 translate-x-0 mr-4"
@@ -279,7 +279,6 @@ const HomePage = () => {
         >
           {/* Nội dung Sidebar - Chỉ render hoặc giữ nguyên trong DOM nhưng bị ẩn */}
           <div className="h-full w-80 md:w-auto">
-            {" "}
             {/* Wrapper để giữ width nội dung không bị bóp méo khi transition */}
             <VocabularySidebar
               allWords={allWords}
@@ -300,7 +299,7 @@ const HomePage = () => {
 
         {/* 5. MAIN CONTENT AREA (Flashcard) */}
         {/* Tự động chiếm hết khoảng trống còn lại (flex-1) */}
-        <div className="flex-1 transition-all duration-300 min-w-0">
+        <div className="flex-1 transition-all duration-300 min-w-0 h-[75vh]">
           {/* Nút mở lại Sidebar (nổi) khi đang đóng - Tùy chọn UX */}
           {!isSidebarOpen && (
             <div className="absolute top-0 left-0 z-10">

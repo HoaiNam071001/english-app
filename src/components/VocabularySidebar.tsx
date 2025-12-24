@@ -153,7 +153,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
   };
 
   return (
-    <div className="h-full flex flex-col bg-white border-r">
+    <div className="flex flex-col bg-white border-r pr-4 h-full overflow-y-hidden">
       {/* HEADER TOOLBAR */}
       <div className="p-3 border-b flex items-center justify-between bg-white z-10">
         <div className="flex items-center gap-2">
@@ -280,8 +280,8 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
       </div>
 
       {/* LIST CONTENT */}
-      <ScrollArea className="flex-1">
-        <div className="p-2 pb-10">
+      <ScrollArea className="flex-1 mt-4 overflow-auto">
+        <div className="pb-10">
           {sortedDateKeys.map((dateKey) => (
             <div key={dateKey} className="mb-6 last:mb-0">
               <div className="sticky top-0 bg-white/95 backdrop-blur-sm z-10 px-2 py-1.5 mb-2 text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-100 flex items-center justify-between">
