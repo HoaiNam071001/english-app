@@ -4,7 +4,7 @@ import FlashcardSection from "@/components/FlashcardSection";
 import { Button } from "@/components/ui/button";
 import VocabularySidebar from "@/components/VocabularySidebar";
 import { db } from "@/firebaseConfig";
-import { VocabularyItem } from "@/types";
+import { DataTable, VocabularyItem } from "@/types";
 import { isToday } from "@/utils";
 import {
   collection,
@@ -15,6 +15,7 @@ import {
   query,
   updateDoc,
   where,
+  writeBatch,
 } from "firebase/firestore";
 import { LogOut } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
@@ -31,7 +32,7 @@ const HomePage = () => {
     if (!currentUserEmail) return;
     try {
       const q = query(
-        collection(db, "vocabulary"),
+        collection(db, DataTable.Vocabulary),
         where("email", "==", currentUserEmail),
         orderBy("createdAt", "desc")
       );
@@ -52,7 +53,29 @@ const HomePage = () => {
     }
   };
 
-  // ... (useEffect, handleLogin, handleLogout giữ nguyên) ...
+  const handleUpdateWord = async (
+    id: string,
+    newText: string,
+    newMeaning: string
+  ) => {
+    setAllWords((prev) =>
+      prev.map((w) =>
+        w.id === id ? { ...w, text: newText, meaning: newMeaning } : w
+      )
+    );
+    setDisplayCards((prev) =>
+      prev.map((w) =>
+        w.id === id ? { ...w, text: newText, meaning: newMeaning } : w
+      )
+    );
+
+    // Update Firebase
+    await updateDoc(doc(db, DataTable.Vocabulary, id), {
+      text: newText,
+      meaning: newMeaning,
+    });
+  };
+
   useEffect(() => {
     fetchAllWords();
   }, [currentUserEmail]);
@@ -74,13 +97,36 @@ const HomePage = () => {
     localStorage.removeItem("vocab_user_email");
   };
 
-  // ... (handleMarkAsLearned, handleAddToPractice giữ nguyên) ...
+  const handleBulkAddToPractice = (words: VocabularyItem[]) => {
+    setDisplayCards((prev) => {
+      const existingIds = new Set(prev.map((w) => w.id));
+      const newWords = words
+        .filter((w) => !existingIds.has(w.id))
+        .map((w) => ({ ...w, isLearned: false }));
+      return [...newWords, ...prev];
+    });
+  };
+
+  // 2. Thêm hàm Bulk Delete
+  const handleBulkDelete = async (ids: string[]) => {
+    // Xử lý UI
+    setAllWords((prev) => prev.filter((w) => !ids.includes(w.id)));
+    setDisplayCards((prev) => prev.filter((w) => !ids.includes(w.id)));
+
+    // Xử lý Firebase (dùng batch)
+    const batch = writeBatch(db);
+    ids.forEach((id) => batch.delete(doc(db, DataTable.Vocabulary, id)));
+    await batch.commit();
+  };
+
   const handleMarkAsLearned = async (id: string) => {
     setAllWords((prev) =>
       prev.map((w) => (w.id === id ? { ...w, isLearned: true } : w))
     );
+    setDisplayCards((prev) => prev.filter((w) => w.id !== id));
+
     try {
-      const docRef = doc(db, "vocabulary", id);
+      const docRef = doc(db, DataTable.Vocabulary, id);
       await updateDoc(docRef, { isLearned: true });
     } catch (error) {
       console.error("Lỗi update DB:", error);
@@ -97,19 +143,63 @@ const HomePage = () => {
 
   // 2. Thêm hàm XÓA TỪ (DELETE)
   const handleDeleteWord = async (id: string) => {
-    if (!window.confirm("Bạn có chắc muốn xóa vĩnh viễn từ này?")) return;
-
     // A. Update UI ngay lập tức
     setAllWords((prev) => prev.filter((w) => w.id !== id));
     setDisplayCards((prev) => prev.filter((w) => w.id !== id));
 
     // B. Xóa trong Database
     try {
-      await deleteDoc(doc(db, "vocabulary", id));
+      await deleteDoc(doc(db, DataTable.Vocabulary, id));
     } catch (error) {
       console.error("Lỗi khi xóa:", error);
-      alert("Xóa thất bại, vui lòng thử lại");
-      // Có thể fetch lại data nếu cần thiết
+    }
+  };
+
+  const handleToggleLearned = async (id: string, currentStatus: boolean) => {
+    const newStatus = !currentStatus;
+
+    // 1. Update UI (All Words)
+    setAllWords((prev) =>
+      prev.map((w) => (w.id === id ? { ...w, isLearned: newStatus } : w))
+    );
+
+    // 2. Nếu đánh dấu là "Đã thuộc" -> Xóa khỏi Flashcard (displayCards)
+    if (newStatus === true) {
+      setDisplayCards((prev) => prev.filter((w) => w.id !== id));
+    }
+
+    // 3. Update Firestore
+    try {
+      await updateDoc(doc(db, DataTable.Vocabulary, id), {
+        isLearned: newStatus,
+      });
+    } catch (error) {
+      console.error("Lỗi update status:", error);
+    }
+  };
+
+  const handleBulkMarkLearned = async (ids: string[], status: boolean) => {
+    // 1. Update UI
+    setAllWords(
+      (prev) =>
+        prev.map((w) => (ids.includes(w.id) ? { ...w, isLearned: status } : w)) // status từ tham số
+    );
+
+    // Nếu status là true (đã thuộc) thì xóa khỏi card đang học
+    if (status === true) {
+      setDisplayCards((prev) => prev.filter((w) => !ids.includes(w.id)));
+    }
+
+    // 2. Batch Update Firestore
+    try {
+      const batch = writeBatch(db);
+      ids.forEach((id) => {
+        const docRef = doc(db, DataTable.Vocabulary, id);
+        batch.update(docRef, { isLearned: status }); // status từ tham số
+      });
+      await batch.commit();
+    } catch (error) {
+      console.error("Lỗi bulk update:", error);
     }
   };
 
@@ -153,7 +243,15 @@ const HomePage = () => {
             allWords={allWords}
             activeWordIds={activeWordIds}
             onAddToPractice={handleAddToPractice}
-            onDelete={handleDeleteWord} // <--- 3. Truyền hàm delete xuống
+            onBulkAddToPractice={handleBulkAddToPractice}
+            onBulkDelete={handleBulkDelete}
+            onUpdateWord={handleUpdateWord}
+            onDelete={handleDeleteWord}
+            onToggleLearned={handleToggleLearned}
+            onBulkMarkLearned={handleBulkMarkLearned}
+            onRemoveFromPractice={(word) => {
+              setDisplayCards((prev) => prev.filter((w) => w.id !== word.id));
+            }}
           />
         </div>
 

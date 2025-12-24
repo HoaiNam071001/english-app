@@ -1,16 +1,3 @@
-import React, { useState } from "react";
-import { db } from "../firebaseConfig";
-import {
-  collection,
-  getDocs,
-  writeBatch,
-  doc,
-  serverTimestamp,
-  query,
-  where,
-  type DocumentData,
-} from "firebase/firestore";
-import { AddReport, VocabularyItem } from "@/types";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -21,7 +8,20 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { AddReport, DataTable, VocabularyItem } from "@/types";
+import {
+  collection,
+  doc,
+  getDocs,
+  query,
+  serverTimestamp,
+  where,
+  writeBatch,
+  type DocumentData,
+} from "firebase/firestore";
 import { Loader2, Plus } from "lucide-react"; // Icon từ lucide-react
+import React, { useState } from "react";
+import { db } from "../firebaseConfig";
 
 interface CreateVocabularyModalProps {
   userEmail: string; // <--- MỚI
@@ -42,7 +42,7 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
     setLoading(true);
     setReport(null);
 
-    const rawLines = inputText.split(/[\n,]+/);
+    const rawLines = inputText.split(/[\n;]+/);
     const newEntries: Partial<VocabularyItem>[] = [];
 
     rawLines.forEach((line) => {
@@ -70,7 +70,7 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
 
     try {
       const q = query(
-        collection(db, "vocabulary"),
+        collection(db, DataTable.Vocabulary),
         where("email", "==", userEmail)
       );
       const querySnapshot = await getDocs(q);
@@ -94,7 +94,7 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
         if (isDuplicateInDb || isDuplicateInCurrentBatch) {
           skippedWords.push(entry.text);
         } else {
-          const newDocRef = doc(collection(db, "vocabulary"));
+          const newDocRef = doc(collection(db, DataTable.Vocabulary));
           const docData = {
             text: entry.text,
             meaning: entry.meaning || "",
