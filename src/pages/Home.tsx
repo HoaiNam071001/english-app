@@ -17,15 +17,19 @@ import {
   where,
   writeBatch,
 } from "firebase/firestore";
-import { LogOut } from "lucide-react";
+import {
+  ChevronRight,
+  LogOut,
+  PanelLeftClose,
+  PanelLeftOpen,
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 const HomePage = () => {
   const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
   const [allWords, setAllWords] = useState<VocabularyItem[]>([]);
   const [displayCards, setDisplayCards] = useState<VocabularyItem[]>([]);
-
-  // ... (Các phần code fetchAllWords, useEffect, Login giữ nguyên) ...
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const fetchAllWords = async () => {
     // ... Giữ nguyên logic cũ
@@ -212,50 +216,105 @@ const HomePage = () => {
   }
 
   return (
-    <div className="container mx-auto p-4 md:p-6 max-w-6xl">
-      <header className="flex justify-between items-center mb-8 pb-4 border-b">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            Vocabulary Manager
-          </h1>
-          <p className="text-sm text-slate-500">User: {currentUserEmail}</p>
+    <div className="container mx-auto p-4 md:p-6 max-w-8xl min-h-screen flex flex-col">
+      {/* HEADER */}
+      <header className="flex justify-between items-center mb-6 pb-4 border-b bg-white sticky top-0 z-50">
+        <div className="flex items-center gap-4">
+          {/* 3. Nút Toggle Sidebar trên Header (Mobile hoặc Desktop đều dùng được) */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            title={isSidebarOpen ? "Thu gọn danh sách" : "Mở danh sách"}
+            className="text-slate-600"
+          >
+            {isSidebarOpen ? (
+              <PanelLeftClose size={20} />
+            ) : (
+              <PanelLeftOpen size={20} />
+            )}
+          </Button>
+
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">
+              Vocabulary Manager
+            </h1>
+            <p className="text-sm text-slate-500 hidden sm:block">
+              User: {currentUserEmail}
+            </p>
+          </div>
         </div>
 
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleLogout}
-          className="text-slate-500"
-        >
-          <LogOut size={16} className="mr-2" /> Thoát
-        </Button>
+        <div className="flex items-center gap-2">
+          {/* Nút Create Modal */}
+          <CreateVocabularyModal
+            userEmail={currentUserEmail}
+            onSuccess={fetchAllWords}
+          />
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleLogout}
+            className="text-slate-500"
+          >
+            <LogOut size={16} className="mr-2" />{" "}
+            <span className="hidden sm:inline">Thoát</span>
+          </Button>
+        </div>
       </header>
 
-      <div className="mb-3">
-        <CreateVocabularyModal
-          userEmail={currentUserEmail}
-          onSuccess={fetchAllWords}
-        />
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-        <div className="md:col-span-3 col-span-1">
-          <VocabularySidebar
-            allWords={allWords}
-            activeWordIds={activeWordIds}
-            onAddToPractice={handleAddToPractice}
-            onBulkAddToPractice={handleBulkAddToPractice}
-            onBulkDelete={handleBulkDelete}
-            onUpdateWord={handleUpdateWord}
-            onDelete={handleDeleteWord}
-            onToggleLearned={handleToggleLearned}
-            onBulkMarkLearned={handleBulkMarkLearned}
-            onRemoveFromPractice={(word) => {
-              setDisplayCards((prev) => prev.filter((w) => w.id !== word.id));
-            }}
-          />
+      {/* MAIN LAYOUT */}
+      <div className="flex flex-1 gap-6 relative overflow-hidden">
+        {/* 4. SIDEBAR AREA */}
+        <div
+          className={`
+                transition-all duration-300 ease-in-out border-r bg-white
+                ${
+                  isSidebarOpen
+                    ? "w-80 md:w-1/4 opacity-100 translate-x-0 mr-4"
+                    : "w-0 opacity-0 -translate-x-full mr-0 overflow-hidden border-none"
+                }
+            `}
+        >
+          {/* Nội dung Sidebar - Chỉ render hoặc giữ nguyên trong DOM nhưng bị ẩn */}
+          <div className="h-full w-80 md:w-auto">
+            {" "}
+            {/* Wrapper để giữ width nội dung không bị bóp méo khi transition */}
+            <VocabularySidebar
+              allWords={allWords}
+              activeWordIds={activeWordIds}
+              onAddToPractice={handleAddToPractice}
+              onBulkAddToPractice={handleBulkAddToPractice}
+              onBulkDelete={handleBulkDelete}
+              onUpdateWord={handleUpdateWord}
+              onDelete={handleDeleteWord}
+              onToggleLearned={handleToggleLearned}
+              onBulkMarkLearned={handleBulkMarkLearned}
+              onRemoveFromPractice={(word) => {
+                setDisplayCards((prev) => prev.filter((w) => w.id !== word.id));
+              }}
+            />
+          </div>
         </div>
 
-        <div className="md:col-span-9">
+        {/* 5. MAIN CONTENT AREA (Flashcard) */}
+        {/* Tự động chiếm hết khoảng trống còn lại (flex-1) */}
+        <div className="flex-1 transition-all duration-300 min-w-0">
+          {/* Nút mở lại Sidebar (nổi) khi đang đóng - Tùy chọn UX */}
+          {!isSidebarOpen && (
+            <div className="absolute top-0 left-0 z-10">
+              <Button
+                variant="outline"
+                size="sm"
+                className="shadow-md bg-white border-dashed text-slate-500 hover:text-blue-600 mb-4"
+                onClick={() => setIsSidebarOpen(true)}
+              >
+                <ChevronRight size={16} className="mr-1" /> Mở danh sách
+              </Button>
+            </div>
+          )}
+
           <FlashcardSection
             displayCards={displayCards}
             setDisplayCards={setDisplayCards}

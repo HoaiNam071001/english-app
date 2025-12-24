@@ -86,11 +86,11 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
   return (
     <div
       onClick={handleCardClick}
-      className="cursor-pointer perspective-1000 group w-full sm:w-40 h-60 transition-all duration-300 hover:-translate-y-2"
+      className="cursor-pointer perspective-1000 group w-full sm:w-40 h-50 transition-all duration-300 hover:-translate-y-2"
     >
       <Card
         className={`
-        relative w-full h-full flex flex-col items-center justify-center p-4 text-center shadow-lg border-2 transition-all duration-500 overflow-hidden
+        relative w-full h-full flex flex-col items-center justify-center p-2 text-center shadow-lg border-2 transition-all duration-500 overflow-hidden
         ${
           isFlipped
             ? "bg-white border-blue-200" // Đã lật (Mặt nội dung)
@@ -103,7 +103,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
           <div className="flex flex-col items-center animate-in fade-in zoom-in duration-300">
             {/* Nút Remove vẫn hiện mờ mờ khi úp để xóa nhanh nếu muốn */}
             <div
-              className="absolute top-2 left-2 p-2 rounded-full hover:bg-white/10 transition-all opacity-0 group-hover:opacity-100 text-slate-500 hover:text-red-400 z-20"
+              className="absolute top-0 left-0 p-2 rounded-full hover:bg-white/10 transition-all opacity-0 group-hover:opacity-100 text-slate-500 hover:text-red-400 z-20"
               onClick={handleRemove}
               title="Xóa thẻ"
             >
@@ -121,12 +121,12 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
 
         {/* --- TRƯỜNG HỢP 2: ĐÃ LẬT (Front Side) --- */}
         {isFlipped && (
-          <div className="flex flex-col h-full w-full animate-in fade-in zoom-in duration-300 pt-2 pb-1 relative">
+          <div className="flex flex-col h-full w-full animate-in fade-in zoom-in duration-300 pt-4 pb-1 relative">
             {/* === HEADER CONTROLS (Chỉ hiện khi lật) === */}
 
             {/* 1. Nút Remove (Góc trái trên) */}
             <div
-              className="absolute -top-3 -left-3 p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-red-500 transition-colors cursor-pointer z-30"
+              className="absolute top-0 left-0 p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-red-500 transition-colors cursor-pointer z-30"
               onClick={handleRemove}
               title="Bỏ thẻ này"
             >
@@ -137,7 +137,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
             <div className="flex-1 flex flex-col items-center justify-center">
               {/* Nút Loa (Cạnh từ tiếng Anh) */}
               <div
-                className="mb-2 p-2 absolute top-0 rounded-full bg-blue-50 text-blue-600 hover:scale-110 transition-transform cursor-pointer"
+                className="mb-2 p-2 absolute top-0 right-0 rounded-full bg-blue-50 text-blue-600 hover:scale-110 transition-transform cursor-pointer"
                 onClick={handleSpeak}
               >
                 <Volume2 size={18} />
