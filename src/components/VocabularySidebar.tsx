@@ -418,8 +418,8 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
       </div>
 
       {/* LIST CONTENT */}
-      <ScrollArea className="flex-1 mt-0 overflow-auto pr-2">
-        <div className="pb-10">
+      <ScrollArea className="flex-1 mt-0 overflow-y-auto pr-2 overflow-x-hidden">
+        <div className="pb-10 overflow-x-hidden">
           {sortedDateKeys.length === 0 ? (
             <div className="flex flex-col items-center justify-center mt-10 text-slate-400 gap-2">
               <Search size={32} className="opacity-20" />

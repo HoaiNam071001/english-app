@@ -77,7 +77,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
   return (
     <div
       className={`
-        relative select-none group/actions p-2 text-sm border rounded-lg transition-all flex items-start gap-3 group
+        max-w-full relative select-none group/actions p-2 text-sm border rounded-lg transition-all flex items-start gap-3 group
         ${
           isSelected
             ? "bg-blue-50/50 border-blue-200"
@@ -130,7 +130,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
 
               {/* Vocabulary Text */}
               <span
-                className={`font-medium truncate ${
+                className={`font-medium truncate max-w-[200px] ${
                   word.isLearned && !isActive
                     ? "text-slate-400 line-through"
                     : "text-slate-700"
@@ -142,7 +142,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
 
             <div className="mt-1 flex items-center gap-2">
               <div
-                className={`text-xs text-slate-500 transition-all duration-300 h-[16px] ${
+                className={`text-xs text-slate-500 transition-all duration-300 h-[16px] max-w-[200px] ${
                   !isMeaningRevealed
                     ? "blur-[5px] select-none opacity-60"
                     : "blur-0 opacity-100"
