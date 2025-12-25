@@ -74,42 +74,46 @@ export const useVocabulary = (currentUserEmail: string | null) => {
   };
 
   // 1. FETCH DATA
-  const fetchAllWords = useCallback(async () => {
-    if (!currentUserEmail) {
-      setAllWords([]);
-      setDisplayCards([]);
-      return;
-    }
+  const fetchAllWords = useCallback(
+    async (options?: { keepFlashcards?: boolean }) => {
+      if (!currentUserEmail) {
+        setAllWords([]);
+        setDisplayCards([]);
+        return;
+      }
 
-    setLoading(true);
-    try {
-      const q = query(
-        collection(db, DataTable.Vocabulary),
-        where("email", "==", currentUserEmail),
-        orderBy("createdAt", "desc")
-      );
-      const snapshot = await getDocs(q);
-      const fetchedWords = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toMillis() || 0,
-        isLearned: doc.data().isLearned || false,
-      })) as VocabularyItem[];
+      setLoading(true);
+      try {
+        const q = query(
+          collection(db, DataTable.Vocabulary),
+          where("email", "==", currentUserEmail),
+          orderBy("createdAt", "desc")
+        );
+        const snapshot = await getDocs(q);
+        const fetchedWords = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+          createdAt: doc.data().createdAt?.toMillis() || 0,
+          isLearned: doc.data().isLearned || false,
+        })) as VocabularyItem[];
 
-      setAllWords(fetchedWords);
+        // 1. Luôn cập nhật danh sách tổng (Sidebar)
+        setAllWords(fetchedWords);
 
-      // Mặc định load những từ tạo hôm nay và chưa thuộc vào Flashcard
-      // Lưu ý: Logic này chỉ chạy khi fetch lại từ đầu.
-      // Nếu bạn muốn giữ state flashcard khi thao tác CRUD khác, cần tinh chỉnh thêm.
-      setDisplayCards(
-        fetchedWords?.filter((w) => isToday(w.createdAt) && !w.isLearned)
-      );
-    } catch (error) {
-      console.error("Lỗi lấy dữ liệu:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [currentUserEmail]);
+        // 2. Chỉ reset Flashcards nếu KHÔNG có cờ keepFlashcards
+        if (!options?.keepFlashcards) {
+          setDisplayCards(
+            fetchedWords?.filter((w) => isToday(w.createdAt) && !w.isLearned)
+          );
+        }
+      } catch (error) {
+        console.error("Lỗi lấy dữ liệu:", error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [currentUserEmail]
+  );
 
   // Tự động fetch khi email thay đổi
   useEffect(() => {

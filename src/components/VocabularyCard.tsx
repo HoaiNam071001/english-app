@@ -4,7 +4,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"; // 1. Import Popover
+} from "@/components/ui/popover";
 import {
   Tooltip,
   TooltipContent,
@@ -12,15 +12,20 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { VocabularyItem } from "@/types";
-import { Check, Eye, EyeOff, Volume2, X } from "lucide-react";
+import { Check, Eye, EyeOff, PenLine, Volume2, X } from "lucide-react"; // Import PenLine
 import React, { useEffect, useState } from "react";
+import { EditPopoverContent } from "./EditPopoverContent"; // Import EditForm
 import { FlashcardCommand } from "./FlashcardSection";
 
 interface VocabularyCardProps {
   item: VocabularyItem;
   command: FlashcardCommand | null;
-  onLearned: (id: string) => void;
+  onLearned: (id: string) => Promise<void> | void;
   remove: (id: string) => void;
+  onFlip?: (isFlipped: boolean) => void;
+  // --- THÊM PROPS ---
+  onUpdate: (id: string, updates: Partial<VocabularyItem>) => void;
+  onDelete: (id: string) => void;
 }
 
 const VocabularyCard: React.FC<VocabularyCardProps> = ({
@@ -28,10 +33,16 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
   command,
   onLearned,
   remove,
+  onFlip,
+  onUpdate,
+  onDelete,
 }) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [showMeaning, setShowMeaning] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  // State điều khiển mở/đóng form edit
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   useEffect(() => {
     if (command) {
@@ -40,12 +51,18 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
       if (command.type === "RESET_FLIP") {
         setIsFlipped(false);
         setShowMeaning(false);
+        if (onFlip) onFlip(false);
       }
     }
   }, [command]);
 
   const handleCardClick = () => {
-    setIsFlipped(!isFlipped);
+    // Nếu đang mở edit thì không cho lật thẻ
+    if (isEditOpen) return;
+
+    const newState = !isFlipped;
+    setIsFlipped(newState);
+    if (onFlip) onFlip(newState);
   };
 
   const toggleMeaning = (e: React.MouseEvent) => {
@@ -70,7 +87,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
     e.stopPropagation();
     setLoading(true);
     try {
-      onLearned(item.id);
+      await onLearned(item.id);
     } catch (error) {
       console.error(error);
     } finally {
@@ -93,55 +110,87 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
         }
       `}
       >
-        {/* --- MẶT ÚP --- */}
+        {/* --- BACK SIDE (ÚP) --- */}
         {!isFlipped && (
           <div className="flex flex-col items-center animate-in fade-in zoom-in duration-300">
             <div
               className="absolute top-0 left-0 p-2 rounded-full hover:bg-white/10 transition-all opacity-0 group-hover:opacity-100 text-slate-500 hover:text-red-400 z-20"
               onClick={handleRemove}
-              title="Xóa thẻ"
+              title="Remove"
             >
               <X size={18} />
             </div>
-
             <div className="text-slate-600 font-bold text-6xl select-none opacity-20">
               ?
             </div>
             <p className="text-slate-500 text-xs mt-4 uppercase tracking-widest opacity-60">
-              Chạm để lật
+              Tap to flip
             </p>
           </div>
         )}
 
-        {/* --- MẶT NGỬA --- */}
+        {/* --- FRONT SIDE (NGỬA) --- */}
         {isFlipped && (
           <div className="flex flex-col h-full w-full animate-in fade-in zoom-in duration-300 pt-4 pb-1 relative">
-            {/* Nút Remove */}
+            {/* Nút Remove (Góc trái trên) */}
             <div
               className="absolute top-0 left-0 p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-red-500 transition-colors cursor-pointer z-30"
               onClick={handleRemove}
-              title="Bỏ thẻ này"
+              title="Remove"
             >
               <X size={18} />
             </div>
 
             {/* Nút Loa */}
-            <div
-              className="mb-2 p-2 absolute top-0 right-0 rounded-full bg-blue-50 text-blue-600 hover:scale-110 transition-transform cursor-pointer z-30"
-              onClick={handleSpeak}
-            >
-              <Volume2 size={18} />
+            <div className="flex justify-center relative -top-3">
+              <div
+                className="p-1.5 rounded-full bg-blue-50 text-blue-600 hover:scale-110 transition-transform cursor-pointer"
+                onClick={handleSpeak}
+                title="Pronounce"
+              >
+                <Volume2 size={18} />
+              </div>
             </div>
 
-            {/* === MAIN CONTENT === */}
+            <div className="absolute -top-1 -right-1 p-2 flex gap-1 z-30 items-center">
+              {/* Nút Edit (Popover) */}
+              <Popover open={isEditOpen} onOpenChange={setIsEditOpen}>
+                <PopoverTrigger asChild>
+                  <div
+                    className="p-1.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-blue-600 transition-colors cursor-pointer"
+                    onClick={(e) => e.stopPropagation()} // Ngăn lật thẻ
+                    title="Edit word"
+                  >
+                    <PenLine size={16} />
+                  </div>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="w-90 p-4"
+                  align="end"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <EditPopoverContent
+                    word={item}
+                    onSave={onUpdate}
+                    onDelete={(id) => {
+                      onDelete(id);
+                      remove(id);
+                    }}
+                    onClose={() => setIsEditOpen(false)}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* CONTENT */}
             <div className="flex-1 flex flex-col items-center justify-center">
-              {/* 2. LOGIC HIỂN THỊ TỪ VỰNG + POPOVER VÍ DỤ */}
+              {/* Từ vựng (Có thể click để xem note) */}
               {item.example ? (
                 <Popover>
                   <PopoverTrigger asChild>
                     <h3
                       className="text-xl font-bold text-slate-800 mb-2 cursor-help decoration-dashed underline decoration-slate-300 underline-offset-4 hover:text-blue-600 transition-colors"
-                      onClick={(e) => e.stopPropagation()} // Chặn sự kiện click để không bị lật thẻ
+                      onClick={(e) => e.stopPropagation()}
                       title="Click to see note"
                     >
                       {item.text}
@@ -150,6 +199,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                   <PopoverContent
                     className="w-64 p-3 bg-white/95 backdrop-blur shadow-xl text-sm"
                     side="top"
+                    onClick={(e) => e.stopPropagation()}
                   >
                     <div className="font-semibold text-slate-700 mb-1 border-b pb-1">
                       Note:
@@ -164,8 +214,8 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                   {item.text}
                 </h3>
               )}
-              {/* ------------------------------------------- */}
 
+              {/* Nghĩa */}
               {item.meaning && (
                 <div
                   className={`
@@ -189,7 +239,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
               )}
             </div>
 
-            {/* === FOOTER ACTION === */}
+            {/* ACTION FOOTER */}
             <div className="flex justify-between">
               {item.meaning && (
                 <TooltipProvider>
@@ -204,7 +254,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                     </TooltipTrigger>
                     <TooltipContent side="top">
                       <p className="text-xs">
-                        {showMeaning ? "Hidden meaning" : "View meaning"}
+                        {showMeaning ? "Hide meaning" : "View meaning"}
                       </p>
                     </TooltipContent>
                   </Tooltip>
@@ -226,9 +276,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                       )}
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent side="top">
-                    Mark already memorized
-                  </TooltipContent>
+                  <TooltipContent side="top">Mark as learned</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </div>

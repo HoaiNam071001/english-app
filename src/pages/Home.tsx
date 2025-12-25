@@ -93,7 +93,7 @@ const HomePage = () => {
         <div className="flex items-center gap-2">
           <CreateVocabularyModal
             onAddVocabulary={addVocabulary}
-            onSuccess={fetchAllWords} // Hook cung cấp hàm này
+            onSuccess={() => fetchAllWords({ keepFlashcards: true })}
           />
 
           <Button
@@ -156,6 +156,8 @@ const HomePage = () => {
             displayCards={displayCards}
             setDisplayCards={setDisplayCards}
             onMarkLearned={markAsLearned}
+            onUpdateWord={updateWord}
+            onDeleteWord={deleteWord}
           />
         </div>
       </div>

@@ -1,8 +1,7 @@
 import moment from "moment";
 import "moment/locale/vi";
-import React, { useEffect, useMemo, useState } from "react"; // <--- Import useEffect
+import React, { useEffect, useMemo, useState } from "react";
 
-// ... (Giữ nguyên các import icon và component UI) ...
 import {
   BookOpen,
   CheckSquare,
@@ -11,7 +10,7 @@ import {
   RotateCcw,
   Search,
   Trash2,
-  X,
+  X, // <--- Đã có icon X
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -34,7 +33,6 @@ import { VocabularyItemRow } from "./VocabularyItemRow";
 
 moment.locale("vi");
 
-// ... (Giữ nguyên interface Props và hàm formatDateGroup) ...
 interface VocabularySidebarProps {
   allWords: VocabularyItem[];
   activeWordIds: Set<string>;
@@ -49,7 +47,6 @@ interface VocabularySidebarProps {
 }
 
 const formatDateGroup = (dateString: string) => {
-  // ... (Keep date format logic intact)
   const date = moment(dateString);
   if (!date.isValid()) return "Date unknown";
   const now = moment();
@@ -74,26 +71,19 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [revealedIds, setRevealedIds] = useState<Set<string>>(new Set());
   const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
-
-  // 1. State Input (Cập nhật tức thì để UI phản hồi khi gõ)
   const [searchTerm, setSearchTerm] = useState("");
-
-  // 2. State Debounce (Cập nhật chậm để lọc dữ liệu)
   const [debouncedTerm, setDebouncedTerm] = useState("");
+  const [lastSelectedId, setLastSelectedId] = useState<string | null>(null);
 
-  // 3. Effect xử lý Debounce (Delay 300ms)
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedTerm(searchTerm);
-    }, 300); // Chờ 300ms sau khi ngừng gõ mới update
-
-    return () => clearTimeout(timer); // Clear timeout nếu user gõ tiếp
+    }, 300);
+    return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // 4. Performance: Lọc dựa trên debouncedTerm
   const filteredWords = useMemo(() => {
     if (!debouncedTerm.trim()) return allWords;
-
     const lowerTerm = debouncedTerm.toLowerCase();
     return allWords.filter((word) => {
       return (
@@ -102,9 +92,8 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
         (word.example && word.example.toLowerCase().includes(lowerTerm))
       );
     });
-  }, [allWords, debouncedTerm]); // <--- Phụ thuộc vào debouncedTerm
+  }, [allWords, debouncedTerm]);
 
-  // ... (Phần còn lại giữ nguyên không đổi) ...
   const groupedWords = useMemo(() => {
     const groups: Record<string, VocabularyItem[]> = {};
     filteredWords.forEach((word) => {
@@ -121,14 +110,42 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
   );
 
   const handleSelectAll = (checked: boolean) => {
-    setSelectedIds(
-      checked ? new Set(filteredWords.map((w) => w.id)) : new Set()
-    );
+    if (checked) {
+      setSelectedIds(new Set(filteredWords.map((w) => w.id)));
+    } else {
+      setSelectedIds(new Set());
+    }
+    setLastSelectedId(null);
   };
 
-  const toggleSelection = (id: string) => {
+  // 1. HÀM MỚI: DESELECT ALL
+  const handleDeselectAll = () => {
+    setSelectedIds(new Set());
+    setLastSelectedId(null);
+  };
+
+  const toggleSelection = (id: string, event?: React.MouseEvent) => {
     const newSet = new Set(selectedIds);
-    newSet.has(id) ? newSet.delete(id) : newSet.add(id);
+
+    if (event?.shiftKey && lastSelectedId) {
+      const visibleIds = filteredWords.map((w) => w.id);
+      const lastIndex = visibleIds.indexOf(lastSelectedId);
+      const currentIndex = visibleIds.indexOf(id);
+
+      if (lastIndex !== -1 && currentIndex !== -1) {
+        const start = Math.min(lastIndex, currentIndex);
+        const end = Math.max(lastIndex, currentIndex);
+        const rangeIds = visibleIds.slice(start, end + 1);
+        rangeIds.forEach((rid) => newSet.add(rid));
+      }
+    } else {
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      setLastSelectedId(id);
+    }
     setSelectedIds(newSet);
   };
 
@@ -145,6 +162,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
       const targetStatus = !isAllSelectedLearned;
       onBulkMarkLearned(Array.from(selectedIds), targetStatus);
       setSelectedIds(new Set());
+      setLastSelectedId(null);
     }
   };
 
@@ -170,6 +188,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
     const words = allWords.filter((w) => selectedIds.has(w.id));
     onBulkAddToPractice(words);
     setSelectedIds(new Set());
+    setLastSelectedId(null);
   };
 
   const confirmBulkDelete = () => {
@@ -177,18 +196,19 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
       onBulkDelete(Array.from(selectedIds));
       setSelectedIds(new Set());
       setIsBulkDeleteOpen(false);
+      setLastSelectedId(null);
     }
   };
 
   return (
     <div className="flex flex-col bg-white border-r pr-4 h-full overflow-y-hidden">
-      {/* UI SEARCH BAR */}
+      {/* SEARCH BAR */}
       <div className="p-3 pb-0 z-20">
         <div className="relative">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
           <Input
             placeholder="Search for vocabulary..."
-            value={searchTerm} // Vẫn bind vào searchTerm để gõ mượt
+            value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-9 pr-8 bg-slate-50 border-slate-200 focus:bg-white transition-all"
           />
@@ -203,7 +223,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
         </div>
       </div>
 
-      {/* HEADER TOOLBAR (Phần dưới giữ nguyên) */}
+      {/* HEADER TOOLBAR */}
       <div className="p-3 border-b flex items-center justify-between bg-white z-10">
         <div className="flex items-center gap-2">
           <Checkbox
@@ -220,10 +240,30 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
           </span>
         </div>
 
-        <div className="flex gap-1">
-          {/* ... (Giữ nguyên các nút toolbar) ... */}
-          {selectedIds.size > 0 ? (
+        <div className="flex gap-1 items-center">
+          {selectedIds.size > 0 && (
             <>
+              {/* 2. NÚT DESELECT ALL (Mới thêm) */}
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleDeselectAll}
+                      className="h-8 w-8 text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+                    >
+                      <X size={16} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Deselect all</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              {/* Đường kẻ phân cách */}
+              <div className="w-[1px] h-4 bg-slate-200 mx-1"></div>
+
+              {/* Các nút Action cũ */}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -306,30 +346,29 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                 </PopoverContent>
               </Popover>
             </>
-          ) : (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={toggleRevealAll}
-                    className="h-8 w-8 text-slate-500"
-                  >
-                    {isAllRevealed ? <Eye size={18} /> : <EyeOff size={18} />}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  {isAllRevealed ? "Hide all meanings" : "Show all meanings"}
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
           )}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={toggleRevealAll}
+                  className="h-8 w-8 text-slate-500"
+                >
+                  {isAllRevealed ? <Eye size={18} /> : <EyeOff size={18} />}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {isAllRevealed ? "Hide all meanings" : "Show all meanings"}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </div>
 
       {/* LIST CONTENT */}
-      <ScrollArea className="flex-1 mt-0 overflow-auto">
+      <ScrollArea className="flex-1 mt-0 overflow-auto pr-2">
         <div className="pb-10">
           {sortedDateKeys.length === 0 ? (
             <div className="flex flex-col items-center justify-center mt-10 text-slate-400 gap-2">

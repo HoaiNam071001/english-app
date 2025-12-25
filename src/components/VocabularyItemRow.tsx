@@ -31,7 +31,7 @@ interface VocabularyItemRowProps {
   isActive: boolean;
   isSelected: boolean;
   isMeaningRevealed: boolean;
-  onToggleSelection: (id: string) => void;
+  onToggleSelection: (id: string, e?: React.MouseEvent) => void;
   onToggleReveal: (id: string) => void;
   onAddToPractice: (word: VocabularyItem) => void;
   onRemoveFromPractice: (word: VocabularyItem) => void; // <--- 2. THÊM PROP
@@ -58,20 +58,22 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
   return (
     <div
       className={`
-        relative group/actions p-2 text-sm border  rounded-lg transition-all flex items-start gap-3 group
-        ${
-          isSelected
-            ? "bg-blue-50/50 border-blue-200"
-            : "hover:bg-slate-50 border-gay-100 hover:border-slate-200"
-        }
+        relative select-none group/actions p-2 text-sm border  rounded-lg transition-all flex items-start gap-3 group
+        ${isSelected ? "bg-blue-50/50 border-blue-200" : "border-gay-100"}
         ${isActive ? "border-l-4 border-l-blue-500 bg-slate-50" : ""}
       `}
     >
-      <div className="pt-1">
+      <div
+        className="pt-1 cursor-pointer"
+        onClick={(e) => {
+          e.stopPropagation();
+          onToggleSelection(word.id, e);
+        }}
+      >
         <Checkbox
           checked={isSelected}
-          onCheckedChange={() => onToggleSelection(word.id)}
-          className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+          onCheckedChange={() => {}}
+          className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 pointer-events-none"
         />
       </div>
 
@@ -120,7 +122,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
 
       {/* 2. Panel chứa các nút (Tuyệt đối, trượt từ phải sang trái khi hover) */}
       <div
-        className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-1
+        className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1
                   bg-white/95 backdrop-blur-sm shadow-md border border-slate-200 rounded-full p-1
                   opacity-0 translate-x-2 scale-90 pointer-events-none
                   group-hover/actions:opacity-100 group-hover/actions:translate-x-0 group-hover/actions:scale-100 group-hover/actions:pointer-events-auto

@@ -36,7 +36,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
 
   if (showDeleteConfirm) {
     return (
-      <div className="space-y-3 w-60">
+      <div className="space-y-3 w-80">
         <h4 className="font-medium text-sm text-red-600">
           Confirm deletion of this word?
         </h4>
