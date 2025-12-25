@@ -98,15 +98,15 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
             </div>
 
             <div className="mt-1 flex items-center gap-2">
-              <span
-                className={`text-xs text-slate-500 transition-all duration-300 ${
+              <div
+                className={`text-xs text-slate-500 transition-all duration-300 h-[16px] ${
                   !isMeaningRevealed
                     ? "blur-[5px] select-none opacity-60"
                     : "blur-0 opacity-100"
                 }`}
               >
                 {word.meaning}
-              </span>
+              </div>
             </div>
           </div>
         </PopoverTrigger>
