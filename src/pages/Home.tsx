@@ -1,23 +1,34 @@
 import CreateVocabularyModal from "@/components/CreateVocabularyModal";
 import EmailEntry from "@/components/EmailEntry";
 import FlashcardSection from "@/components/FlashcardSection";
+import TopicList from "@/components/TopicList";
 import { Button } from "@/components/ui/button";
 import VocabularySidebar from "@/components/VocabularySidebar";
 import { STORAGE_KEY } from "@/constants";
+import { TopicProvider } from "@/contexts/TopicContext"; // Import cả Provider và Hook
+import { useTopics } from "@/hooks/useTopics";
 import { useVocabulary } from "@/hooks/useVocabulary";
 import {
-  ChevronRight,
+  ChevronLeft,
   LogOut,
   PanelLeftClose,
   PanelLeftOpen,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
-const HomePage = () => {
-  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
+// --- 1. TÁCH COMPONENT CON: CHỨA TOÀN BỘ UI CHÍNH ---
+// Component này nằm BÊN TRONG TopicProvider nên mới gọi được useTopics
+const DashboardContent = ({
+  userEmail,
+  onLogout,
+}: {
+  userEmail: string;
+  onLogout: () => void;
+}) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
 
-  // === SỬ DỤNG HOOK ===
+  // Hook Vocabulary
   const {
     allWords,
     displayCards,
@@ -33,33 +44,37 @@ const HomePage = () => {
     removeFromPractice,
     bulkAddToPractice,
     addVocabulary,
-  } = useVocabulary(currentUserEmail);
+    bulkUpdateWords,
+  } = useVocabulary(userEmail);
 
-  // Authentication Effect
-  useEffect(() => {
-    const savedEmail = localStorage.getItem(STORAGE_KEY.EMAIL_CACHE_KEY);
-    if (savedEmail) {
-      setCurrentUserEmail(savedEmail);
-    }
-  }, []);
+  // Hook Topics (GỌI Ở ĐÂY LÀ HỢP LỆ)
+  const { topics, addTopic, deleteTopic, updateTopic } = useTopics();
 
-  const handleLogin = (email: string) => {
-    setCurrentUserEmail(email);
-    localStorage.setItem(STORAGE_KEY.EMAIL_CACHE_KEY, email);
+  // Logic lọc từ theo chủ đề
+  const filteredWords = useMemo(() => {
+    if (!selectedTopicId || selectedTopicId === "ALL") return allWords;
+    return allWords.filter((w) => w.topicId === selectedTopicId);
+  }, [allWords, selectedTopicId]);
+
+  const currentTopic = topics.find((t) => t.id === selectedTopicId);
+
+  const handleAddVocabularyWithTopic = async (
+    entries: { text: string; meaning: string; normalized: string }[]
+  ) => {
+    const entriesWithTopic = entries.map((e) => ({
+      ...e,
+      topicId:
+        selectedTopicId && selectedTopicId !== "ALL"
+          ? selectedTopicId
+          : undefined,
+    }));
+    return await addVocabulary(entriesWithTopic);
   };
 
-  const handleLogout = () => {
-    setCurrentUserEmail(null);
-    localStorage.removeItem(STORAGE_KEY.EMAIL_CACHE_KEY);
-  };
-
-  const activeWordIds = useMemo(() => {
-    return new Set(displayCards.map((w) => w.id));
-  }, [displayCards]);
-
-  if (!currentUserEmail) {
-    return <EmailEntry onSubmit={handleLogin} />;
-  }
+  const activeWordIds = useMemo(
+    () => new Set(displayCards.map((w) => w.id)),
+    [displayCards]
+  );
 
   return (
     <div className="container mx-auto p-4 md:p-6 max-w-8xl min-h-screen flex flex-col">
@@ -70,7 +85,6 @@ const HomePage = () => {
             variant="ghost"
             size="icon"
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            title={isSidebarOpen ? "Thu gọn danh sách" : "Mở danh sách"}
             className="text-slate-600"
           >
             {isSidebarOpen ? (
@@ -85,21 +99,20 @@ const HomePage = () => {
               Vocabulary Manager
             </h1>
             <p className="text-sm text-slate-500 hidden sm:block">
-              User: {currentUserEmail}
+              User: {userEmail}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           <CreateVocabularyModal
-            onAddVocabulary={addVocabulary}
+            onAddVocabulary={handleAddVocabularyWithTopic}
             onSuccess={() => fetchAllWords({ keepFlashcards: true })}
           />
-
           <Button
             variant="ghost"
             size="sm"
-            onClick={handleLogout}
+            onClick={onLogout}
             className="text-slate-500"
           >
             <LogOut size={16} className="mr-2" />{" "}
@@ -113,45 +126,66 @@ const HomePage = () => {
         {/* SIDEBAR AREA */}
         <div
           className={`
-                h-[75vh] transition-all duration-300 ease-in-out border-r bg-white
-                ${
-                  isSidebarOpen
-                    ? "w-80 md:w-1/4 opacity-100 translate-x-0 mr-4"
-                    : "w-0 opacity-0 -translate-x-full mr-0 overflow-hidden border-none"
-                }
-            `}
+              h-[75vh] transition-all duration-300 ease-in-out border-r bg-white flex flex-col
+              ${
+                isSidebarOpen
+                  ? "w-80 md:w-1/4 opacity-100 translate-x-0 mr-4"
+                  : "w-0 opacity-0 -translate-x-full mr-0 overflow-hidden border-none"
+              }
+          `}
         >
-          <div className="h-full w-80 md:w-auto">
-            <VocabularySidebar
-              allWords={allWords}
-              activeWordIds={activeWordIds}
-              onAddToPractice={addToPractice}
-              onBulkAddToPractice={bulkAddToPractice}
-              onBulkDelete={bulkDeleteWords}
-              onUpdateWord={updateWord}
-              onDelete={deleteWord}
-              onToggleLearned={toggleLearnedStatus}
-              onBulkMarkLearned={bulkMarkLearned}
-              onRemoveFromPractice={removeFromPractice}
-            />
-          </div>
+          {selectedTopicId === null ? (
+            // VIEW 1: TOPIC LIST
+            <div className="h-full w-80 md:w-auto">
+              <TopicList
+                topics={topics}
+                vocabulary={allWords}
+                onAddTopic={addTopic}
+                onUpdateTopic={updateTopic}
+                onDeleteTopic={deleteTopic}
+                onSelectTopic={(id) => setSelectedTopicId(id || "ALL")}
+              />
+            </div>
+          ) : (
+            // VIEW 2: VOCABULARY LIST
+            <div className="h-full w-80 md:w-auto flex flex-col">
+              <div className="flex items-center gap-2 p-2 border-b bg-slate-50">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedTopicId(null)}
+                  className="gap-1 px-2"
+                >
+                  <ChevronLeft size={16} /> Back
+                </Button>
+                <span className="font-semibold text-sm truncate">
+                  {selectedTopicId === "ALL"
+                    ? "Tất cả từ vựng"
+                    : currentTopic?.label}
+                </span>
+              </div>
+
+              <div className="flex-1 overflow-hidden">
+                <VocabularySidebar
+                  allWords={filteredWords}
+                  activeWordIds={activeWordIds}
+                  onBulkUpdate={bulkUpdateWords}
+                  onAddToPractice={addToPractice}
+                  onBulkAddToPractice={bulkAddToPractice}
+                  onBulkDelete={bulkDeleteWords}
+                  onUpdateWord={updateWord}
+                  onDelete={deleteWord}
+                  onToggleLearned={toggleLearnedStatus}
+                  onBulkMarkLearned={bulkMarkLearned}
+                  onRemoveFromPractice={removeFromPractice}
+                />
+              </div>
+            </div>
+          )}
         </div>
 
         {/* MAIN CONTENT AREA */}
         <div className="flex-1 transition-all duration-300 min-w-0 h-[75vh]">
-          {!isSidebarOpen && (
-            <div className="absolute top-0 left-0 z-10">
-              <Button
-                variant="outline"
-                size="sm"
-                className="shadow-md bg-white border-dashed text-slate-500 hover:text-blue-600 mb-4"
-                onClick={() => setIsSidebarOpen(true)}
-              >
-                <ChevronRight size={16} className="mr-1" /> Mở danh sách
-              </Button>
-            </div>
-          )}
-
           <FlashcardSection
             displayCards={displayCards}
             setDisplayCards={setDisplayCards}
@@ -162,6 +196,35 @@ const HomePage = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+// --- 2. COMPONENT CHA: QUẢN LÝ AUTH VÀ PROVIDER ---
+const HomePage = () => {
+  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
+
+  useEffect(() => {
+    const savedEmail = localStorage.getItem(STORAGE_KEY.EMAIL_CACHE_KEY);
+    if (savedEmail) setCurrentUserEmail(savedEmail);
+  }, []);
+
+  const handleLogin = (email: string) => {
+    setCurrentUserEmail(email);
+    localStorage.setItem(STORAGE_KEY.EMAIL_CACHE_KEY, email);
+  };
+
+  const handleLogout = () => {
+    setCurrentUserEmail(null);
+    localStorage.removeItem(STORAGE_KEY.EMAIL_CACHE_KEY);
+  };
+
+  if (!currentUserEmail) return <EmailEntry onSubmit={handleLogin} />;
+
+  return (
+    // BỌC CONTEXT Ở ĐÂY
+    <TopicProvider email={currentUserEmail}>
+      <DashboardContent userEmail={currentUserEmail} onLogout={handleLogout} />
+    </TopicProvider>
   );
 };
 

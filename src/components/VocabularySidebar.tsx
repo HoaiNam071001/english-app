@@ -7,14 +7,24 @@ import {
   CheckSquare,
   Eye,
   EyeOff,
+  FolderInput,
+  MoreHorizontal,
   RotateCcw,
   Search,
   Trash2,
-  X, // <--- Đã có icon X
+  X,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
@@ -29,6 +39,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { VocabularyItem } from "@/types";
+import MoveTopicModal from "./MoveTopicModal"; // <--- Import Component Mới
 import { VocabularyItemRow } from "./VocabularyItemRow";
 
 moment.locale("vi");
@@ -44,6 +55,7 @@ interface VocabularySidebarProps {
   onUpdateWord?: (id: string, updates: Partial<VocabularyItem>) => void;
   onToggleLearned: (id: string, currentStatus: boolean) => void;
   onBulkMarkLearned?: (ids: string[], status: boolean) => void;
+  onBulkUpdate?: (ids: string[], updates: Partial<VocabularyItem>) => void;
 }
 
 const formatDateGroup = (dateString: string) => {
@@ -67,6 +79,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
   onToggleLearned,
   onRemoveFromPractice,
   onBulkMarkLearned,
+  onBulkUpdate,
 }) => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [revealedIds, setRevealedIds] = useState<Set<string>>(new Set());
@@ -74,6 +87,9 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedTerm, setDebouncedTerm] = useState("");
   const [lastSelectedId, setLastSelectedId] = useState<string | null>(null);
+
+  // State điều khiển Modal Move Topic
+  const [isMoveTopicModalOpen, setIsMoveTopicModalOpen] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -118,7 +134,6 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
     setLastSelectedId(null);
   };
 
-  // 1. HÀM MỚI: DESELECT ALL
   const handleDeselectAll = () => {
     setSelectedIds(new Set());
     setLastSelectedId(null);
@@ -157,11 +172,38 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
     return selectedWords.length > 0 && selectedWords.every((w) => w.isLearned);
   }, [selectedWords]);
 
+  // --- ACTIONS HANDLERS ---
+
   const handleBulkMark = () => {
     if (onBulkMarkLearned) {
       const targetStatus = !isAllSelectedLearned;
       onBulkMarkLearned(Array.from(selectedIds), targetStatus);
       setSelectedIds(new Set());
+      setLastSelectedId(null);
+    }
+  };
+
+  const handleBulkAdd = () => {
+    if (!onBulkAddToPractice) return;
+    const words = allWords.filter((w) => selectedIds.has(w.id));
+    onBulkAddToPractice(words);
+    setSelectedIds(new Set());
+    setLastSelectedId(null);
+  };
+
+  // Hàm xử lý xác nhận từ MoveTopicModal
+  const confirmBulkMove = (topicId: string | undefined) => {
+    if (!onBulkUpdate) return;
+    onBulkUpdate(Array.from(selectedIds), { topicId: topicId });
+    setSelectedIds(new Set());
+    setLastSelectedId(null);
+  };
+
+  const confirmBulkDelete = () => {
+    if (onBulkDelete) {
+      onBulkDelete(Array.from(selectedIds));
+      setSelectedIds(new Set());
+      setIsBulkDeleteOpen(false);
       setLastSelectedId(null);
     }
   };
@@ -183,34 +225,25 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
     setRevealedIds(newSet);
   };
 
-  const handleBulkAdd = () => {
-    if (!onBulkAddToPractice) return;
-    const words = allWords.filter((w) => selectedIds.has(w.id));
-    onBulkAddToPractice(words);
-    setSelectedIds(new Set());
-    setLastSelectedId(null);
-  };
-
-  const confirmBulkDelete = () => {
-    if (onBulkDelete) {
-      onBulkDelete(Array.from(selectedIds));
-      setSelectedIds(new Set());
-      setIsBulkDeleteOpen(false);
-      setLastSelectedId(null);
-    }
-  };
-
   return (
     <div className="flex flex-col bg-white border-r pr-4 h-full overflow-y-hidden">
+      {/* 1. COMPONENT MODAL (Đặt ở ngoài cùng để không bị lỗi z-index) */}
+      <MoveTopicModal
+        open={isMoveTopicModalOpen}
+        onOpenChange={setIsMoveTopicModalOpen}
+        selectedCount={selectedIds.size}
+        onConfirm={confirmBulkMove}
+      />
+
       {/* SEARCH BAR */}
       <div className="p-3 pb-0 z-20">
         <div className="relative">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
           <Input
-            placeholder="Search for vocabulary..."
+            placeholder="Search..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9 pr-8 bg-slate-50 border-slate-200 focus:bg-white transition-all"
+            className="pl-9 pr-8 bg-slate-50 border-slate-200 focus:bg-white transition-all h-9 text-sm"
           />
           {searchTerm && (
             <button
@@ -241,9 +274,9 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
         </div>
 
         <div className="flex gap-1 items-center">
-          {selectedIds.size > 0 && (
+          {selectedIds.size > 0 ? (
             <>
-              {/* 2. NÚT DESELECT ALL (Mới thêm) */}
+              {/* Nút Deselect */}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -260,38 +293,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                 </Tooltip>
               </TooltipProvider>
 
-              {/* Đường kẻ phân cách */}
-              <div className="w-[1px] h-4 bg-slate-200 mx-1"></div>
-
-              {/* Các nút Action cũ */}
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={handleBulkMark}
-                      className={`h-8 w-8 ${
-                        isAllSelectedLearned
-                          ? "text-orange-500 hover:bg-orange-50"
-                          : "text-green-600 hover:bg-green-50"
-                      }`}
-                    >
-                      {isAllSelectedLearned ? (
-                        <RotateCcw size={16} />
-                      ) : (
-                        <CheckSquare size={16} />
-                      )}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    {isAllSelectedLearned
-                      ? `Mark not yet memorized (${selectedIds.size})`
-                      : `Mark already memorized (${selectedIds.size})`}
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
+              {/* Nút Add to Practice */}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -308,23 +310,69 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                 </Tooltip>
               </TooltipProvider>
 
+              {/* MENU ACTIONS GỘP */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-slate-600 hover:bg-slate-100"
+                  >
+                    <MoreHorizontal size={16} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel>
+                    Actions ({selectedIds.size})
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+
+                  {/* Mark Learned/Unlearned */}
+                  <DropdownMenuItem onClick={handleBulkMark}>
+                    {isAllSelectedLearned ? (
+                      <>
+                        <RotateCcw className="mr-2 h-4 w-4" /> Mark as Unlearned
+                      </>
+                    ) : (
+                      <>
+                        <CheckSquare className="mr-2 h-4 w-4" /> Mark as Learned
+                      </>
+                    )}
+                  </DropdownMenuItem>
+
+                  {/* 2. GỌI MODAL MOVE TOPIC TỪ ĐÂY */}
+                  <DropdownMenuItem
+                    onClick={() => setIsMoveTopicModalOpen(true)}
+                  >
+                    <FolderInput className="mr-2 h-4 w-4" />
+                    Assign Topic
+                  </DropdownMenuItem>
+
+                  <DropdownMenuSeparator />
+
+                  {/* Delete Option */}
+                  <DropdownMenuItem
+                    onClick={() => setIsBulkDeleteOpen(true)}
+                    className="text-red-600 focus:text-red-600"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete {selectedIds.size} words
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+
+              {/* Popup Delete Confirm */}
               <Popover
                 open={isBulkDeleteOpen}
                 onOpenChange={setIsBulkDeleteOpen}
               >
                 <PopoverTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-red-600 hover:bg-red-50"
-                  >
-                    <Trash2 size={16} />
-                  </Button>
+                  <span className="hidden"></span>
                 </PopoverTrigger>
                 <PopoverContent className="w-60 p-3" align="end">
                   <div className="space-y-3">
                     <p className="text-sm">
-                      Remove the selected {selectedIds.size} word?
+                      Remove {selectedIds.size} selected words?
                     </p>
                     <div className="flex justify-end gap-2">
                       <Button
@@ -346,24 +394,26 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                 </PopoverContent>
               </Popover>
             </>
+          ) : (
+            // State: Chưa chọn gì
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={toggleRevealAll}
+                    className="h-8 w-8 text-slate-500"
+                  >
+                    {isAllRevealed ? <Eye size={18} /> : <EyeOff size={18} />}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {isAllRevealed ? "Hide all meanings" : "Show all meanings"}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           )}
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={toggleRevealAll}
-                  className="h-8 w-8 text-slate-500"
-                >
-                  {isAllRevealed ? <Eye size={18} /> : <EyeOff size={18} />}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                {isAllRevealed ? "Hide all meanings" : "Show all meanings"}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
         </div>
       </div>
 

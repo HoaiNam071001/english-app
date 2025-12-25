@@ -123,6 +123,7 @@ export const useVocabulary = (currentUserEmail: string | null) => {
   // 2. UPDATE WORD
   const updateWord = async (id: string, updates: Partial<VocabularyItem>) => {
     // Update UI Optimistic
+
     setAllWords((prev) =>
       prev.map((w) => (w.id === id ? { ...w, ...updates } : w))
     );
@@ -247,6 +248,34 @@ export const useVocabulary = (currentUserEmail: string | null) => {
     });
   };
 
+  // 10. BULK UPDATE (General Purpose)
+  const bulkUpdateWords = async (
+    ids: string[],
+    updates: Partial<VocabularyItem>
+  ) => {
+    // Optimistic UI Update
+    setAllWords((prev) =>
+      prev.map((w) => (ids.includes(w.id) ? { ...w, ...updates } : w))
+    );
+
+    // Update DisplayCards nếu cần (ví dụ nếu đổi topic mà đang filter topic thì có thể cần remove, nhưng ở đây ta cứ update data thôi)
+    setDisplayCards((prev) =>
+      prev.map((w) => (ids.includes(w.id) ? { ...w, ...updates } : w))
+    );
+
+    // Update Firestore (Batch)
+    try {
+      const batch = writeBatch(db);
+      ids.forEach((id) => {
+        const docRef = doc(db, DataTable.Vocabulary, id);
+        batch.update(docRef, updates);
+      });
+      await batch.commit();
+    } catch (error) {
+      console.error("Lỗi bulk update:", error);
+    }
+  };
+
   return {
     // Data State
     allWords,
@@ -266,5 +295,6 @@ export const useVocabulary = (currentUserEmail: string | null) => {
     removeFromPractice,
     bulkAddToPractice,
     addVocabulary,
+    bulkUpdateWords,
   };
 };

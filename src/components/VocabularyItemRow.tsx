@@ -12,6 +12,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { TOPIC_COLORS } from "@/constants"; // <--- 1. Import Constants
+import { useTopics } from "@/hooks/useTopics";
 import {
   Check,
   CheckCircle2,
@@ -22,7 +24,7 @@ import {
   Plus,
   RotateCcw,
 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { EditPopoverContent } from "./EditPopoverContent";
 import { Button } from "./ui/button";
 
@@ -34,10 +36,10 @@ interface VocabularyItemRowProps {
   onToggleSelection: (id: string, e?: React.MouseEvent) => void;
   onToggleReveal: (id: string) => void;
   onAddToPractice: (word: VocabularyItem) => void;
-  onRemoveFromPractice: (word: VocabularyItem) => void; // <--- 2. THÊM PROP
+  onRemoveFromPractice: (word: VocabularyItem) => void;
   onUpdate: (id: string, updates: Partial<VocabularyItem>) => void;
   onDelete: (id: string) => void;
-  onToggleLearned: (id: string, currentStatus: boolean) => void; // <--- THÊM PROP
+  onToggleLearned: (id: string, currentStatus: boolean) => void;
 }
 
 export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
@@ -53,16 +55,38 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
   onToggleLearned,
   onRemoveFromPractice,
 }) => {
+  const { topics } = useTopics();
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+
+  // 2. Tìm Topic hiện tại của từ
+  const currentTopic = useMemo(() => {
+    if (!word.topicId) return null;
+    return topics.find((t) => t.id === word.topicId);
+  }, [word.topicId, topics]);
+
+  // 3. Lấy style màu từ Constants
+  const topicColorStyle = useMemo(() => {
+    if (!currentTopic?.color) return { bg: "bg-slate-200" }; // Mặc định nếu không có topic
+    return (
+      TOPIC_COLORS.find((c) => c.id === currentTopic.color) || {
+        bg: "bg-slate-200",
+      }
+    );
+  }, [currentTopic]);
 
   return (
     <div
       className={`
-        relative select-none group/actions p-2 text-sm border  rounded-lg transition-all flex items-start gap-3 group
-        ${isSelected ? "bg-blue-50/50 border-blue-200" : "border-gay-100"}
+        relative select-none group/actions p-2 text-sm border rounded-lg transition-all flex items-start gap-3 group
+        ${
+          isSelected
+            ? "bg-blue-50/50 border-blue-200"
+            : "border-slate-100 hover:border-slate-200"
+        }
         ${isActive ? "border-l-4 border-l-blue-500 bg-slate-50" : ""}
       `}
     >
+      {/* Checkbox Wrapper */}
       <div
         className="pt-1 cursor-pointer"
         onClick={(e) => {
@@ -81,11 +105,30 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
         <PopoverTrigger asChild>
           <div className="flex-1 min-w-0 cursor-pointer pb-1">
             <div className="flex items-center gap-2">
+              {/* Learned Status Icon */}
               {word.isLearned ? (
                 <CheckCircle2 size={14} className="text-green-500 shrink-0" />
               ) : (
                 <Circle size={14} className="text-slate-300 shrink-0" />
               )}
+
+              {/* 4. Topic Indicator (Chấm màu) */}
+              {currentTopic && (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div
+                        className={`w-2 h-2 rounded-full shrink-0 ${topicColorStyle.bg} cursor-help`}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="text-xs">
+                      Topic: {currentTopic.label}
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              )}
+
+              {/* Vocabulary Text */}
               <span
                 className={`font-medium truncate ${
                   word.isLearned && !isActive
@@ -110,6 +153,8 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
             </div>
           </div>
         </PopoverTrigger>
+
+        {/* Edit Form */}
         <PopoverContent align="start" side="right" className="p-4 w-90">
           <EditPopoverContent
             word={word}
@@ -120,7 +165,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
         </PopoverContent>
       </Popover>
 
-      {/* 2. Panel chứa các nút (Tuyệt đối, trượt từ phải sang trái khi hover) */}
+      {/* Action Buttons Panel */}
       <div
         className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1
                   bg-white/95 backdrop-blur-sm shadow-md border border-slate-200 rounded-full p-1
@@ -128,7 +173,6 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
                   group-hover/actions:opacity-100 group-hover/actions:translate-x-0 group-hover/actions:scale-100 group-hover/actions:pointer-events-auto
                   transition-all duration-300 ease-out origin-right z-20"
       >
-        {/* Nút Toggle Learned */}
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -150,7 +194,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
             </TooltipTrigger>
             <TooltipContent side="top">
               <p className="text-xs">
-                {word.isLearned ? "Học lại" : "Đã thuộc"}
+                {word.isLearned ? "Mark as unlearned" : "Mark as learned"}
               </p>
             </TooltipContent>
           </Tooltip>
@@ -172,12 +216,11 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top">
-              <p className="text-xs">Xem/Che nghĩa</p>
+              <p className="text-xs">Show/Hide meaning</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
 
-        {/* Nút Add hoặc Icon Book */}
         {isActive ? (
           <TooltipProvider>
             <Tooltip>
@@ -188,14 +231,14 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
                   className="h-7 w-7 rounded-full text-blue-500 hover:text-red-600 hover:bg-red-50"
                   onClick={(e) => {
                     e.stopPropagation();
-                    onRemoveFromPractice(word); // Gọi hàm xóa
+                    onRemoveFromPractice(word);
                   }}
                 >
                   <Minus size={14} />
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="top">
-                <p className="text-xs">Xoá khỏi bài học</p>
+                <p className="text-xs">Remove from lesson</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -216,7 +259,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="top">
-                <p className="text-xs">Thêm vào bài học</p>
+                <p className="text-xs">Add to lesson</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

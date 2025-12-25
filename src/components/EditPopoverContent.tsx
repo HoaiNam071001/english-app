@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea"; // Import Textarea cho ví dụ
+import { Textarea } from "@/components/ui/textarea";
 import { VocabularyItem } from "@/types";
 import { Save, Trash2 } from "lucide-react";
 import React, { useState } from "react";
+import TopicSelector from "./TopicSelector";
 
 interface EditPopoverContentProps {
   word: VocabularyItem;
@@ -19,18 +20,20 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
   onDelete,
   onClose,
 }) => {
-  // State form chứa các field có thể edit
   const [form, setForm] = useState({
     text: word.text,
     meaning: word.meaning,
-    example: word.example || "", // Field mới
+    example: word.example || "",
+    topicId: word.topicId,
   });
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const handleSave = () => {
-    // Truyền thẳng object form (nó khớp với Partial<VocabularyItem>)
-    onSave(word.id, form);
+    onSave(word.id, {
+      ...form,
+      topicId: form.topicId,
+    });
     onClose();
   };
 
@@ -76,7 +79,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
         {/* Input Từ vựng */}
         <div className="grid grid-cols-4 items-center gap-4">
           <Label htmlFor="text" className="text-right text-xs">
-            Value
+            Word
           </Label>
           <Input
             id="text"
@@ -99,17 +102,30 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
           />
         </div>
 
-        {/* Input Ví dụ (Mới) */}
+        {/* --- SELECT TOPIC (MỚI) --- */}
+        <div className="grid grid-cols-4 items-center gap-4">
+          <Label htmlFor="topic" className="text-right text-xs">
+            Topic
+          </Label>
+          <div className="col-span-3">
+            <TopicSelector
+              value={form.topicId}
+              onChange={(val) => setForm({ ...form, topicId: val })}
+            />
+          </div>
+        </div>
+
+        {/* Input Ví dụ */}
         <div className="grid grid-cols-4 items-start gap-4">
           <Label htmlFor="example" className="text-right text-xs mt-2">
-            Note
+            Example
           </Label>
           <Textarea
             id="example"
             value={form.example}
             onChange={(e) => setForm({ ...form, example: e.target.value })}
             className="col-span-3 text-sm min-h-[60px]"
-            placeholder="Đặt câu ví dụ..."
+            placeholder="Example sentence..."
           />
         </div>
       </div>

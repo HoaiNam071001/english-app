@@ -8,6 +8,7 @@ export interface VocabularyItem {
   updatedAt: number;
   isLearned?: boolean;
   example?: string;
+  topicId?: string | null; // <--- Change: Allow null
 }
 
 // Kiểu dữ liệu cho báo cáo sau khi thêm
@@ -18,4 +19,16 @@ export interface AddReport {
 
 export enum DataTable {
   Vocabulary = "vocabulary",
+  Topics = "topics",
+}
+
+export interface TopicItem {
+  id: string;
+  label: string;
+  desc?: string;
+  color?: string;
+  icon?: string;
+  email: string;
+  createdAt: number;
+  updatedAt?: number;
 }
