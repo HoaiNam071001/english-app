@@ -142,7 +142,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
             </div>
 
             {/* Nút Loa */}
-            <div className="flex justify-center relative -top-3">
+            <div className="flex justify-center absolute top-0 w-full">
               <div
                 className="p-1.5 rounded-full bg-blue-50 text-blue-600 hover:scale-110 transition-transform cursor-pointer"
                 onClick={handleSpeak}
@@ -183,7 +183,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
             </div>
 
             {/* CONTENT */}
-            <div className="flex-1 flex flex-col items-center justify-center">
+            <div className="flex-1 flex flex-col items-center justify-center mt-4">
               {/* Từ vựng (Có thể click để xem note) */}
               {item.example ? (
                 <Popover>
@@ -210,7 +210,10 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                   </PopoverContent>
                 </Popover>
               ) : (
-                <h3 className="text-xl font-bold text-slate-800 mb-2">
+                <h3
+                  className="text-lg font-bold text-slate-800 line-clamp-2"
+                  title={item.text}
+                >
                   {item.text}
                 </h3>
               )}
@@ -219,7 +222,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
               {item.meaning && (
                 <div
                   className={`
-                  w-full px-2 transition-all duration-300 flex flex-col items-center gap-2
+                  w-full px-2 transition-all duration-300 flex flex-col items-center gap-1
                   ${
                     showMeaning
                       ? "opacity-100 blur-0"
@@ -231,8 +234,8 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                     setShowMeaning(!showMeaning);
                   }}
                 >
-                  <div className="w-8 h-1 bg-slate-200 rounded-full"></div>
-                  <p className="text-sm font-medium text-slate-600 break-words leading-relaxed text-center">
+                  <div className="w-8 h-[3px] bg-slate-200 rounded-full"></div>
+                  <p className="text-sm font-medium text-slate-600 break-words leading-relaxed text-center line-clamp-2">
                     {item.meaning}
                   </p>
                 </div>
