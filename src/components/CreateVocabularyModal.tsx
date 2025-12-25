@@ -71,6 +71,7 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
         setInputText("");
         if (onSuccess) onSuccess();
       }
+      setOpen(false);
     } catch (error) {
       console.error("Lỗi khi thêm từ:", error);
     } finally {
