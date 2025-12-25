@@ -225,6 +225,29 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
     setRevealedIds(newSet);
   };
 
+  const handleSelectDate = (dateKey: string) => {
+    // 1. Lấy danh sách ID của các từ trong ngày đó
+    const wordsInDate = groupedWords[dateKey] || [];
+    const idsInDate = wordsInDate.map((w) => w.id);
+
+    // 2. Kiểm tra xem tất cả đã được chọn chưa
+    // (Nếu tất cả đã nằm trong selectedIds -> Tức là đang chọn full -> Cần bỏ chọn)
+    const isAllSelected = idsInDate.every((id) => selectedIds.has(id));
+
+    const newSet = new Set(selectedIds);
+
+    if (isAllSelected) {
+      // Bỏ chọn tất cả item trong ngày này
+      idsInDate.forEach((id) => newSet.delete(id));
+    } else {
+      // Chọn tất cả item trong ngày này (Additive)
+      idsInDate.forEach((id) => newSet.add(id));
+    }
+
+    setSelectedIds(newSet);
+    setLastSelectedId(null); // Reset last click để tránh lỗi shift-click
+  };
+
   return (
     <div className="flex flex-col bg-white border-r pr-4 h-full overflow-y-hidden">
       {/* 1. COMPONENT MODAL (Đặt ở ngoài cùng để không bị lỗi z-index) */}
@@ -426,35 +449,72 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
               <span className="text-sm">No results found.</span>
             </div>
           ) : (
-            sortedDateKeys.map((dateKey) => (
-              <div key={dateKey} className="mb-6 last:mb-0">
-                <div className="sticky top-0 bg-white/95 backdrop-blur-sm z-10 px-2 py-2 mb-2 text-xs font-bold text-blue-600 uppercase tracking-wider border-b border-slate-100 flex items-center justify-between">
-                  <span>{formatDateGroup(dateKey)}</span>
-                  <span className="bg-slate-100 text-slate-500 px-1.5 rounded-full text-[10px]">
-                    {groupedWords[dateKey].length}
-                  </span>
-                </div>
+            sortedDateKeys.map((dateKey) => {
+              // Tính toán trạng thái checkbox của ngày này (để hiển thị UI nếu muốn)
+              const wordsInGroup = groupedWords[dateKey];
+              const allSelected = wordsInGroup.every((w) =>
+                selectedIds.has(w.id)
+              );
 
-                <div className="space-y-1">
-                  {groupedWords[dateKey].map((word) => (
-                    <VocabularyItemRow
-                      key={word.id}
-                      word={word}
-                      isActive={activeWordIds.has(word.id)}
-                      isSelected={selectedIds.has(word.id)}
-                      isMeaningRevealed={revealedIds.has(word.id)}
-                      onToggleSelection={toggleSelection}
-                      onToggleReveal={toggleRevealItem}
-                      onAddToPractice={onAddToPractice}
-                      onUpdate={onUpdateWord || (() => {})}
-                      onDelete={onDelete}
-                      onToggleLearned={onToggleLearned}
-                      onRemoveFromPractice={onRemoveFromPractice}
-                    />
-                  ))}
+              return (
+                <div key={dateKey} className="mb-6 last:mb-0">
+                  {/* HEADER NGÀY: Thêm onClick và cursor-pointer */}
+                  <div
+                    onClick={() => handleSelectDate(dateKey)}
+                    className={`
+                        sticky top-0 bg-white/95 backdrop-blur-sm z-10 px-2 py-2 mb-2
+                        text-xs font-bold uppercase tracking-wider border-b border-slate-100
+                        flex items-center justify-between cursor-pointer transition-colors hover:bg-slate-50
+                        ${
+                          allSelected
+                            ? "text-blue-700 bg-blue-50/50"
+                            : "text-blue-600"
+                        }
+                      `}
+                    title="Click to select all items in this date"
+                  >
+                    <div className="flex items-center gap-2">
+                      {/* (Optional) Thêm checkbox nhỏ ở đây nếu muốn rõ ràng hơn */}
+                      <Checkbox
+                        checked={allSelected}
+                        // Checkbox này chỉ để hiển thị, sự kiện click đã được div cha xử lý
+                        className="h-4 w-4 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                      />
+                      <span>{formatDateGroup(dateKey)}</span>
+                    </div>
+
+                    <span
+                      className={`px-1.5 rounded-full text-[10px] ${
+                        allSelected
+                          ? "bg-blue-100 text-blue-700"
+                          : "bg-slate-100 text-slate-500"
+                      }`}
+                    >
+                      {wordsInGroup.length}
+                    </span>
+                  </div>
+
+                  <div className="space-y-1">
+                    {wordsInGroup.map((word) => (
+                      <VocabularyItemRow
+                        key={word.id}
+                        word={word}
+                        isActive={activeWordIds.has(word.id)}
+                        isSelected={selectedIds.has(word.id)}
+                        isMeaningRevealed={revealedIds.has(word.id)}
+                        onToggleSelection={toggleSelection}
+                        onToggleReveal={toggleRevealItem}
+                        onAddToPractice={onAddToPractice}
+                        onUpdate={onUpdateWord || (() => {})}
+                        onDelete={onDelete}
+                        onToggleLearned={onToggleLearned}
+                        onRemoveFromPractice={onRemoveFromPractice}
+                      />
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </ScrollArea>
