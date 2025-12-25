@@ -8,28 +8,19 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { AddReport, DataTable, VocabularyItem } from "@/types";
-import {
-  collection,
-  doc,
-  getDocs,
-  query,
-  serverTimestamp,
-  where,
-  writeBatch,
-  type DocumentData,
-} from "firebase/firestore";
-import { Loader2, Plus } from "lucide-react"; // Icon từ lucide-react
+import { AddReport } from "@/types"; // Đảm bảo bạn đã định nghĩa type này
+import { Loader2, Plus } from "lucide-react";
 import React, { useState } from "react";
-import { db } from "../firebaseConfig";
 
 interface CreateVocabularyModalProps {
-  userEmail: string; // <--- MỚI
+  onAddVocabulary: (
+    entries: { text: string; meaning: string; normalized: string }[]
+  ) => Promise<AddReport>;
   onSuccess?: () => void;
 }
 
 const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
-  userEmail,
+  onAddVocabulary,
   onSuccess,
 }) => {
   const [open, setOpen] = useState(false);
@@ -37,13 +28,15 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [report, setReport] = useState<AddReport | null>(null);
 
-  const handleAddWords = async () => {
+  const handleProcessAndAdd = async () => {
     if (!inputText.trim()) return;
     setLoading(true);
     setReport(null);
 
+    // 1. Xử lý logic tách chuỗi (Parsing Logic) - Giữ tại UI
     const rawLines = inputText.split(/[\n;]+/);
-    const newEntries: Partial<VocabularyItem>[] = [];
+    const newEntries: { text: string; meaning: string; normalized: string }[] =
+      [];
 
     rawLines.forEach((line) => {
       const cleanLine = line.trim();
@@ -68,56 +61,18 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
       }
     });
 
+    // 2. Gọi hàm từ Hook để lưu vào DB
     try {
-      const q = query(
-        collection(db, DataTable.Vocabulary),
-        where("email", "==", userEmail)
-      );
-      const querySnapshot = await getDocs(q);
-      const existingWordsSet = new Set<string>();
-      querySnapshot.forEach((doc) => {
-        const data = doc.data() as DocumentData;
-        if (data.normalized) existingWordsSet.add(data.normalized);
-      });
+      const result = await onAddVocabulary(newEntries);
 
-      const batch = writeBatch(db);
-      const addedWords: string[] = [];
-      const skippedWords: string[] = [];
-      const currentBatchSet = new Set<string>();
+      setReport(result);
 
-      newEntries.forEach((entry) => {
-        if (!entry.text || !entry.normalized) return;
-
-        const isDuplicateInDb = existingWordsSet.has(entry.normalized);
-        const isDuplicateInCurrentBatch = currentBatchSet.has(entry.normalized);
-
-        if (isDuplicateInDb || isDuplicateInCurrentBatch) {
-          skippedWords.push(entry.text);
-        } else {
-          const newDocRef = doc(collection(db, DataTable.Vocabulary));
-          const docData = {
-            text: entry.text,
-            meaning: entry.meaning || "",
-            normalized: entry.normalized,
-            email: userEmail,
-            createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp(),
-          };
-          batch.set(newDocRef, docData);
-          currentBatchSet.add(entry.normalized);
-          addedWords.push(entry.text);
-        }
-      });
-
-      if (addedWords.length > 0) {
-        await batch.commit();
+      if (result.added.length > 0) {
         setInputText("");
         if (onSuccess) onSuccess();
       }
-
-      setReport({ added: addedWords, skipped: skippedWords });
     } catch (error) {
-      console.error("Error adding words:", error);
+      console.error("Lỗi khi thêm từ:", error);
     } finally {
       setLoading(false);
     }
@@ -174,7 +129,10 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
           <Button variant="outline" onClick={() => setOpen(false)}>
             Đóng
           </Button>
-          <Button onClick={handleAddWords} disabled={loading || !inputText}>
+          <Button
+            onClick={handleProcessAndAdd}
+            disabled={loading || !inputText}
+          >
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {loading ? "Đang xử lý..." : "Lưu vào kho"}
           </Button>

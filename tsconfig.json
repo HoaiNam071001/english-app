@@ -24,11 +24,11 @@
     },
 
     /* Linting */
-    "noImplicitAny": false,       // Cho phép các biến có kiểu any ngầm định
+    "noImplicitAny": false, // Cho phép các biến có kiểu any ngầm định
     "strict": false,
     "noFallthroughCasesInSwitch": true,
-    "noUnusedLocals": false,      // (Tiện tay) Tắt cảnh báo khi khai báo biến mà không dùng
+    "noUnusedLocals": false, // (Tiện tay) Tắt cảnh báo khi khai báo biến mà không dùng
     "noUnusedParameters": false
   },
-  "include": ["src"]
+  "include": ["src", "vite-env.d.ts"]
 }

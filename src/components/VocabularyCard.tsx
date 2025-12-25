@@ -11,11 +11,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { DataTable, VocabularyItem } from "@/types";
-import { doc, updateDoc } from "firebase/firestore";
+import { VocabularyItem } from "@/types";
 import { Check, Eye, EyeOff, Volume2, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { db } from "../firebaseConfig";
 import { FlashcardCommand } from "./FlashcardSection";
 
 interface VocabularyCardProps {
@@ -72,8 +70,6 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
     e.stopPropagation();
     setLoading(true);
     try {
-      const docRef = doc(db, DataTable.Vocabulary, item.id);
-      await updateDoc(docRef, { isLearned: true });
       onLearned(item.id);
     } catch (error) {
       console.error(error);
