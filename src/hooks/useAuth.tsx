@@ -28,7 +28,7 @@ export const useAuth = () => {
             // Update lastLogin
             await setDoc(userRef, { lastLoginAt: Date.now() }, { merge: true });
             // Gán lại ID từ snapshot để đảm bảo chính xác
-            setUserProfile({ ...data, id: userSnap.id } as UserProfile);
+            setUserProfile({ ...data } as UserProfile);
 
           } else {
             // User mới -> Create data

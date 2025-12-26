@@ -1,7 +1,7 @@
 import { UserRole } from "@/types";
 import { useAuth } from "@/hooks/useAuth"; 
 import { TopicProvider } from "@/contexts/TopicContext";
-import AdminUserManagement from "@/components/AdminUserManagement";
+import AdminUserManagement from "@/components/Auth/AdminUserManagement";
 import { DashboardContent } from "./components/DashboardContent";
 // Lưu ý: Import DashboardContent cho đúng đường dẫn (có thể cần chỉnh lại ../components/...)
 

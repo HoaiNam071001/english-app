@@ -1,5 +1,5 @@
 import CreateVocabularyModal from "@/pages/home/components/CreateVocabularyModal";
-import EmailEntry from "@/components/EmailEntry";
+import EmailEntry from "@/components/Auth/EmailEntry";
 import FlashcardSection from "@/pages/home/components/FlashcardSection";
 import TopicList from "@/pages/home/components/TopicList";
 import { Button } from "@/components/ui/button";

@@ -5,8 +5,8 @@ import { useAuth } from "@/hooks/useAuth";
 
 // Components
 import HomePage from "./home";
-import EmailEntry from "@/components/EmailEntry";
-import PendingScreen from "@/components/PendingScreen";
+import EmailEntry from "@/components/Auth/EmailEntry";
+import PendingScreen from "@/components/Auth/PendingScreen";
 import { Button } from "@/components/ui/button";
 
 // Màn hình từ chối (Local component)
