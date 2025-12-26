@@ -25,7 +25,7 @@ export const useAuth = () => {
             // User cũ -> Get data
             const data = userSnap.data();
             setUserProfile({ ...data } as UserProfile);
-            console.log(data)
+
             // Update lastLogin
             await setDoc(userRef, { lastLoginAt: Date.now() }, { merge: true });
           } else {
