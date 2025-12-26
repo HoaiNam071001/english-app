@@ -1,24 +1,37 @@
-import { useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { auth, db, googleProvider } from "@/firebaseConfig";
 import { onAuthStateChanged, signInWithPopup, signOut, User } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { DataTable, UserProfile, UserRole, UserStatus } from "@/types";
 
-export const useAuth = () => {
+// 1. Định nghĩa kiểu dữ liệu cho Context
+interface AuthContextType {
+  user: User | null;
+  userProfile: UserProfile | null;
+  loading: boolean;
+  error: string | null;
+  loginWithGoogle: () => Promise<void>;
+  logout: () => Promise<void>;
+}
+
+// 2. Tạo Context
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// 3. Tạo Provider
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // 1. Lắng nghe trạng thái Auth & Sync Firestore Profile
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setLoading(true);
-      if (currentUser) {
+      if (currentUser && currentUser.email) {
         setUser(currentUser);
         try {
-          // 👇 SỬA LẠI: Dùng email làm Document ID
-          const userRef = doc(db, DataTable.USER, currentUser.email);
+          // --- GIỮ NGUYÊN LOGIC DÙNG EMAIL THEO YÊU CẦU ---
+          const userRef = doc(db, DataTable.USER, currentUser.email); 
           const userSnap = await getDoc(userRef);
 
           if (userSnap.exists()) {
@@ -27,19 +40,21 @@ export const useAuth = () => {
             
             // Update lastLogin
             await setDoc(userRef, { lastLoginAt: Date.now() }, { merge: true });
-            // Gán lại ID từ snapshot để đảm bảo chính xác
+            
+            // Gán lại ID (vẫn là email) vào profile
             setUserProfile({ ...data } as UserProfile);
-
           } else {
             // User mới -> Create data
             const newProfile: UserProfile = {
-              id: currentUser.uid, // 👇 ID là UID
-              email: currentUser.email!, // Email chỉ để hiển thị
+              id: currentUser.uid, 
+              email: currentUser.email, // Dùng email làm ID hiển thị
               role: UserRole.USER,
               status: UserStatus.PENDING,
               createdAt: Date.now(),
               lastLoginAt: Date.now(),
             };
+            
+            // Lưu vào DB với ID là Email
             await setDoc(userRef, newProfile);
             setUserProfile(newProfile);
           }
@@ -57,14 +72,13 @@ export const useAuth = () => {
     return () => unsubscribe();
   }, []);
 
-  // 2. Hàm Login Google
   const loginWithGoogle = async () => {
     setLoading(true);
     setError(null);
     try {
       googleProvider.setCustomParameters({ prompt: 'select_account' });
-      const result = await signInWithPopup(auth, googleProvider);
-      return result.user;
+      await signInWithPopup(auth, googleProvider);
+      // Không cần return user vì onAuthStateChanged sẽ tự bắt sự kiện
     } catch (err: any) {
       console.error("Login failed:", err);
       if (err.code === 'auth/popup-closed-by-user') {
@@ -72,24 +86,26 @@ export const useAuth = () => {
       } else {
         setError('Đăng nhập thất bại.');
       }
-      return null;
     } finally {
+      // Lưu ý: setLoading(false) sẽ được xử lý bởi onAuthStateChanged, 
+      // nhưng ta vẫn set ở đây để handle trường hợp lỗi ngay lập tức.
       setLoading(false);
     }
   };
 
-  // 3. Hàm Logout
   const logout = async () => {
     try {
       await signOut(auth);
       setUserProfile(null);
       setUser(null);
+      // Reload trang để xóa sạch cache state nếu cần
+      window.location.reload();
     } catch (err) {
       console.error("Logout failed:", err);
     }
   };
 
-  return {
+  const value = {
     user,
     userProfile,
     loading,
@@ -97,4 +113,15 @@ export const useAuth = () => {
     loginWithGoogle,
     logout
   };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+// 4. Hook để sử dụng Context (Thay thế hook cũ)
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
 };

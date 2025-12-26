@@ -3,33 +3,31 @@ import { db } from "@/firebaseConfig";
 import {
   collection,
   query,
-  where,
   getDocs,
   doc,
   updateDoc,
   orderBy,
-} from "firebase/firestore";
+} from "firebase/firestore"; // Bỏ 'where'
 import { DataTable, UserProfile, UserRole, UserStatus } from "@/types";
 
-export const useAdmin = (currentAdminId: string) => {
-  const [pendingUsers, setPendingUsers] = useState<UserProfile[]>([]);
+export const useAdmin = (userProfile: UserProfile) => {
+  // Đổi tên state từ pendingUsers -> allUsers
+  const [allUsers, setAllUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Fetch users
-  const fetchPendingUsers = useCallback(async () => {
+  // Fetch ALL users (Bỏ where status == PENDING)
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     try {
       const q = query(
         collection(db, DataTable.USER),
-        where("status", "==", UserStatus.PENDING),
-        orderBy("createdAt", "desc")
+        orderBy("createdAt", "desc") // Lấy tất cả, sắp xếp mới nhất lên đầu
       );
       const snapshot = await getDocs(q);
       const users = snapshot.docs.map((doc) => ({
         ...doc.data(),
-        id: doc.id,
       })) as UserProfile[];
-      setPendingUsers(users);
+      setAllUsers(users);
     } catch (error) {
       console.error("Error fetching users:", error);
     } finally {
@@ -37,48 +35,51 @@ export const useAdmin = (currentAdminId: string) => {
     }
   }, []);
 
-  // Auto fetch khi mount hook
   useEffect(() => {
-    if (currentAdminId) fetchPendingUsers();
-  }, [currentAdminId, fetchPendingUsers]);
+    if (userProfile) fetchUsers();
+  }, [userProfile, fetchUsers]);
 
-  // Approve User
-  const approveUser = async (targetUserId: string) => {
+  const approveUser = async (email: string) => {
     try {
-      const docRef = doc(db, DataTable.USER, targetUserId);
-      await updateDoc(docRef, {
+      const docRef = doc(db, DataTable.USER, email);
+      const value = {
         status: UserStatus.APPROVED,
         role: UserRole.USER,
-        approvedBy: currentAdminId,
+        approvedBy: userProfile.email,
         approvedAt: Date.now(),
-      });
-      // Cập nhật UI ngay lập tức
-      setPendingUsers((prev) => prev.filter((u) => u.id !== targetUserId));
+      };
+      await updateDoc(docRef, value);
+      // Cập nhật UI local: Tìm user đó và đổi status thành APPROVED
+      setAllUsers((prev) =>
+        prev.map((u) => (u.email === email ? { ...u, ...value } : u))
+      );
     } catch (error) {
       console.error("Error approving:", error);
     }
   };
 
-  // Reject User
-  const rejectUser = async (targetUserId: string) => {
+  const rejectUser = async (email: string) => {
     if (!confirm("Từ chối user này?")) return;
     try {
-      const docRef = doc(db, DataTable.USER, targetUserId);
-      await updateDoc(docRef, {
+      const docRef = doc(db, DataTable.USER, email);
+      const value = {
         status: UserStatus.REJECTED,
-        approvedBy: currentAdminId,
+        approvedBy: userProfile.email,
         approvedAt: Date.now(),
-      });
-      setPendingUsers((prev) => prev.filter((u) => u.id !== targetUserId));
+      };
+      await updateDoc(docRef, value);
+      // Cập nhật UI local: Tìm user đó và đổi status thành REJECTED
+      setAllUsers((prev) =>
+        prev.map((u) => (u.email === email ? { ...u, ...value } : u))
+      );
     } catch (error) {
       console.error("Error rejecting:", error);
     }
   };
 
   return {
-    pendingUsers,
+    allUsers, // Trả về danh sách đầy đủ
     loading,
-    fetchPendingUsers,
     approveUser,
     rejectUser,
   };

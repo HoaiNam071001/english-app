@@ -1,12 +1,14 @@
 import { UserRole } from "@/types";
-import { useAuth } from "@/hooks/useAuth"; 
 import { TopicProvider } from "@/contexts/TopicContext";
-import AdminUserManagement from "@/components/Auth/AdminUserManagement";
 import { DashboardContent } from "./components/DashboardContent";
-// Lưu ý: Import DashboardContent cho đúng đường dẫn (có thể cần chỉnh lại ../components/...)
+import { Button } from "@/components/ui/button";
+import { ShieldAlert } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const HomePage = () => {
   const { userProfile, logout } = useAuth();
+  const navigate = useNavigate();
 
   if (!userProfile) return null;
 
@@ -15,9 +17,17 @@ const HomePage = () => {
       <div className="relative">
         <DashboardContent user={userProfile} onLogout={logout} />
 
+        {/* Nút Admin chuyển trang */}
         {userProfile.role === UserRole.ADMIN && (
           <div className="fixed bottom-4 left-4 z-50">
-            <AdminUserManagement currentAdminId={userProfile.id!} />
+            <Button
+              variant="outline"
+              className="gap-2 border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100 shadow-lg"
+              onClick={() => navigate("/admin/users")}
+            >
+              <ShieldAlert size={16} />
+              Quản lý User
+            </Button>
           </div>
         )}
       </div>
