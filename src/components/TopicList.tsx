@@ -113,7 +113,7 @@ const TopicList: React.FC<TopicListProps> = ({
         </Button>
       </div>
 
-      <ScrollArea className="flex-1 p-2">
+      <div className="flex-1 p-2 overflow-y-auto">
         <div className="space-y-2">
           {/* Default 'All Topics' Item */}
           <div
@@ -192,7 +192,7 @@ const TopicList: React.FC<TopicListProps> = ({
             );
           })}
         </div>
-      </ScrollArea>
+      </div>
 
       {/* --- DIALOG CREATE / EDIT --- */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
