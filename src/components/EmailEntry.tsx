@@ -17,6 +17,9 @@ const EmailEntry: React.FC<EmailEntryProps> = ({ onSubmit }) => {
     setLoading(true);
     setError('');
     try {
+      googleProvider.setCustomParameters({
+        prompt: 'select_account'
+      });
       // 1. Mở popup đăng nhập Google
       const result = await signInWithPopup(auth, googleProvider);
       

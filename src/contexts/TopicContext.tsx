@@ -15,7 +15,6 @@ import {
 } from "firebase/firestore";
 import React, { createContext, ReactNode, useEffect, useState } from "react";
 
-// 1. Định nghĩa kiểu dữ liệu cho Context
 export interface TopicContextType {
   topics: TopicItem[];
   isLoading: boolean;
@@ -24,35 +23,32 @@ export interface TopicContextType {
   deleteTopic: (id: string) => Promise<void>;
 }
 
-// 2. Khởi tạo Context
 export const TopicContext = createContext<TopicContextType | undefined>(
   undefined
 );
 
-// 3. Tạo Provider Component
 export const TopicProvider: React.FC<{
   children: ReactNode;
-  email: string | null; // Nhận email từ App/HomePage
-}> = ({ children, email }) => {
+  userId: string | null; // <--- Đổi tên prop từ email -> userId
+}> = ({ children, userId }) => {
   const [topics, setTopics] = useState<TopicItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   // --- REALTIME LISTENER ---
   useEffect(() => {
-    if (!email) {
+    if (!userId) {
       setTopics([]);
       return;
     }
 
     setIsLoading(true);
-    // Query topics theo email
+    // Query topics theo userId
     const q = query(
       collection(db, DataTable.Topics),
-      where("email", "==", email),
+      where("userId", "==", userId), // <--- SỬ DỤNG USER ID
       orderBy("createdAt", "desc")
     );
 
-    // Lắng nghe thay đổi từ Firestore
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
@@ -71,19 +67,19 @@ export const TopicProvider: React.FC<{
       }
     );
 
-    // Cleanup khi unmount hoặc đổi email
     return () => unsubscribe();
-  }, [email]);
+  }, [userId]);
 
   // --- CRUD FUNCTIONS ---
 
   const addTopic = async (data: Partial<TopicItem>) => {
-    if (!email) return;
+    if (!userId) return;
     try {
       await addDoc(collection(db, DataTable.Topics), {
         ...data,
         label: data.label || "New Topic",
-        email: email,
+        userId: userId, // <--- LƯU USER ID
+        // email: userId, // (Optional) backup
         createdAt: serverTimestamp(),
       });
     } catch (error) {
@@ -108,7 +104,6 @@ export const TopicProvider: React.FC<{
     }
   };
 
-  // Giá trị sẽ cung cấp cho toàn bộ app
   const value = {
     topics,
     isLoading,

@@ -32,28 +32,28 @@ const HomePage = () => {
           if (userSnap.exists()) {
             // 1. User đã tồn tại -> Lấy data và gán thêm ID
             const data = userSnap.data();
-            
+
             // Ép kiểu và thêm field id (lấy từ userSnap.id hoặc currentUser.email)
             const profile = {
               ...data,
               id: userSnap.id, // <--- THÊM ID Ở ĐÂY
             } as UserProfile;
-            
+
             // Cập nhật lastLogin
             setDoc(userRef, { lastLoginAt: Date.now() }, { merge: true });
-            
+
             setUserProfile(profile);
           } else {
             // 2. User mới -> Tạo profile mặc định kèm ID
             const newProfile: UserProfile = {
-              id: currentUser.email!, // <--- THÊM ID Ở ĐÂY
+              id: currentUser.uid,
               email: currentUser.email!,
-              role: UserRole.USER, 
+              role: UserRole.USER,
               status: UserStatus.PENDING,
               createdAt: Date.now(),
-              lastLoginAt: Date.now()
+              lastLoginAt: Date.now(),
             };
-            
+
             // Lưu vào DB
             await setDoc(userRef, newProfile);
             setUserProfile(newProfile);
@@ -85,7 +85,7 @@ const HomePage = () => {
   }
 
   // ... (Phần render UI bên dưới giữ nguyên) ...
-  
+
   // 1. Chưa login
   if (!user || !userProfile) {
     return <EmailEntry onSubmit={() => {}} />;
@@ -95,7 +95,9 @@ const HomePage = () => {
   if (userProfile.status === UserStatus.REJECTED) {
     return (
       <div className="h-screen flex items-center justify-center flex-col gap-4">
-        <h2 className="text-xl text-red-600 font-bold">Tài khoản bị từ chối truy cập</h2>
+        <h2 className="text-xl text-red-600 font-bold">
+          Tài khoản bị từ chối truy cập
+        </h2>
         <Button onClick={handleLogout}>Đăng xuất</Button>
       </div>
     );
@@ -108,18 +110,19 @@ const HomePage = () => {
 
   // 4. APPROVED
   return (
-    <TopicProvider email={user.email!}>
+    <TopicProvider userId={userProfile.id!}>
       <div className="relative">
-         <DashboardContent 
-            userEmail={user.email!} 
+       
+        <DashboardContent 
+            user={userProfile} 
             onLogout={handleLogout} 
-         />
-         
-         {userProfile.role === UserRole.ADMIN && (
-           <div className="fixed bottom-4 left-4 z-50">
-             <AdminUserManagement />
-           </div>
-         )}
+        />
+
+        {userProfile.role === UserRole.ADMIN && (
+          <div className="fixed bottom-4 left-4 z-50">
+            <AdminUserManagement />
+          </div>
+        )}
       </div>
     </TopicProvider>
   );

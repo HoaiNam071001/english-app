@@ -15,56 +15,51 @@ import {
 } from "firebase/firestore";
 import { useCallback, useEffect, useState } from "react";
 
-export const useVocabulary = (currentUserEmail: string | null) => {
+export const useVocabulary = (userId: string | null) => {
   const [allWords, setAllWords] = useState<VocabularyItem[]>([]);
   const [displayCards, setDisplayCards] = useState<VocabularyItem[]>([]);
   const [loading, setLoading] = useState(false);
-
   const addVocabulary = async (
     newEntries: Partial<VocabularyItem>[]
   ): Promise<AddReport> => {
-    if (!currentUserEmail) return { added: [], skipped: [] };
+    if (!userId) return { added: [], skipped: [] };
 
-    // 1. Tận dụng state allWords có sẵn để check trùng (Không tốn tiền đọc DB)
+    // Check trùng dựa trên state hiện tại
     const existingSet = new Set(allWords.map((w) => w.normalized));
-    const currentBatchSet = new Set<string>(); // Check trùng trong chính batch đang thêm
+    const currentBatchSet = new Set<string>();
 
     const batch = writeBatch(db);
     const addedWords: string[] = [];
     const skippedWords: string[] = [];
 
     newEntries.forEach((entry) => {
-      // Check trùng với DB hoặc trùng với từ vừa thêm vào batch
       if (
-        existingSet.has(entry.normalized) ||
-        currentBatchSet.has(entry.normalized)
+        existingSet.has(entry.normalized!) ||
+        currentBatchSet.has(entry.normalized!)
       ) {
-        skippedWords.push(entry.text);
+        skippedWords.push(entry.text!);
       } else {
         const newDocRef = doc(collection(db, DataTable.Vocabulary));
         const docData = {
           text: entry.text,
           meaning: entry.meaning,
           normalized: entry.normalized,
-          email: currentUserEmail,
+          userId: userId, // <--- SỬ DỤNG USER ID
+          // email: userId, // (Optional) Có thể lưu thêm email để backup nếu muốn
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
           isLearned: false,
         };
         batch.set(newDocRef, docData);
 
-        // Cập nhật các set tạm thời
-        currentBatchSet.add(entry.normalized);
-        addedWords.push(entry.text);
+        currentBatchSet.add(entry.normalized!);
+        addedWords.push(entry.text!);
       }
     });
 
-    // 2. Commit batch nếu có từ mới
     if (addedWords.length > 0) {
       try {
         await batch.commit();
-        // Không cần gọi fetchAllWords() ở đây nếu muốn UI tự update
-        // Nhưng vì Modal có prop onSuccess gọi fetch, ta cứ để flow cũ
       } catch (e) {
         console.error("Error adding batch:", e);
       }
@@ -76,7 +71,7 @@ export const useVocabulary = (currentUserEmail: string | null) => {
   // 1. FETCH DATA
   const fetchAllWords = useCallback(
     async (options?: { keepFlashcards?: boolean }) => {
-      if (!currentUserEmail) {
+      if (!userId) {
         setAllWords([]);
         setDisplayCards([]);
         return;
@@ -86,10 +81,13 @@ export const useVocabulary = (currentUserEmail: string | null) => {
       try {
         const q = query(
           collection(db, DataTable.Vocabulary),
-          where("email", "==", currentUserEmail),
+          where("userId", "==", userId),
           orderBy("createdAt", "desc")
         );
+
         const snapshot = await getDocs(q);
+                        console.log(userId, snapshot)
+
         const fetchedWords = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
@@ -97,10 +95,8 @@ export const useVocabulary = (currentUserEmail: string | null) => {
           isLearned: doc.data().isLearned || false,
         })) as VocabularyItem[];
 
-        // 1. Luôn cập nhật danh sách tổng (Sidebar)
         setAllWords(fetchedWords);
 
-        // 2. Chỉ reset Flashcards nếu KHÔNG có cờ keepFlashcards
         if (!options?.keepFlashcards) {
           setDisplayCards(
             fetchedWords?.filter((w) => isToday(w.createdAt) && !w.isLearned)
@@ -112,60 +108,59 @@ export const useVocabulary = (currentUserEmail: string | null) => {
         setLoading(false);
       }
     },
-    [currentUserEmail]
+    [userId]
   );
 
-  // Tự động fetch khi email thay đổi
+  // Tự động fetch khi userId thay đổi
   useEffect(() => {
     fetchAllWords();
   }, [fetchAllWords]);
 
-  // 2. UPDATE WORD
-  const updateWord = async (id: string, updates: Partial<VocabularyItem>) => {
-    // Update UI Optimistic
+  // ... (Các hàm updateWord, deleteWord, toggleLearnedStatus ... giữ nguyên logic cũ vì chúng dùng Doc ID, không ảnh hưởng bởi field userId)
 
+  const updateWord = async (id: string, updates: Partial<VocabularyItem>) => {
+    // ... Code cũ giữ nguyên
     setAllWords((prev) =>
       prev.map((w) => (w.id === id ? { ...w, ...updates } : w))
     );
     setDisplayCards((prev) =>
       prev.map((w) => (w.id === id ? { ...w, ...updates } : w))
     );
-
-    // Update DB
     try {
-      const docRef = doc(db, DataTable.Vocabulary, id);
-      await updateDoc(docRef, updates);
+      await updateDoc(doc(db, DataTable.Vocabulary, id), updates);
     } catch (error) {
-      console.error("Lỗi update DB:", error);
-      // Có thể revert UI ở đây nếu lỗi
+      console.error(error);
     }
   };
 
-  // 3. DELETE SINGLE WORD
   const deleteWord = async (id: string) => {
+    // ... Code cũ giữ nguyên
     setAllWords((prev) => prev.filter((w) => w.id !== id));
     setDisplayCards((prev) => prev.filter((w) => w.id !== id));
-
     try {
       await deleteDoc(doc(db, DataTable.Vocabulary, id));
-    } catch (error) {
-      console.error("Lỗi khi xóa:", error);
+    } catch (e) {
+      console.error(e);
     }
   };
 
-  // 4. BULK DELETE
   const bulkDeleteWords = async (ids: string[]) => {
+    // ... Code cũ giữ nguyên
     setAllWords((prev) => prev.filter((w) => !ids.includes(w.id)));
     setDisplayCards((prev) => prev.filter((w) => !ids.includes(w.id)));
-
     try {
       const batch = writeBatch(db);
       ids.forEach((id) => batch.delete(doc(db, DataTable.Vocabulary, id)));
       await batch.commit();
-    } catch (error) {
-      console.error("Lỗi bulk delete:", error);
+    } catch (e) {
+      console.error(e);
     }
   };
+
+  // Tự động fetch khi email thay đổi
+  useEffect(() => {
+    fetchAllWords();
+  }, [fetchAllWords]);
 
   // 5. TOGGLE LEARNED STATUS (Sidebar Action)
   const toggleLearnedStatus = async (id: string, currentStatus: boolean) => {

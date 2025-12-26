@@ -20,11 +20,14 @@ import {
   Loader2 // Import icon loading
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { UserProfile } from "@/types";
 
-// ... (Giữ nguyên DashboardContent không thay đổi gì cả) ...
-export const DashboardContent = ({ userEmail, onLogout }: { userEmail: string; onLogout: () => void; }) => {
-  // ... Code cũ của DashboardContent giữ nguyên ...
-  // ... (Copy lại đoạn code DashboardContent ở trên của bạn vào đây) ...
+interface DashboardContentProps {
+  user: UserProfile;
+  onLogout: () => void;
+}
+
+export const DashboardContent = ({ user, onLogout }: DashboardContentProps) => {
    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
 
@@ -45,8 +48,7 @@ export const DashboardContent = ({ userEmail, onLogout }: { userEmail: string; o
     bulkAddToPractice,
     addVocabulary,
     bulkUpdateWords,
-  } = useVocabulary(userEmail);
-
+} = useVocabulary(user.id!);
   // Hook Topics (GỌI Ở ĐÂY LÀ HỢP LỆ)
   const { topics, addTopic, deleteTopic, updateTopic } = useTopics();
 
@@ -99,7 +101,7 @@ export const DashboardContent = ({ userEmail, onLogout }: { userEmail: string; o
               Vocabulary Manager
             </div>
             <p className="text-sm text-slate-500 hidden sm:block">
-              User: {userEmail}
+              User: {user.email}
             </p>
           </div>
         </div>
