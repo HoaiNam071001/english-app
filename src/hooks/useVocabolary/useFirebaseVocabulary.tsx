@@ -15,7 +15,7 @@ import {
 } from "firebase/firestore";
 import { useCallback, useEffect, useState } from "react";
 
-export const useVocabulary = (userId: string | null) => {
+export const useFirebaseVocabulary = (userId: string | null) => {
   const [allWords, setAllWords] = useState<VocabularyItem[]>([]);
   const [displayCards, setDisplayCards] = useState<VocabularyItem[]>([]);
   const [loading, setLoading] = useState(false);

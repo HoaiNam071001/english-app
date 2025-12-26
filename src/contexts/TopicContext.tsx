@@ -1,20 +1,8 @@
 /* eslint-disable react-refresh/only-export-components */
-import { db } from "@/firebaseConfig";
-import { DataTable, TopicItem } from "@/types";
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  onSnapshot,
-  orderBy,
-  query,
-  serverTimestamp,
-  updateDoc,
-  where,
-} from "firebase/firestore";
-import React, { createContext, ReactNode, useEffect, useState } from "react";
-
+import React, { createContext, ReactNode } from "react";
+import { TopicItem } from "@/types";
+import { useFirebaseTopics } from "@/hooks/useTopics/useFirebaseTopics";
+import { useGuestTopics } from "@/hooks/useTopics/useGuestTopics";
 export interface TopicContextType {
   topics: TopicItem[];
   isLoading: boolean;
@@ -29,89 +17,22 @@ export const TopicContext = createContext<TopicContextType | undefined>(
 
 export const TopicProvider: React.FC<{
   children: ReactNode;
-  userId: string | null; // <--- Đổi tên prop từ email -> userId
+  userId: string | null;
 }> = ({ children, userId }) => {
-  const [topics, setTopics] = useState<TopicItem[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  
+  // 1. Gọi Hook Firebase (Logic sẽ tự pause nếu userId null nhờ check bên trong hook)
+  const firebaseData = useFirebaseTopics(userId);
 
-  // --- REALTIME LISTENER ---
-  useEffect(() => {
-    if (!userId) {
-      setTopics([]);
-      return;
-    }
+  // 2. Gọi Hook Guest (Chỉ enable khi không có userId)
+  const guestData = useGuestTopics(userId === null);
 
-    setIsLoading(true);
-    // Query topics theo userId
-    const q = query(
-      collection(db, DataTable.Topics),
-      where("userId", "==", userId), // <--- SỬ DỤNG USER ID
-      orderBy("createdAt", "desc")
-    );
-
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        const fetchedTopics = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-          createdAt: doc.data().createdAt?.toMillis() || 0,
-        })) as TopicItem[];
-
-        setTopics(fetchedTopics);
-        setIsLoading(false);
-      },
-      (error) => {
-        console.error("Error listening to topics:", error);
-        setIsLoading(false);
-      }
-    );
-
-    return () => unsubscribe();
-  }, [userId]);
-
-  // --- CRUD FUNCTIONS ---
-
-  const addTopic = async (data: Partial<TopicItem>) => {
-    if (!userId) return;
-    try {
-      await addDoc(collection(db, DataTable.Topics), {
-        ...data,
-        label: data.label || "New Topic",
-        userId: userId, // <--- LƯU USER ID
-        createdAt: serverTimestamp(),
-      });
-    } catch (error) {
-      console.error("Error adding topic:", error);
-    }
-  };
-
-  const updateTopic = async (id: string, updates: Partial<TopicItem>) => {
-    try {
-      await updateDoc(doc(db, DataTable.Topics, id), updates);
-    } catch (error) {
-      console.error("Error updating topic:", error);
-    }
-  };
-
-  const deleteTopic = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this topic?")) return;
-    try {
-      await deleteDoc(doc(db, DataTable.Topics, id));
-    } catch (error) {
-      console.error("Error deleting topic:", error);
-    }
-  };
-
-  const value = {
-    topics,
-    isLoading,
-    addTopic,
-    updateTopic,
-    deleteTopic,
-  };
+  // 3. ADAPTER SWITCH: Chọn data nào để expose ra ngoài
+  const contextValue = userId ? firebaseData : guestData;
 
   return (
-    <TopicContext.Provider value={value}>{children}</TopicContext.Provider>
+    <TopicContext.Provider value={contextValue}>
+      {children}
+    </TopicContext.Provider>
   );
 };
+

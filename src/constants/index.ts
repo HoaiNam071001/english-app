@@ -51,7 +51,7 @@ export const FIREBASE_APP_ID = VITE_FIREBASE_APP_ID;
 export const FIREBASE_MEASUREMENT_ID = VITE_FIREBASE_MEASUREMENT_ID;
 
 export const STORAGE_KEY = {
-  EMAIL_CACHE_KEY: "vocab_user_email",
+  is_GUEST: "is_GUEST",
 };
 
 export const ICON_MAP: Record<string, LucideIcon> = {
@@ -206,3 +206,12 @@ export const TOPIC_COLORS: TopicColor[] = [
     border: "border-slate-200",
   },
 ];
+
+
+export const GUEST_INFO = {
+  name: "Guest",
+  storageKey: {
+    topic: "topic_storage",
+    vocabulary: "vocabulary_storage"
+  }
+}

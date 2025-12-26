@@ -7,8 +7,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { useAdmin } from "@/hooks/useAdmin";
-import { useAuth } from "@/contexts/AuthContext";
-import { UserProfile, UserRole, UserStatus } from "@/types";
+import { UserRole, UserStatus } from "@/types";
+import { useAuth } from "@/hooks/useAuth";
 
 // --- 1. HELPER COMPONENTS & FUNCTIONS ---
 

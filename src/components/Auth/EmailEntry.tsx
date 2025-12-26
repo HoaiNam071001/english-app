@@ -1,10 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { useAuth } from '@/contexts/AuthContext';
-import { Loader2 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { Loader2 } from 'lucide-react'; // Import icon UserOff
 
-const EmailEntry = () => {
-  const { loginWithGoogle, loading, error, user } = useAuth();
+// Thêm prop onGuestLogin
+const EmailEntry = ({ onGuestLogin }: { onGuestLogin: () => void }) => {
+  const { loginWithGoogle, loading, error } = useAuth();
 
   const handleLogin = async () => {
     await loginWithGoogle();
@@ -19,6 +20,7 @@ const EmailEntry = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
+            {/* Google Login */}
             <Button 
               variant="outline" 
               className="w-full py-6 text-md flex gap-2 items-center justify-center" 
@@ -32,11 +34,27 @@ const EmailEntry = () => {
               )}
               Tiếp tục với Google
             </Button>
+            
+            <div className="relative">
+                <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
+                <div className="relative flex justify-center text-xs uppercase"><span className="bg-white px-2 text-muted-foreground">Hoặc</span></div>
+            </div>
+
+            {/* Guest Login Button */}
+            <Button 
+                variant="secondary" 
+                className="w-full flex gap-2"
+                onClick={onGuestLogin}
+                disabled={loading}
+            >
+                <Loader2 className="h-4 w-4" />
+                Dùng thử không cần đăng nhập
+            </Button>
 
             {error && <p className="text-sm text-center text-red-500">{error}</p>}
             
-            <div className="text-center text-xs text-slate-400">
-              Chỉ lấy email để định danh, không yêu cầu quyền gì khác.
+            <div className="text-center text-xs text-slate-400 mt-2">
+              Chế độ khách: Dữ liệu chỉ lưu trên thiết bị này.
             </div>
           </div>
         </CardContent>

@@ -1,26 +1,21 @@
 import CreateVocabularyModal from "@/pages/home/components/CreateVocabularyModal";
-import EmailEntry from "@/components/Auth/EmailEntry";
 import FlashcardSection from "@/pages/home/components/FlashcardSection";
 import TopicList from "@/pages/home/components/TopicList";
 import { Button } from "@/components/ui/button";
 import VocabularySidebar from "@/pages/home/components/VocabularySidebar";
-import { TopicProvider } from "@/contexts/TopicContext";
 import { useTopics } from "@/hooks/useTopics";
-import { useVocabulary } from "@/hooks/useVocabulary";
-import { auth } from "@/firebaseConfig"; // <--- IMPORT AUTH
-import { onAuthStateChanged, signOut, User } from "firebase/auth"; // <--- IMPORT FIREBASE AUTH METHODS
 import {
   ChevronLeft,
   LogOut,
   PanelLeftClose,
   PanelLeftOpen,
-  Loader2, // Import icon loading
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { UserProfile } from "@/types";
+import { useVocabulary } from '../../../hooks/useVocabolary/index';
 
 interface DashboardContentProps {
-  user: UserProfile;
+  user: UserProfile | null;
   onLogout: () => void;
 }
 
@@ -45,7 +40,7 @@ export const DashboardContent = ({ user, onLogout }: DashboardContentProps) => {
     bulkAddToPractice,
     addVocabulary,
     bulkUpdateWords,
-  } = useVocabulary(user.id!);
+  } = useVocabulary(user?.id);
 
   // Hook Topics (GỌI Ở ĐÂY LÀ HỢP LỆ)
   const { topics, addTopic, deleteTopic, updateTopic } = useTopics();
@@ -97,7 +92,7 @@ export const DashboardContent = ({ user, onLogout }: DashboardContentProps) => {
           <div>
             <div className="text-2xl font-bold">Vocabulary Manager</div>
             <p className="text-sm text-slate-500 hidden sm:block">
-              User: {user.email}
+              User: {user?.email}
             </p>
           </div>
         </div>

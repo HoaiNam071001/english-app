@@ -8,6 +8,7 @@ export interface VocabularyItem {
   isLearned?: boolean;
   example?: string;
   topicId?: string | null; // <--- Change: Allow null
+  userId: string;
 }
 
 // Kiểu dữ liệu cho báo cáo sau khi thêm
@@ -26,6 +27,7 @@ export interface TopicItem {
   id: string;
   label: string;
   desc?: string;
+  userId: string;
   color?: string;
   icon?: string;
   createdAt: number;
