@@ -37,7 +37,6 @@ const HomePage = () => {
             // Ép kiểu và thêm field id (lấy từ userSnap.id hoặc currentUser.email)
             const profile = {
               ...data,
-              id: userSnap.id, // <--- THÊM ID Ở ĐÂY
             } as UserProfile;
 
             // Cập nhật lastLogin

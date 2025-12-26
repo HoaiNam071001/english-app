@@ -85,8 +85,6 @@ export const useVocabulary = (userId: string | null) => {
         );
 
         const snapshot = await getDocs(q);
-                        console.log(userId, snapshot)
-
         const fetchedWords = snapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),

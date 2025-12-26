@@ -1,6 +1,3 @@
-
-
-
 import CreateVocabularyModal from "@/components/CreateVocabularyModal";
 import EmailEntry from "@/components/EmailEntry";
 import FlashcardSection from "@/components/FlashcardSection";
@@ -17,7 +14,7 @@ import {
   LogOut,
   PanelLeftClose,
   PanelLeftOpen,
-  Loader2 // Import icon loading
+  Loader2, // Import icon loading
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { UserProfile } from "@/types";
@@ -28,7 +25,7 @@ interface DashboardContentProps {
 }
 
 export const DashboardContent = ({ user, onLogout }: DashboardContentProps) => {
-   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
 
   // Hook Vocabulary
@@ -48,7 +45,8 @@ export const DashboardContent = ({ user, onLogout }: DashboardContentProps) => {
     bulkAddToPractice,
     addVocabulary,
     bulkUpdateWords,
-} = useVocabulary(user.id!);
+  } = useVocabulary(user.id!);
+
   // Hook Topics (GỌI Ở ĐÂY LÀ HỢP LỆ)
   const { topics, addTopic, deleteTopic, updateTopic } = useTopics();
 
@@ -97,9 +95,7 @@ export const DashboardContent = ({ user, onLogout }: DashboardContentProps) => {
           </Button>
 
           <div>
-            <div className="text-2xl font-bold">
-              Vocabulary Manager
-            </div>
+            <div className="text-2xl font-bold">Vocabulary Manager</div>
             <p className="text-sm text-slate-500 hidden sm:block">
               User: {user.email}
             </p>
