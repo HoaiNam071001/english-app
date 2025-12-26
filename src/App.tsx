@@ -1,9 +1,9 @@
 // src/App.tsx
 
-import HomePage from "./pages/Home";
+import { MainLayout } from "./pages/MainLayout";
 
 function App() {
-  return <HomePage />;
+  return <MainLayout />;
 }
 
 export default App;

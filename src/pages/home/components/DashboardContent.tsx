@@ -1,9 +1,9 @@
-import CreateVocabularyModal from "@/components/CreateVocabularyModal";
+import CreateVocabularyModal from "@/pages/home/components/CreateVocabularyModal";
 import EmailEntry from "@/components/EmailEntry";
-import FlashcardSection from "@/components/FlashcardSection";
-import TopicList from "@/components/TopicList";
+import FlashcardSection from "@/pages/home/components/FlashcardSection";
+import TopicList from "@/pages/home/components/TopicList";
 import { Button } from "@/components/ui/button";
-import VocabularySidebar from "@/components/VocabularySidebar";
+import VocabularySidebar from "@/pages/home/components/VocabularySidebar";
 import { TopicProvider } from "@/contexts/TopicContext";
 import { useTopics } from "@/hooks/useTopics";
 import { useVocabulary } from "@/hooks/useVocabulary";

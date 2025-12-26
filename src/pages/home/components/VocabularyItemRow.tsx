@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { EditPopoverContent } from "./EditPopoverContent";
-import { Button } from "./ui/button";
+import { Button } from "../../../components/ui/button";
 
 interface VocabularyItemRowProps {
   word: VocabularyItem;

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { auth, db, googleProvider } from "@/firebaseConfig";
 import { onAuthStateChanged, signInWithPopup, signOut, User } from "firebase/auth";
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { DataTable, UserProfile, UserRole, UserStatus } from "@/types";
 
 export const useAuth = () => {
@@ -17,22 +17,24 @@ export const useAuth = () => {
       if (currentUser) {
         setUser(currentUser);
         try {
-          // Dùng email làm ID
+          // 👇 SỬA LẠI: Dùng email làm Document ID
           const userRef = doc(db, DataTable.USER, currentUser.email);
           const userSnap = await getDoc(userRef);
 
           if (userSnap.exists()) {
             // User cũ -> Get data
             const data = userSnap.data();
-            setUserProfile({ ...data } as UserProfile);
-
+            
             // Update lastLogin
             await setDoc(userRef, { lastLoginAt: Date.now() }, { merge: true });
+            // Gán lại ID từ snapshot để đảm bảo chính xác
+            setUserProfile({ ...data, id: userSnap.id } as UserProfile);
+
           } else {
             // User mới -> Create data
             const newProfile: UserProfile = {
-              id: currentUser.uid,
-              email: currentUser.email!,
+              id: currentUser.uid, // 👇 ID là UID
+              email: currentUser.email!, // Email chỉ để hiển thị
               role: UserRole.USER,
               status: UserStatus.PENDING,
               createdAt: Date.now(),

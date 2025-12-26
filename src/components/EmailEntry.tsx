@@ -1,16 +1,13 @@
-import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Loader2 } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth'; // Import Hook
+import { useAuth } from '@/hooks/useAuth';
 
 const EmailEntry = () => {
-  // Lấy hàm login và state từ hook
-  const { loginWithGoogle, loading, error } = useAuth();
+  const { loginWithGoogle, loading, error, user } = useAuth();
 
   const handleLogin = async () => {
     await loginWithGoogle();
-    // Không cần onSubmit prop nữa vì HomePage tự detect user thay đổi và re-render
   };
 
   return (
