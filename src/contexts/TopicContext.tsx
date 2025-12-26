@@ -79,7 +79,6 @@ export const TopicProvider: React.FC<{
         ...data,
         label: data.label || "New Topic",
         userId: userId, // <--- LƯU USER ID
-        // email: userId, // (Optional) backup
         createdAt: serverTimestamp(),
       });
     } catch (error) {

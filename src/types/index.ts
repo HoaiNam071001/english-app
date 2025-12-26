@@ -3,7 +3,6 @@ export interface VocabularyItem {
   text: string; // Từ tiếng Anh (hiển thị)
   meaning: string; // Nghĩa tiếng Việt
   normalized: string; // Từ tiếng Anh viết thường (để check trùng)
-  email: string; // Người tạo
   createdAt: number; // Kiểu thời gian của Firebase
   updatedAt: number;
   isLearned?: boolean;
@@ -29,7 +28,6 @@ export interface TopicItem {
   desc?: string;
   color?: string;
   icon?: string;
-  email: string;
   createdAt: number;
   updatedAt?: number;
 }

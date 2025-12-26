@@ -12,6 +12,7 @@ import { TopicProvider } from "@/contexts/TopicContext";
 import AdminUserManagement from "@/components/AdminUserManagement";
 import { Button } from "@/components/ui/button";
 import { DashboardContent } from "./DashboardContent";
+import { MigrationTool } from "@/migrations/MigrationTool";
 
 const HomePage = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -112,6 +113,7 @@ const HomePage = () => {
   return (
     <TopicProvider userId={userProfile.id!}>
       <div className="relative">
+        {/* <MigrationTool/> */}
         <DashboardContent user={userProfile} onLogout={handleLogout} />
 
         {userProfile.role === UserRole.ADMIN && (

@@ -45,7 +45,6 @@ export const useVocabulary = (userId: string | null) => {
           meaning: entry.meaning,
           normalized: entry.normalized,
           userId: userId, // <--- SỬ DỤNG USER ID
-          // email: userId, // (Optional) Có thể lưu thêm email để backup nếu muốn
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
           isLearned: false,
