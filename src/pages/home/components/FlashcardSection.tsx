@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -6,7 +7,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"; // <--- Import Dropdown
+} from "@/components/ui/dropdown-menu";
 import {
   Popover,
   PopoverContent,
@@ -18,51 +19,68 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { VocabularyItem } from "@/types";
+import { TopicItem, VocabularyItem } from "@/types";
 import {
   ArrowDownToLine,
   ArrowUpToLine,
+  Book,
+  BookOpen,
   Eraser,
   Eye,
   EyeOff,
   MoreHorizontal,
-  RotateCcw,
+  RotateCcw, // Shuffle icon
   Trash2,
 } from "lucide-react";
 import React, { useState } from "react";
+import { AddCardControl } from "./AddCardControl";
 import VocabularyCard from "./VocabularyCard";
 
 interface FlashcardSectionProps {
+  allWords: VocabularyItem[];
   displayCards: VocabularyItem[];
+  topics: TopicItem[];
   setDisplayCards: (vol: VocabularyItem[]) => void;
   onMarkLearned: (id: string) => void;
   onUpdateWord: (id: string, updates: Partial<VocabularyItem>) => void;
   onDeleteWord: (id: string) => void;
+  onAddWords: (newWords: VocabularyItem[]) => void;
+}
+
+export enum FlashcardCommandType {
+  SHOW_MEANING_ALL = "SHOW_MEANING_ALL",
+  HIDE_MEANING_ALL = "HIDE_MEANING_ALL",
+  RESET_FLIP = "RESET_FLIP", // Face down
+  FLIP_ALL = "FLIP_ALL", // Face up
 }
 
 export type FlashcardCommand = {
-  type: "SHOW_MEANING_ALL" | "HIDE_MEANING_ALL" | "RESET_FLIP";
+  type: FlashcardCommandType;
   timestamp: number;
 };
 
 const FlashcardSection: React.FC<FlashcardSectionProps> = ({
+  allWords,
   displayCards,
+  topics,
   setDisplayCards,
   onMarkLearned,
   onUpdateWord,
   onDeleteWord,
+  onAddWords,
 }) => {
   const [command, setCommand] = useState<FlashcardCommand | null>(null);
   const [isDeleteAllOpen, setIsDeleteAllOpen] = useState(false);
-
-  // 1. State theo dõi các thẻ đang lật
   const [flippedIds, setFlippedIds] = useState<Set<string>>(new Set());
 
-  const sendCommand = (type: FlashcardCommand["type"]) => {
+  // --- Logic Command & Flip ---
+  const sendCommand = (type: FlashcardCommandType) => {
     setCommand({ type, timestamp: Date.now() });
 
-    // Nếu reset hoặc hide all -> Xóa danh sách đang lật
-    if (type === "RESET_FLIP") {
+    // Update local flipped state based on command
+    if (type === FlashcardCommandType.FLIP_ALL) {
+      setFlippedIds(new Set(displayCards.map((card) => card.id)));
+    } else if (type === FlashcardCommandType.RESET_FLIP) {
       setFlippedIds(new Set());
     }
   };
@@ -70,7 +88,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
   const handleShuffle = () => {
     const shuffled = [...displayCards].sort(() => Math.random() - 0.5);
     setDisplayCards(shuffled);
-    sendCommand("RESET_FLIP");
+    sendCommand(FlashcardCommandType.RESET_FLIP); // Reset to face down when shuffling
   };
 
   const confirmRemoveAll = () => {
@@ -79,7 +97,6 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
     setIsDeleteAllOpen(false);
   };
 
-  // 2. Hàm xử lý khi Card con báo cáo trạng thái lật
   const handleCardFlipReport = (id: string, isFlipped: boolean) => {
     setFlippedIds((prev) => {
       const newSet = new Set(prev);
@@ -89,24 +106,21 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
     });
   };
 
-  // 3. Tính năng: Xóa các thẻ đã lật
   const removeFlippedCards = () => {
     if (flippedIds.size === 0) return;
     const remaining = displayCards.filter((card) => !flippedIds.has(card.id));
     setDisplayCards(remaining);
-    setFlippedIds(new Set()); // Reset vì các thẻ lật đã bị xóa
+    setFlippedIds(new Set());
   };
 
-  // 4. Tính năng: Sắp xếp thẻ lật (Lên đầu hoặc Xuống cuối)
   const sortFlippedCards = (direction: "top" | "bottom") => {
     const flipped = displayCards.filter((card) => flippedIds.has(card.id));
     const unflipped = displayCards.filter((card) => !flippedIds.has(card.id));
-
-    if (direction === "top") {
-      setDisplayCards([...flipped, ...unflipped]);
-    } else {
-      setDisplayCards([...unflipped, ...flipped]);
-    }
+    setDisplayCards(
+      direction === "top"
+        ? [...flipped, ...unflipped]
+        : [...unflipped, ...flipped]
+    );
   };
 
   return (
@@ -121,64 +135,117 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
         </h2>
 
         <div className="flex items-center gap-2">
-          {/* Meaning Controls */}
-          <div className="bg-white border rounded-lg p-1 flex gap-1 shadow-sm items-center">
-            <span className="text-[10px] font-bold text-slate-400 px-2 uppercase">
-              Meaning:
-            </span>
+          {/* 1. ADD NEW CARDS */}
+          <AddCardControl
+            allWords={allWords}
+            displayCards={displayCards}
+            topics={topics}
+            onAdd={onAddWords}
+          />
+
+          <div className="w-[1px] h-6 bg-slate-300 mx-1"></div>
+
+          {/* 2. CARD ROTATION GROUP (Flip/Face Down) */}
+          <div className="bg-white border rounded-lg p-0.5 flex gap-0.5 shadow-sm">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     variant="ghost"
-                    size="sm"
-                    onClick={() => sendCommand("SHOW_MEANING_ALL")}
+                    size="icon"
+                    onClick={() => sendCommand(FlashcardCommandType.FLIP_ALL)}
                     className="h-8 w-8 text-blue-600 hover:bg-blue-50"
                   >
-                    <Eye size={18} />
+                    <BookOpen size={16} />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Show all meanings</TooltipContent>
+                <TooltipContent>Flip All (Face Up)</TooltipContent>
               </Tooltip>
             </TooltipProvider>
 
-            <div className="w-[1px] h-4 bg-slate-200 my-auto"></div>
-
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     variant="ghost"
-                    size="sm"
-                    onClick={() => sendCommand("HIDE_MEANING_ALL")}
-                    className="h-8 w-8 text-slate-500 hover:bg-slate-100"
+                    size="icon"
+                    onClick={() => sendCommand(FlashcardCommandType.RESET_FLIP)}
+                    className="h-8 w-8 text-slate-600 hover:bg-slate-100"
                   >
-                    <EyeOff size={18} />
+                    <Book size={16} />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Hide all meanings</TooltipContent>
+                <TooltipContent>Face Down All</TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </div>
 
-          {/* Shuffle */}
-          <Button variant="outline" size="sm" onClick={handleShuffle}>
-            <RotateCcw className="mr-2 h-4 w-4" /> Shuffle & Reset
-          </Button>
+          {/* 3. VISIBILITY GROUP (Meaning) */}
+          <div className="bg-white border rounded-lg p-0.5 flex gap-0.5 shadow-sm">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() =>
+                      sendCommand(FlashcardCommandType.SHOW_MEANING_ALL)
+                    }
+                    className="h-8 w-8 text-indigo-600 hover:bg-indigo-50"
+                  >
+                    <Eye size={16} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Reveal All Meanings</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
 
-          {/* MORE ACTIONS DROPDOWN (NEW) */}
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() =>
+                      sendCommand(FlashcardCommandType.HIDE_MEANING_ALL)
+                    }
+                    className="h-8 w-8 text-slate-500 hover:bg-slate-100"
+                  >
+                    <EyeOff size={16} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Hide All Meanings</TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+
+          {/* 4. SHUFFLE */}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-9 w-9"
+                  onClick={handleShuffle}
+                >
+                  <RotateCcw size={16} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Shuffle Cards</TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          {/* 5. MORE ACTIONS */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="icon" className="h-9 w-9">
-                <MoreHorizontal size={18} />
+                <MoreHorizontal size={16} />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>
-                Flipped Cards ({flippedIds.size})
-              </DropdownMenuLabel>
+              <DropdownMenuLabel>Flipped ({flippedIds.size})</DropdownMenuLabel>
               <DropdownMenuSeparator />
-
               <DropdownMenuItem onClick={() => sortFlippedCards("top")}>
                 <ArrowUpToLine className="mr-2 h-4 w-4" /> Move flipped to top
               </DropdownMenuItem>
@@ -196,26 +263,26 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Remove All Popover */}
+          {/* 6. CLEAR ALL */}
           <Popover open={isDeleteAllOpen} onOpenChange={setIsDeleteAllOpen}>
             <PopoverTrigger asChild>
               <Button
                 variant="ghost"
-                size="sm"
-                className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                title="Remove all"
+                size="icon"
+                className="h-9 w-9 text-red-500 hover:bg-red-50 hover:text-red-600"
               >
-                <Trash2 size={18} />
+                <Trash2 size={16} />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-72 p-4" align="end">
               <div className="space-y-3">
                 <div className="space-y-1">
                   <h4 className="font-medium leading-none text-red-600">
-                    Clear study list?
+                    Clear study session?
                   </h4>
                   <p className="text-sm text-slate-500">
-                    This action will remove all cards currently displayed.
+                    This will remove all cards from this view. Data is not
+                    deleted from database.
                   </p>
                 </div>
                 <div className="flex justify-end gap-2">
@@ -244,7 +311,15 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
       {displayCards.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center text-slate-400">
           <div className="text-6xl mb-4 grayscale opacity-50">🎉</div>
-          <p className="text-lg font-medium">Your study list is empty!</p>
+          <p className="text-lg font-medium">Study list is empty!</p>
+          <div className="mt-4">
+            <AddCardControl
+              allWords={allWords}
+              displayCards={displayCards}
+              topics={topics}
+              onAdd={onAddWords}
+            />
+          </div>
         </div>
       ) : (
         <div className="flex-1 overflow-auto flex flex-wrap gap-6 justify-center content-start pb-10">

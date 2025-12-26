@@ -15,7 +15,7 @@ import { VocabularyItem } from "@/types";
 import { Check, Eye, EyeOff, PenLine, Volume2, X } from "lucide-react"; // Import PenLine
 import React, { useEffect, useState } from "react";
 import { EditPopoverContent } from "./EditPopoverContent"; // Import EditForm
-import { FlashcardCommand } from "./FlashcardSection";
+import { FlashcardCommand, FlashcardCommandType } from "./FlashcardSection";
 
 interface VocabularyCardProps {
   item: VocabularyItem;
@@ -41,17 +41,22 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
   const [showMeaning, setShowMeaning] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // State điều khiển mở/đóng form edit
   const [isEditOpen, setIsEditOpen] = useState(false);
 
   useEffect(() => {
     if (command) {
-      if (command.type === "SHOW_MEANING_ALL") setShowMeaning(true);
-      if (command.type === "HIDE_MEANING_ALL") setShowMeaning(false);
-      if (command.type === "RESET_FLIP") {
+      if (command.type === FlashcardCommandType.SHOW_MEANING_ALL)
+        setShowMeaning(true);
+      if (command.type === FlashcardCommandType.HIDE_MEANING_ALL)
+        setShowMeaning(false);
+      if (command.type === FlashcardCommandType.RESET_FLIP) {
         setIsFlipped(false);
         setShowMeaning(false);
         if (onFlip) onFlip(false);
+      }
+      if (command.type === FlashcardCommandType.FLIP_ALL) {
+        setIsFlipped(true);
+        if (onFlip) onFlip(true);
       }
     }
   }, [command]);

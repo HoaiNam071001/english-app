@@ -1,17 +1,13 @@
-import CreateVocabularyModal from "@/pages/home/components/CreateVocabularyModal";
-import FlashcardSection from "@/pages/home/components/FlashcardSection";
-import TopicList from "@/pages/home/components/TopicList";
 import { Button } from "@/components/ui/button";
-import VocabularySidebar from "@/pages/home/components/VocabularySidebar";
 import { useTopics } from "@/hooks/useTopics";
-import {
-  ChevronLeft,
-  PanelLeftClose,
-  PanelLeftOpen,
-} from "lucide-react";
+import CreateVocabularyModal from "@/pages/home/components/CreateVocabularyModal";
+import FlashcardSection from "@/pages/home/components/FlashcardSection"; // Import Filter type
+import TopicList from "@/pages/home/components/TopicList";
+import VocabularySidebar from "@/pages/home/components/VocabularySidebar";
+import { UserProfile, VocabularyItem } from "@/types";
+import { ChevronLeft, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useMemo, useState } from "react";
-import { UserProfile } from "@/types";
-import { useVocabulary } from '../../../hooks/useVocabolary/index';
+import { useVocabulary } from "../../../hooks/useVocabolary/index";
 
 interface DashboardContentProps {
   user: UserProfile | null;
@@ -40,16 +36,23 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
     bulkUpdateWords,
   } = useVocabulary(user?.id);
 
-  // Hook Topics (GỌI Ở ĐÂY LÀ HỢP LỆ)
   const { topics, addTopic, deleteTopic, updateTopic } = useTopics();
 
-  // Logic lọc từ theo chủ đề
+  const handleAddWordsToPractice = (newWords: VocabularyItem[]) => {
+    // Gọi hàm bulkAddToPractice từ hook (đã có logic check trùng)
+    bulkAddToPractice(newWords);
+  };
+
   const filteredWords = useMemo(() => {
     if (!selectedTopicId || selectedTopicId === "ALL") return allWords;
     return allWords.filter((w) => w.topicId === selectedTopicId);
   }, [allWords, selectedTopicId]);
 
   const currentTopic = topics.find((t) => t.id === selectedTopicId);
+  const activeWordIds = useMemo(
+    () => new Set(displayCards.map((w) => w.id)),
+    [displayCards]
+  );
 
   const handleAddVocabularyWithTopic = async (
     entries: { text: string; meaning: string; normalized: string }[]
@@ -63,11 +66,6 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
     }));
     return await addVocabulary(entriesWithTopic);
   };
-
-  const activeWordIds = useMemo(
-    () => new Set(displayCards.map((w) => w.id)),
-    [displayCards]
-  );
 
   return (
     <div className="container mx-auto p-4 md:p-6 max-w-8xl min-h-screen flex flex-col">
@@ -100,13 +98,12 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
             onAddVocabulary={handleAddVocabularyWithTopic}
             onSuccess={() => fetchAllWords({ keepFlashcards: true })}
           />
-          
         </div>
       </header>
 
       {/* MAIN LAYOUT */}
       <div className="flex flex-1 gap-2 relative overflow-hidden">
-        {/* SIDEBAR AREA */}
+        {/* SIDEBAR AREA (Giữ nguyên) */}
         <div
           className={`
               h-[75vh] transition-all duration-300 ease-in-out border-r bg-white flex flex-col
@@ -118,7 +115,6 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
           `}
         >
           {selectedTopicId === null ? (
-            // VIEW 1: TOPIC LIST
             <div className="h-full w-80 md:w-auto">
               <TopicList
                 topics={topics}
@@ -130,7 +126,6 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
               />
             </div>
           ) : (
-            // VIEW 2: VOCABULARY LIST
             <div className="h-full w-80 md:w-auto flex flex-col">
               <div className="flex items-center gap-2 p-2 border-b bg-slate-50">
                 <Button
@@ -147,7 +142,6 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
                     : currentTopic?.label}
                 </span>
               </div>
-
               <div className="flex-1 overflow-hidden">
                 <VocabularySidebar
                   allWords={filteredWords}
@@ -175,6 +169,9 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
             onMarkLearned={markAsLearned}
             onUpdateWord={updateWord}
             onDeleteWord={deleteWord}
+            allWords={allWords} // Truyền toàn bộ từ
+            topics={topics} // Truyền topics
+            onAddWords={handleAddWordsToPractice} // Hàm xử lý thêm
           />
         </div>
       </div>
