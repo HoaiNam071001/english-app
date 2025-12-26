@@ -1,15 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { db } from "@/firebaseConfig";
-import {
-  collection,
-  query,
-  where,
-  getDocs,
-  doc,
-  updateDoc,
-  orderBy,
-} from "firebase/firestore";
-import { DataTable, UserProfile, UserRole, UserStatus } from "@/types";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { Check, X, ShieldAlert } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -20,78 +9,18 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { useAdmin } from "@/hooks/useAdmin"; // Import Hook
 
-// 1. Đổi tên prop nhận vào ID
 interface AdminUserManagementProps {
-  currentAdminId: string; // <--- SỬ DỤNG ID
+  currentAdminId: string;
 }
 
 const AdminUserManagement: React.FC<AdminUserManagementProps> = ({
   currentAdminId,
 }) => {
-  const [pendingUsers, setPendingUsers] = useState<UserProfile[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  const fetchPendingUsers = async () => {
-    setLoading(true);
-    try {
-      const q = query(
-        collection(db, DataTable.USER),
-        where("status", "==", UserStatus.PENDING),
-        orderBy("createdAt", "desc")
-      );
-      const snapshot = await getDocs(q);
-      const users = snapshot.docs.map((doc) => ({
-        ...doc.data(),
-        id: doc.id,
-      })) as UserProfile[];
-
-      setPendingUsers(users);
-    } catch (error) {
-      console.error("Error fetching users:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleApprove = async (targetUser: UserProfile) => {
-    try {
-      // Lưu ý: targetUser.id chính là UID của người được duyệt
-      const docRef = doc(db, DataTable.USER, targetUser.id!);
-
-      await updateDoc(docRef, {
-        status: UserStatus.APPROVED,
-        role: UserRole.USER,
-        approvedBy: currentAdminId, // <--- LƯU UID ADMIN
-        approvedAt: Date.now(),
-      });
-
-      setPendingUsers((prev) => prev.filter((u) => u.id !== targetUser.id));
-    } catch (error) {
-      console.error("Error approving:", error);
-    }
-  };
-
-  const handleReject = async (targetUser: UserProfile) => {
-    if (!confirm("Từ chối user này?")) return;
-    try {
-      const docRef = doc(db, DataTable.USER, targetUser.id!);
-
-      await updateDoc(docRef, {
-        status: UserStatus.REJECTED,
-        approvedBy: currentAdminId, // <--- LƯU UID ADMIN
-        approvedAt: Date.now(),
-      });
-
-      setPendingUsers((prev) => prev.filter((u) => u.id !== targetUser.id));
-    } catch (error) {
-      console.error("Error rejecting:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchPendingUsers();
-  }, []);
+  // Sử dụng Hook Admin
+  const { pendingUsers, loading, approveUser, rejectUser } =
+    useAdmin(currentAdminId);
 
   return (
     <Dialog>
@@ -109,7 +38,7 @@ const AdminUserManagement: React.FC<AdminUserManagementProps> = ({
           )}
         </Button>
       </DialogTrigger>
-      {/* Phần UI DialogContent giữ nguyên như cũ */}
+
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Danh sách chờ duyệt</DialogTitle>
@@ -145,17 +74,21 @@ const AdminUserManagement: React.FC<AdminUserManagementProps> = ({
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="h-8 w-8 text-green-600 hover:bg-green-100"
-                      onClick={() => handleApprove(user)}
+                      className="text-green-600 hover:bg-green-100"
+                      onClick={() => approveUser(user.id!)}
                     >
+                      {" "}
+                      {/* Gọi hàm từ hook */}
                       <Check size={16} />
                     </Button>
                     <Button
                       size="icon"
                       variant="ghost"
-                      className="h-8 w-8 text-red-600 hover:bg-red-100"
-                      onClick={() => handleReject(user)}
+                      className="text-red-600 hover:bg-red-100"
+                      onClick={() => rejectUser(user.id!)}
                     >
+                      {" "}
+                      {/* Gọi hàm từ hook */}
                       <X size={16} />
                     </Button>
                   </div>

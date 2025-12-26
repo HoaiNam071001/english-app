@@ -1,80 +1,17 @@
-import { auth, db } from "@/firebaseConfig";
-import { onAuthStateChanged, signOut, User } from "firebase/auth";
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
-import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
-import { DataTable, UserProfile, UserRole, UserStatus } from "@/types";
+import { UserRole, UserStatus } from "@/types";
+import { useAuth } from "@/hooks/useAuth"; // Import Hook
 
-// Import các màn hình
 import EmailEntry from "@/components/EmailEntry";
 import PendingScreen from "@/components/PendingScreen";
 import { TopicProvider } from "@/contexts/TopicContext";
 import AdminUserManagement from "@/components/AdminUserManagement";
 import { Button } from "@/components/ui/button";
 import { DashboardContent } from "./DashboardContent";
-import { MigrationTool } from "@/migrations/MigrationTool";
 
 const HomePage = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setLoading(true);
-      if (currentUser) {
-        setUser(currentUser);
-        // --- LOGIC CHECK QUYỀN ---
-        try {
-          // Lưu ý: Bạn đang dùng email làm Document ID
-          const userRef = doc(db, DataTable.USER, currentUser.email!);
-          const userSnap = await getDoc(userRef);
-
-          if (userSnap.exists()) {
-            // 1. User đã tồn tại -> Lấy data và gán thêm ID
-            const data = userSnap.data();
-
-            // Ép kiểu và thêm field id (lấy từ userSnap.id hoặc currentUser.email)
-            const profile = {
-              ...data,
-            } as UserProfile;
-
-            // Cập nhật lastLogin
-            setDoc(userRef, { lastLoginAt: Date.now() }, { merge: true });
-
-            setUserProfile(profile);
-          } else {
-            // 2. User mới -> Tạo profile mặc định kèm ID
-            const newProfile: UserProfile = {
-              id: currentUser.uid,
-              email: currentUser.email!,
-              role: UserRole.USER,
-              status: UserStatus.PENDING,
-              createdAt: Date.now(),
-              lastLoginAt: Date.now(),
-            };
-
-            // Lưu vào DB
-            await setDoc(userRef, newProfile);
-            setUserProfile(newProfile);
-          }
-        } catch (error) {
-          console.error("Lỗi check profile:", error);
-        }
-      } else {
-        setUser(null);
-        setUserProfile(null);
-      }
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, []);
-
-  const handleLogout = async () => {
-    await signOut(auth);
-    setUserProfile(null);
-  };
+  // Sử dụng Hook thay vì viết logic loằng ngoằng
+  const { user, userProfile, loading, logout } = useAuth();
 
   if (loading) {
     return (
@@ -84,36 +21,31 @@ const HomePage = () => {
     );
   }
 
-  // ... (Phần render UI bên dưới giữ nguyên) ...
-
   // 1. Chưa login
   if (!user || !userProfile) {
-    return <EmailEntry onSubmit={() => {}} />;
+    return <EmailEntry />;
   }
 
   // 2. REJECTED
   if (userProfile.status === UserStatus.REJECTED) {
     return (
       <div className="h-screen flex items-center justify-center flex-col gap-4">
-        <h2 className="text-xl text-red-600 font-bold">
-          Tài khoản bị từ chối truy cập
-        </h2>
-        <Button onClick={handleLogout}>Đăng xuất</Button>
+        <h2 className="text-xl text-red-600 font-bold">Tài khoản bị từ chối truy cập</h2>
+        <Button onClick={logout}>Đăng xuất</Button>
       </div>
     );
   }
 
   // 3. PENDING
   if (userProfile.status === UserStatus.PENDING) {
-    return <PendingScreen email={user.email!} onLogout={handleLogout} />;
+    return <PendingScreen email={user.email!} onLogout={logout} />;
   }
 
   // 4. APPROVED
   return (
     <TopicProvider userId={userProfile.id!}>
       <div className="relative">
-        {/* <MigrationTool/> */}
-        <DashboardContent user={userProfile} onLogout={handleLogout} />
+        <DashboardContent user={userProfile} onLogout={logout} />
 
         {userProfile.role === UserRole.ADMIN && (
           <div className="fixed bottom-4 left-4 z-50">
