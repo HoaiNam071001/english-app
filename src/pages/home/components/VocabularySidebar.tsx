@@ -333,6 +333,45 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                 </Tooltip>
               </TooltipProvider>
 
+              {/* Popup Delete Confirm */}
+              <Popover
+                open={isBulkDeleteOpen}
+                onOpenChange={setIsBulkDeleteOpen}
+              >
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-red-600 hover:bg-blue-50"
+                  >
+                    <Trash2 size={16} />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-60 p-3" align="start">
+                  <div className="space-y-3">
+                    <p className="text-sm">
+                      Remove {selectedIds.size} selected words?
+                    </p>
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setIsBulkDeleteOpen(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="destructive"
+                        onClick={confirmBulkDelete}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+
               {/* MENU ACTIONS GỘP */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -372,50 +411,8 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                   </DropdownMenuItem>
 
                   <DropdownMenuSeparator />
-
-                  {/* Delete Option */}
-                  <DropdownMenuItem
-                    onClick={() => setIsBulkDeleteOpen(true)}
-                    className="text-red-600 focus:text-red-600"
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete {selectedIds.size} words
-                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-
-              {/* Popup Delete Confirm */}
-              <Popover
-                open={isBulkDeleteOpen}
-                onOpenChange={setIsBulkDeleteOpen}
-              >
-                <PopoverTrigger asChild>
-                  <span className="hidden"></span>
-                </PopoverTrigger>
-                <PopoverContent className="w-60 p-3" align="end">
-                  <div className="space-y-3">
-                    <p className="text-sm">
-                      Remove {selectedIds.size} selected words?
-                    </p>
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setIsBulkDeleteOpen(false)}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={confirmBulkDelete}
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
             </>
           ) : (
             // State: Chưa chọn gì

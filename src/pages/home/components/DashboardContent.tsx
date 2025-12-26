@@ -13,6 +13,8 @@ interface DashboardContentProps {
   user: UserProfile | null;
 }
 
+const ALL_TOPIC_KEY = "ALL";
+
 export const DashboardContent = ({ user }: DashboardContentProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
@@ -44,7 +46,7 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
   };
 
   const filteredWords = useMemo(() => {
-    if (!selectedTopicId || selectedTopicId === "ALL") return allWords;
+    if (!selectedTopicId || selectedTopicId === ALL_TOPIC_KEY) return allWords;
     return allWords.filter((w) => w.topicId === selectedTopicId);
   }, [allWords, selectedTopicId]);
 
@@ -54,13 +56,11 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
     [displayCards]
   );
 
-  const handleAddVocabularyWithTopic = async (
-    entries: { text: string; meaning: string; normalized: string }[]
-  ) => {
+  const handleAddVocabularyWithTopic = async (entries: VocabularyItem[]) => {
     const entriesWithTopic = entries.map((e) => ({
       ...e,
       topicId:
-        selectedTopicId && selectedTopicId !== "ALL"
+        selectedTopicId && selectedTopicId !== ALL_TOPIC_KEY
           ? selectedTopicId
           : undefined,
     }));
@@ -122,7 +122,7 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
                 onAddTopic={addTopic}
                 onUpdateTopic={updateTopic}
                 onDeleteTopic={deleteTopic}
-                onSelectTopic={(id) => setSelectedTopicId(id || "ALL")}
+                onSelectTopic={(id) => setSelectedTopicId(id || ALL_TOPIC_KEY)}
               />
             </div>
           ) : (
@@ -137,7 +137,7 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
                   <ChevronLeft size={16} /> Back
                 </Button>
                 <span className="font-semibold text-sm truncate">
-                  {selectedTopicId === "ALL"
+                  {selectedTopicId === ALL_TOPIC_KEY
                     ? "Tất cả từ vựng"
                     : currentTopic?.label}
                 </span>

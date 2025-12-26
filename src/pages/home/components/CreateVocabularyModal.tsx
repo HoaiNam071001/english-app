@@ -8,14 +8,12 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { AddReport } from "@/types"; // Đảm bảo bạn đã định nghĩa type này
+import { AddReport, VocabularyItem } from "@/types"; // Đảm bảo bạn đã định nghĩa type này
 import { Loader2, Plus } from "lucide-react";
 import React, { useState } from "react";
 
 interface CreateVocabularyModalProps {
-  onAddVocabulary: (
-    entries: { text: string; meaning: string; normalized: string }[]
-  ) => Promise<AddReport>;
+  onAddVocabulary: (entries: Partial<VocabularyItem>[]) => Promise<AddReport>;
   onSuccess?: () => void;
 }
 

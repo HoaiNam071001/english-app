@@ -46,7 +46,8 @@ export const useFirebaseVocabulary = (userId: string | null) => {
           text: entry.text,
           meaning: entry.meaning,
           normalized: entry.normalized,
-          userId: userId, // <--- SỬ DỤNG USER ID
+          topicId: entry.topicId,
+          userId: userId,
           createdAt: serverTimestamp(),
           updatedAt: serverTimestamp(),
           isLearned: false,
