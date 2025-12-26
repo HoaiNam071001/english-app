@@ -14,11 +14,13 @@ import {
   writeBatch,
 } from "firebase/firestore";
 import { useCallback, useEffect, useState } from "react";
+import { useToast } from "../useToast";
 
 export const useFirebaseVocabulary = (userId: string | null) => {
   const [allWords, setAllWords] = useState<VocabularyItem[]>([]);
   const [displayCards, setDisplayCards] = useState<VocabularyItem[]>([]);
   const [loading, setLoading] = useState(false);
+  const toast = useToast();
   const addVocabulary = async (
     newEntries: Partial<VocabularyItem>[]
   ): Promise<AddReport> => {
@@ -59,8 +61,10 @@ export const useFirebaseVocabulary = (userId: string | null) => {
     if (addedWords.length > 0) {
       try {
         await batch.commit();
+        toast.success(`${addedWords.length} từ mới được thêm vào`);
       } catch (e) {
         console.error("Error adding batch:", e);
+        toast.error("Thêm thất bại!");
       }
     }
 
@@ -108,13 +112,6 @@ export const useFirebaseVocabulary = (userId: string | null) => {
     [userId]
   );
 
-  // Tự động fetch khi userId thay đổi
-  useEffect(() => {
-    fetchAllWords();
-  }, [fetchAllWords]);
-
-  // ... (Các hàm updateWord, deleteWord, toggleLearnedStatus ... giữ nguyên logic cũ vì chúng dùng Doc ID, không ảnh hưởng bởi field userId)
-
   const updateWord = async (id: string, updates: Partial<VocabularyItem>) => {
     // ... Code cũ giữ nguyên
     setAllWords((prev) =>
@@ -125,8 +122,10 @@ export const useFirebaseVocabulary = (userId: string | null) => {
     );
     try {
       await updateDoc(doc(db, DataTable.Vocabulary, id), updates);
+      toast.success("Updated successfully!");
     } catch (error) {
       console.error(error);
+      toast.error("Update failed!");
     }
   };
 
@@ -136,8 +135,10 @@ export const useFirebaseVocabulary = (userId: string | null) => {
     setDisplayCards((prev) => prev.filter((w) => w.id !== id));
     try {
       await deleteDoc(doc(db, DataTable.Vocabulary, id));
+      toast.success("Deleted successfully!");
     } catch (e) {
       console.error(e);
+      toast.error("Delete failed!");
     }
   };
 
@@ -149,8 +150,10 @@ export const useFirebaseVocabulary = (userId: string | null) => {
       const batch = writeBatch(db);
       ids.forEach((id) => batch.delete(doc(db, DataTable.Vocabulary, id)));
       await batch.commit();
+      toast.success("Deleted successfully!");
     } catch (e) {
       console.error(e);
+      toast.error("Delete failed!");
     }
   };
 
@@ -175,8 +178,10 @@ export const useFirebaseVocabulary = (userId: string | null) => {
       await updateDoc(doc(db, DataTable.Vocabulary, id), {
         isLearned: newStatus,
       });
+      toast.success("Updated successfully!");
     } catch (error) {
       console.error("Lỗi update status:", error);
+      toast.error("Update failed!");
     }
   };
 
@@ -197,8 +202,10 @@ export const useFirebaseVocabulary = (userId: string | null) => {
         batch.update(docRef, { isLearned: status });
       });
       await batch.commit();
+      toast.success("Updated successfully!");
     } catch (error) {
       console.error("Lỗi bulk update:", error);
+      toast.error("Update failed!");
     }
   };
 
@@ -212,8 +219,10 @@ export const useFirebaseVocabulary = (userId: string | null) => {
     try {
       const docRef = doc(db, DataTable.Vocabulary, id);
       await updateDoc(docRef, { isLearned: true });
+      toast.success("Updated successfully!");
     } catch (error) {
       console.error("Lỗi update DB:", error);
+      toast.error("Update failed!");
     }
   };
 
@@ -263,8 +272,10 @@ export const useFirebaseVocabulary = (userId: string | null) => {
         batch.update(docRef, updates);
       });
       await batch.commit();
+      toast.success("Updated successfully!");
     } catch (error) {
       console.error("Lỗi bulk update:", error);
+      toast.error("Update failed!");
     }
   };
 

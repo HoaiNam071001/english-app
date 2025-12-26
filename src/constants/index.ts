@@ -207,11 +207,24 @@ export const TOPIC_COLORS: TopicColor[] = [
   },
 ];
 
-
 export const GUEST_INFO = {
   name: "Guest",
   storageKey: {
     topic: "topic_storage",
-    vocabulary: "vocabulary_storage"
-  }
-}
+    vocabulary: "vocabulary_storage",
+  },
+};
+
+export const ROUTES = {
+  // Public
+  HOME: "/",
+
+  // Admin Area
+  ADMIN: {
+    ROOT: "/admin", // Đường dẫn gốc của admin
+    USERS: "users", // Đường dẫn tương đối (để dùng trong Route con)
+  },
+};
+export const ABSOLUTE_ROUTES = {
+  ADMIN_USERS: `${ROUTES.ADMIN.ROOT}/${ROUTES.ADMIN.USERS}`,
+};

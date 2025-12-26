@@ -1,11 +1,12 @@
-import { UserRole } from "@/types";
-import { TopicProvider } from "@/contexts/TopicContext";
-import { DashboardContent } from "./components/DashboardContent";
 import { Button } from "@/components/ui/button";
+import { ABSOLUTE_ROUTES } from "@/constants";
+import {} from "@/contexts/AuthContext";
+import { TopicProvider } from "@/contexts/TopicContext";
+import { useAuth } from "@/hooks/useAuth";
+import { UserRole } from "@/types";
 import { ShieldAlert } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import {  } from "@/contexts/AuthContext";
-import { useAuth } from "@/hooks/useAuth";
+import { DashboardContent } from "./components/DashboardContent";
 
 const HomePage = () => {
   const { userProfile } = useAuth();
@@ -22,7 +23,7 @@ const HomePage = () => {
             <Button
               variant="outline"
               className="gap-2 border-orange-200 bg-orange-50 text-orange-700 hover:bg-orange-100 shadow-lg"
-              onClick={() => navigate("/admin/users")}
+              onClick={() => navigate(ABSOLUTE_ROUTES.ADMIN_USERS)}
             >
               <ShieldAlert size={16} />
               Quản lý User

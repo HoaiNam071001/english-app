@@ -1,13 +1,17 @@
 // src/App.tsx
 import { AuthProvider } from "@/contexts/AuthContext"; // Import AuthProvider
+import { ConfirmProvider } from "./contexts/ConfirmContext";
+import { ToastProvider } from "./contexts/ToastContext";
 import { MainLayout } from "./pages/MainLayout";
 
 const App = () => {
   return (
-    // Bao bọc toàn bộ App bằng AuthProvider
     <AuthProvider>
-       {/* MainLayout của bạn giữ nguyên logic điều hướng bên trong */}
-       <MainLayout />
+      <ConfirmProvider>
+        <ToastProvider>
+          <MainLayout />
+        </ToastProvider>
+      </ConfirmProvider>
     </AuthProvider>
   );
 };

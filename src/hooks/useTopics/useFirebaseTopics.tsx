@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { db } from "@/firebaseConfig";
 import { DataTable, TopicItem } from "@/types";
 import {
@@ -13,10 +12,15 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import { useConfirm } from "../useConfirm";
+import { useToast } from "../useToast";
 
 export const useFirebaseTopics = (userId: string | null) => {
   const [topics, setTopics] = useState<TopicItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const toast = useToast();
+  const { confirm } = useConfirm();
 
   // --- 1. FETCH / LISTEN ---
   useEffect(() => {
@@ -63,25 +67,39 @@ export const useFirebaseTopics = (userId: string | null) => {
         userId: userId,
         createdAt: serverTimestamp(),
       });
+      toast.success("Topic added successfully!");
     } catch (error) {
       console.error("Error adding topic:", error);
+      toast.error("Failed to add topic!");
     }
   };
 
   const updateTopic = async (id: string, updates: Partial<TopicItem>) => {
     try {
       await updateDoc(doc(db, DataTable.Topics, id), updates);
+      toast.success("Topic updated successfully!");
     } catch (error) {
       console.error("Error updating topic:", error);
+      toast.error("Failed to update topic!");
     }
   };
 
   const deleteTopic = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this topic?")) return;
+    const isConfirmed = await confirm({
+      title: "Xóa chủ đề?",
+      message:
+        "Bạn có chắc muốn xóa chủ đề này không? Hành động này không thể hoàn tác.",
+      confirmText: "Xóa ngay",
+      cancelText: "Thôi",
+      variant: "destructive",
+    });
+    if (!isConfirmed) return;
     try {
       await deleteDoc(doc(db, DataTable.Topics, id));
+      toast.success("Topic deleted successfully!");
     } catch (error) {
       console.error("Error deleting topic:", error);
+      toast.error("Failed to delete topic!");
     }
   };
 

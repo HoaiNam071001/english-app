@@ -1,10 +1,12 @@
-import { useState, useEffect } from "react";
-import { TopicItem } from "@/types";
 import { GUEST_INFO } from "@/constants";
+import { TopicItem } from "@/types";
+import { useEffect, useState } from "react";
+import { useConfirm } from "../useConfirm";
 
 export const useGuestTopics = (enabled: boolean) => {
   const [topics, setTopics] = useState<TopicItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { confirm } = useConfirm();
 
   // Helper
   const saveToLocal = (data: TopicItem[]) => {
@@ -28,7 +30,9 @@ export const useGuestTopics = (enabled: boolean) => {
     setIsLoading(true);
     // Giả lập delay nhẹ
     setTimeout(() => {
-      const localTopics = getFromLocal().sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+      const localTopics = getFromLocal().sort(
+        (a, b) => (b.createdAt || 0) - (a.createdAt || 0)
+      );
       setTopics(localTopics);
       setIsLoading(false);
     }, 300);
@@ -51,14 +55,23 @@ export const useGuestTopics = (enabled: boolean) => {
 
   const updateTopic = async (id: string, updates: Partial<TopicItem>) => {
     const currentTopics = getFromLocal();
-    const updatedList = currentTopics.map((t) => 
+    const updatedList = currentTopics.map((t) =>
       t.id === id ? { ...t, ...updates } : t
     );
     saveToLocal(updatedList);
   };
 
   const deleteTopic = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this topic?")) return;
+    const isConfirmed = await confirm({
+      title: "Xóa chủ đề?",
+      message:
+        "Bạn có chắc muốn xóa chủ đề này không? Hành động này không thể hoàn tác.",
+      confirmText: "Xóa ngay",
+      cancelText: "Thôi",
+      variant: "destructive",
+    });
+    if (!isConfirmed) return;
+
     const currentTopics = getFromLocal();
     const filteredList = currentTopics.filter((t) => t.id !== id);
     saveToLocal(filteredList);
