@@ -8,13 +8,13 @@ import {  } from "@/contexts/AuthContext";
 import { useAuth } from "@/hooks/useAuth";
 
 const HomePage = () => {
-  const { userProfile, logout } = useAuth();
+  const { userProfile } = useAuth();
   const navigate = useNavigate();
 
   return (
     <TopicProvider userId={userProfile?.id}>
       <div className="relative">
-        <DashboardContent user={userProfile} onLogout={logout} />
+        <DashboardContent user={userProfile} />
 
         {/* Nút Admin chuyển trang */}
         {userProfile?.role === UserRole.ADMIN && (

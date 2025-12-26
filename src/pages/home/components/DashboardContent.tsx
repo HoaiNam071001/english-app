@@ -6,7 +6,6 @@ import VocabularySidebar from "@/pages/home/components/VocabularySidebar";
 import { useTopics } from "@/hooks/useTopics";
 import {
   ChevronLeft,
-  LogOut,
   PanelLeftClose,
   PanelLeftOpen,
 } from "lucide-react";
@@ -16,10 +15,9 @@ import { useVocabulary } from '../../../hooks/useVocabolary/index';
 
 interface DashboardContentProps {
   user: UserProfile | null;
-  onLogout: () => void;
 }
 
-export const DashboardContent = ({ user, onLogout }: DashboardContentProps) => {
+export const DashboardContent = ({ user }: DashboardContentProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
 
@@ -102,15 +100,7 @@ export const DashboardContent = ({ user, onLogout }: DashboardContentProps) => {
             onAddVocabulary={handleAddVocabularyWithTopic}
             onSuccess={() => fetchAllWords({ keepFlashcards: true })}
           />
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onLogout}
-            className="text-slate-500"
-          >
-            <LogOut size={16} className="mr-2" />{" "}
-            <span className="hidden sm:inline">Thoát</span>
-          </Button>
+          
         </div>
       </header>
 
