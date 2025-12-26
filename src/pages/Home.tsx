@@ -1,229 +1,126 @@
-import CreateVocabularyModal from "@/components/CreateVocabularyModal";
+import { auth, db } from "@/firebaseConfig";
+import { onAuthStateChanged, signOut, User } from "firebase/auth";
+import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
+import { DataTable, UserProfile, UserRole, UserStatus } from "@/types";
+
+// Import các màn hình
 import EmailEntry from "@/components/EmailEntry";
-import FlashcardSection from "@/components/FlashcardSection";
-import TopicList from "@/components/TopicList";
+import PendingScreen from "@/components/PendingScreen";
+import { TopicProvider } from "@/contexts/TopicContext";
+import AdminUserManagement from "@/components/AdminUserManagement";
 import { Button } from "@/components/ui/button";
-import VocabularySidebar from "@/components/VocabularySidebar";
-import { STORAGE_KEY } from "@/constants";
-import { TopicProvider } from "@/contexts/TopicContext"; // Import cả Provider và Hook
-import { useTopics } from "@/hooks/useTopics";
-import { useVocabulary } from "@/hooks/useVocabulary";
-import {
-  ChevronLeft,
-  LogOut,
-  PanelLeftClose,
-  PanelLeftOpen,
-} from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { DashboardContent } from "./DashboardContent";
 
-// --- 1. TÁCH COMPONENT CON: CHỨA TOÀN BỘ UI CHÍNH ---
-// Component này nằm BÊN TRONG TopicProvider nên mới gọi được useTopics
-const DashboardContent = ({
-  userEmail,
-  onLogout,
-}: {
-  userEmail: string;
-  onLogout: () => void;
-}) => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
-
-  // Hook Vocabulary
-  const {
-    allWords,
-    displayCards,
-    setDisplayCards,
-    fetchAllWords,
-    updateWord,
-    deleteWord,
-    bulkDeleteWords,
-    toggleLearnedStatus,
-    bulkMarkLearned,
-    markAsLearned,
-    addToPractice,
-    removeFromPractice,
-    bulkAddToPractice,
-    addVocabulary,
-    bulkUpdateWords,
-  } = useVocabulary(userEmail);
-
-  // Hook Topics (GỌI Ở ĐÂY LÀ HỢP LỆ)
-  const { topics, addTopic, deleteTopic, updateTopic } = useTopics();
-
-  // Logic lọc từ theo chủ đề
-  const filteredWords = useMemo(() => {
-    if (!selectedTopicId || selectedTopicId === "ALL") return allWords;
-    return allWords.filter((w) => w.topicId === selectedTopicId);
-  }, [allWords, selectedTopicId]);
-
-  const currentTopic = topics.find((t) => t.id === selectedTopicId);
-
-  const handleAddVocabularyWithTopic = async (
-    entries: { text: string; meaning: string; normalized: string }[]
-  ) => {
-    const entriesWithTopic = entries.map((e) => ({
-      ...e,
-      topicId:
-        selectedTopicId && selectedTopicId !== "ALL"
-          ? selectedTopicId
-          : undefined,
-    }));
-    return await addVocabulary(entriesWithTopic);
-  };
-
-  const activeWordIds = useMemo(
-    () => new Set(displayCards.map((w) => w.id)),
-    [displayCards]
-  );
-
-  return (
-    <div className="container mx-auto p-4 md:p-6 max-w-8xl min-h-screen flex flex-col">
-      {/* HEADER */}
-      <header className="flex justify-between items-center mb-6 pb-4 border-b bg-white sticky top-0 z-50">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="text-slate-600"
-          >
-            {isSidebarOpen ? (
-              <PanelLeftClose size={20} />
-            ) : (
-              <PanelLeftOpen size={20} />
-            )}
-          </Button>
-
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight">
-              Vocabulary Manager
-            </h1>
-            <p className="text-sm text-slate-500 hidden sm:block">
-              User: {userEmail}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <CreateVocabularyModal
-            onAddVocabulary={handleAddVocabularyWithTopic}
-            onSuccess={() => fetchAllWords({ keepFlashcards: true })}
-          />
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onLogout}
-            className="text-slate-500"
-          >
-            <LogOut size={16} className="mr-2" />{" "}
-            <span className="hidden sm:inline">Thoát</span>
-          </Button>
-        </div>
-      </header>
-
-      {/* MAIN LAYOUT */}
-      <div className="flex flex-1 gap-2 relative overflow-hidden">
-        {/* SIDEBAR AREA */}
-        <div
-          className={`
-              h-[75vh] transition-all duration-300 ease-in-out border-r bg-white flex flex-col
-              ${
-                isSidebarOpen
-                  ? "w-80 md:w-1/4 opacity-100 translate-x-0 mr-4"
-                  : "w-0 opacity-0 -translate-x-full mr-0 overflow-hidden border-none"
-              }
-          `}
-        >
-          {selectedTopicId === null ? (
-            // VIEW 1: TOPIC LIST
-            <div className="h-full w-80 md:w-auto">
-              <TopicList
-                topics={topics}
-                vocabulary={allWords}
-                onAddTopic={addTopic}
-                onUpdateTopic={updateTopic}
-                onDeleteTopic={deleteTopic}
-                onSelectTopic={(id) => setSelectedTopicId(id || "ALL")}
-              />
-            </div>
-          ) : (
-            // VIEW 2: VOCABULARY LIST
-            <div className="h-full w-80 md:w-auto flex flex-col">
-              <div className="flex items-center gap-2 p-2 border-b bg-slate-50">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSelectedTopicId(null)}
-                  className="gap-1 px-2"
-                >
-                  <ChevronLeft size={16} /> Back
-                </Button>
-                <span className="font-semibold text-sm truncate">
-                  {selectedTopicId === "ALL"
-                    ? "Tất cả từ vựng"
-                    : currentTopic?.label}
-                </span>
-              </div>
-
-              <div className="flex-1 overflow-hidden">
-                <VocabularySidebar
-                  allWords={filteredWords}
-                  activeWordIds={activeWordIds}
-                  onBulkUpdate={bulkUpdateWords}
-                  onAddToPractice={addToPractice}
-                  onBulkAddToPractice={bulkAddToPractice}
-                  onBulkDelete={bulkDeleteWords}
-                  onUpdateWord={updateWord}
-                  onDelete={deleteWord}
-                  onToggleLearned={toggleLearnedStatus}
-                  onBulkMarkLearned={bulkMarkLearned}
-                  onRemoveFromPractice={removeFromPractice}
-                />
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* MAIN CONTENT AREA */}
-        <div className="flex-1 transition-all duration-300 min-w-0 h-[75vh]">
-          <FlashcardSection
-            displayCards={displayCards}
-            setDisplayCards={setDisplayCards}
-            onMarkLearned={markAsLearned}
-            onUpdateWord={updateWord}
-            onDeleteWord={deleteWord}
-          />
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// --- 2. COMPONENT CHA: QUẢN LÝ AUTH VÀ PROVIDER ---
 const HomePage = () => {
-  const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const savedEmail = localStorage.getItem(STORAGE_KEY.EMAIL_CACHE_KEY);
-    if (savedEmail) setCurrentUserEmail(savedEmail);
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setLoading(true);
+      if (currentUser) {
+        setUser(currentUser);
+        // --- LOGIC CHECK QUYỀN ---
+        try {
+          // Lưu ý: Bạn đang dùng email làm Document ID
+          const userRef = doc(db, DataTable.USER, currentUser.email!);
+          const userSnap = await getDoc(userRef);
+
+          if (userSnap.exists()) {
+            // 1. User đã tồn tại -> Lấy data và gán thêm ID
+            const data = userSnap.data();
+            
+            // Ép kiểu và thêm field id (lấy từ userSnap.id hoặc currentUser.email)
+            const profile = {
+              ...data,
+              id: userSnap.id, // <--- THÊM ID Ở ĐÂY
+            } as UserProfile;
+            
+            // Cập nhật lastLogin
+            setDoc(userRef, { lastLoginAt: Date.now() }, { merge: true });
+            
+            setUserProfile(profile);
+          } else {
+            // 2. User mới -> Tạo profile mặc định kèm ID
+            const newProfile: UserProfile = {
+              id: currentUser.email!, // <--- THÊM ID Ở ĐÂY
+              email: currentUser.email!,
+              role: UserRole.USER, 
+              status: UserStatus.PENDING,
+              createdAt: Date.now(),
+              lastLoginAt: Date.now()
+            };
+            
+            // Lưu vào DB
+            await setDoc(userRef, newProfile);
+            setUserProfile(newProfile);
+          }
+        } catch (error) {
+          console.error("Lỗi check profile:", error);
+        }
+      } else {
+        setUser(null);
+        setUserProfile(null);
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  const handleLogin = (email: string) => {
-    setCurrentUserEmail(email);
-    localStorage.setItem(STORAGE_KEY.EMAIL_CACHE_KEY, email);
+  const handleLogout = async () => {
+    await signOut(auth);
+    setUserProfile(null);
   };
 
-  const handleLogout = () => {
-    setCurrentUserEmail(null);
-    localStorage.removeItem(STORAGE_KEY.EMAIL_CACHE_KEY);
-  };
+  if (loading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+      </div>
+    );
+  }
 
-  if (!currentUserEmail) return <EmailEntry onSubmit={handleLogin} />;
+  // ... (Phần render UI bên dưới giữ nguyên) ...
+  
+  // 1. Chưa login
+  if (!user || !userProfile) {
+    return <EmailEntry onSubmit={() => {}} />;
+  }
 
+  // 2. REJECTED
+  if (userProfile.status === UserStatus.REJECTED) {
+    return (
+      <div className="h-screen flex items-center justify-center flex-col gap-4">
+        <h2 className="text-xl text-red-600 font-bold">Tài khoản bị từ chối truy cập</h2>
+        <Button onClick={handleLogout}>Đăng xuất</Button>
+      </div>
+    );
+  }
+
+  // 3. PENDING
+  if (userProfile.status === UserStatus.PENDING) {
+    return <PendingScreen email={user.email!} onLogout={handleLogout} />;
+  }
+
+  // 4. APPROVED
   return (
-    // BỌC CONTEXT Ở ĐÂY
-    <TopicProvider email={currentUserEmail}>
-      <DashboardContent userEmail={currentUserEmail} onLogout={handleLogout} />
+    <TopicProvider email={user.email!}>
+      <div className="relative">
+         <DashboardContent 
+            userEmail={user.email!} 
+            onLogout={handleLogout} 
+         />
+         
+         {userProfile.role === UserRole.ADMIN && (
+           <div className="fixed bottom-4 left-4 z-50">
+             <AdminUserManagement />
+           </div>
+         )}
+      </div>
     </TopicProvider>
   );
 };

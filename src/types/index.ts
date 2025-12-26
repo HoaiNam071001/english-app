@@ -20,6 +20,7 @@ export interface AddReport {
 export enum DataTable {
   Vocabulary = "vocabulary",
   Topics = "topics",
+  USER ='users'
 }
 
 export interface TopicItem {
@@ -31,4 +32,24 @@ export interface TopicItem {
   email: string;
   createdAt: number;
   updatedAt?: number;
+}
+
+export enum UserRole {
+  ADMIN= 'admin',
+  USER = 'user'
+}
+
+export enum UserStatus {
+  PENDING = 'pending',
+  APPROVED = 'approved',
+  REJECTED = 'rejected'
+};
+
+export interface UserProfile {
+  id: string; 
+  email: string;
+  role: UserRole;
+  status: UserStatus;
+  createdAt: number;
+  lastLoginAt: number;
 }
