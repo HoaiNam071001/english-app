@@ -1,8 +1,14 @@
 // src/components/PendingScreen.tsx
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { LogOut, Clock } from 'lucide-react';
+import React from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { LogOut, Clock } from "lucide-react";
 
 interface PendingScreenProps {
   onLogout: () => void;

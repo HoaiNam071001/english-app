@@ -112,15 +112,11 @@ const HomePage = () => {
   return (
     <TopicProvider userId={userProfile.id!}>
       <div className="relative">
-       
-        <DashboardContent 
-            user={userProfile} 
-            onLogout={handleLogout} 
-        />
+        <DashboardContent user={userProfile} onLogout={handleLogout} />
 
         {userProfile.role === UserRole.ADMIN && (
           <div className="fixed bottom-4 left-4 z-50">
-            <AdminUserManagement />
+            <AdminUserManagement currentAdminId={userProfile.id!} />
           </div>
         )}
       </div>
