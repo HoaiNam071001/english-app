@@ -7,7 +7,7 @@ import VocabularySidebar from "@/pages/home/components/VocabularySidebar";
 import { UserProfile, VocabularyItem } from "@/types";
 import { ChevronLeft, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useMemo, useState } from "react";
-import { useVocabulary } from "../../../hooks/useVocabolary/index";
+import { useVocabulary } from "../../../hooks/useVocabulary";
 
 interface DashboardContentProps {
   user: UserProfile | null;
@@ -36,7 +36,7 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
     bulkAddToPractice,
     addVocabulary,
     bulkUpdateWords,
-  } = useVocabulary(user?.id);
+  } = useVocabulary();
 
   const { topics, addTopic, deleteTopic, updateTopic } = useTopics();
 
@@ -86,7 +86,9 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
           </Button>
 
           <div>
-            <div className="text-2xl font-bold text-foreground">Vocabulary Manager</div>
+            <div className="text-2xl font-bold text-foreground">
+              Vocabulary Manager
+            </div>
             <p className="text-sm text-muted-foreground hidden sm:block">
               User: {user?.email}
             </p>
