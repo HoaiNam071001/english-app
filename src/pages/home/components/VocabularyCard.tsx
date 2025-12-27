@@ -267,14 +267,11 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
               </div>
 
               {/* Divider */}
-              {item.meaning && (
-                <div className="w-12 !m-0 h-[2px] min-h-[2px] bg-border rounded-full my-2"></div>
-              )}
+              <div className="w-12 !m-0 h-[2px] min-h-[2px] bg-border rounded-full my-2"></div>
 
               {/* Meaning - Always visible, just blurred when hidden */}
-              {item.meaning && (
-                <div
-                  className={` h-[40px] min-h-[40px] mt-2
+              <div
+                className={` h-[40px] min-h-[40px] mt-2
                    w-full transition-all duration-300 flex flex-col items-center
                    ${
                      showMeaning
@@ -282,16 +279,16 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                        : "opacity-30 blur-md select-none grayscale"
                    }
                  `}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowMeaning(!showMeaning);
-                  }}
-                >
-                  <p className="text-[12px] font-medium text-muted-foreground italic break-words leading-relaxed text-center line-clamp-3">
-                    {item.meaning}
-                  </p>
-                </div>
-              )}
+                onClick={(e) => {
+                  if (!item.meaning) return;
+                  e.stopPropagation();
+                  setShowMeaning(!showMeaning);
+                }}
+              >
+                <p className="text-[12px] font-medium text-muted-foreground italic break-words leading-relaxed text-center line-clamp-3">
+                  {item.meaning}
+                </p>
+              </div>
             </div>
 
             {/* ACTION FOOTER - Grouped at bottom center */}
