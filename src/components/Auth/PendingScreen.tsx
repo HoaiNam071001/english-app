@@ -1,14 +1,14 @@
 // src/components/PendingScreen.tsx
-import React from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
-import { LogOut, Clock } from "lucide-react";
+import { Clock, LogOut } from "lucide-react";
+import React from "react";
 
 interface PendingScreenProps {
   onLogout: () => void;
@@ -17,7 +17,7 @@ interface PendingScreenProps {
 
 const PendingScreen: React.FC<PendingScreenProps> = ({ onLogout, email }) => {
   return (
-    <div className="flex items-center justify-center min-h-screen bg-slate-50">
+    <div className="flex items-center justify-center min-h-screen bg-background">
       <Card className="w-full max-w-md mx-4 text-center">
         <CardHeader>
           <div className="mx-auto bg-yellow-100 p-3 rounded-full w-fit mb-4">
@@ -31,7 +31,11 @@ const PendingScreen: React.FC<PendingScreenProps> = ({ onLogout, email }) => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Button variant="outline" onClick={onLogout}>
+          <Button
+            variant="outline"
+            className="cursor-pointer"
+            onClick={onLogout}
+          >
             <LogOut className="mr-2 h-4 w-4" /> Logout
           </Button>
         </CardContent>

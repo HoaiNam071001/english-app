@@ -51,7 +51,7 @@ export const FIREBASE_APP_ID = VITE_FIREBASE_APP_ID;
 export const FIREBASE_MEASUREMENT_ID = VITE_FIREBASE_MEASUREMENT_ID;
 
 export const STORAGE_KEY = {
-  is_GUEST: "is_GUEST",
+  IS_GUEST: "is_GUEST",
 };
 
 export const ICON_MAP: Record<string, LucideIcon> = {
@@ -219,6 +219,7 @@ export const GUEST_INFO = {
 export const ROUTES = {
   // Public
   HOME: "/",
+  LOGIN: "/login",
 
   // Admin Area
   ADMIN: {

@@ -1,30 +1,23 @@
-import { UserStatus } from "@/types";
-import { Loader2 } from "lucide-react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 
 import { AdminRoute } from "@/components/Auth/AdminRoute";
 import EmailEntry from "@/components/Auth/EmailEntry";
-import PendingScreen from "@/components/Auth/PendingScreen";
-import { RejectedScreen } from "@/components/Auth/RejectedScreen";
-import { UserRoute } from "@/components/Auth/UserRoute";
+import { ProtectedRoute } from "@/components/Auth/ProtectedRoute";
+import { StatusGuard } from "@/components/Auth/StatusGuard";
 import { UserFloatingMenu } from "@/components/UserFloatingMenu";
 import { GUEST_INFO, ROUTES, STORAGE_KEY } from "@/constants";
 import { useAuth } from "@/hooks/useAuth";
 import { useConfirm } from "@/hooks/useConfirm";
 import { useToast } from "@/hooks/useToast";
 import UsersPage from "@/pages/admin/UsersPage";
+import { Loader2 } from "lucide-react";
 import { AdminLayout } from "./AdminLayout";
 import HomePage from "./home";
 
 export const MainLayout = () => {
-  const { user, userProfile, loading, isGuest, setIsGuest, logout } = useAuth();
+  const { user, isGuest, loading, setIsGuest, logout } = useAuth();
   const toast = useToast();
   const { confirm } = useConfirm();
-
-  const handleGuestLogin = () => {
-    localStorage.setItem(STORAGE_KEY.is_GUEST, "true");
-    setIsGuest(true);
-  };
 
   const handleGuestClearData = async () => {
     const isConfirmed = await confirm({
@@ -36,7 +29,7 @@ export const MainLayout = () => {
       variant: "destructive",
     });
     if (isConfirmed) {
-      localStorage.removeItem(STORAGE_KEY.is_GUEST);
+      localStorage.removeItem(STORAGE_KEY.IS_GUEST);
 
       Object.values(GUEST_INFO.storageKey).forEach((key) => {
         localStorage.removeItem(key);
@@ -46,7 +39,6 @@ export const MainLayout = () => {
       toast.success("Data cleared successfully!");
     }
   };
-
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center">
@@ -54,52 +46,41 @@ export const MainLayout = () => {
       </div>
     );
   }
-
-  if (!user && !isGuest) {
-    return <EmailEntry onGuestLogin={handleGuestLogin} />;
-  }
-
-  if (user && userProfile) {
-    if (userProfile.status === UserStatus.PENDING) {
-      return <PendingScreen email={user.email!} onLogout={logout} />;
-    }
-    if (userProfile.status === UserStatus.REJECTED) {
-      return <RejectedScreen onLogout={logout} />;
-    }
-  }
-
   return (
     <BrowserRouter>
-      <UserFloatingMenu
-        user={user}
-        isGuest={isGuest}
-        onLogout={logout}
-        onGuestExit={logout}
-        onGuestClearData={handleGuestClearData}
-      />
+      <StatusGuard>
+        <UserFloatingMenu
+          user={user}
+          isGuest={isGuest}
+          onLogout={logout}
+          onGuestExit={logout}
+          onGuestClearData={handleGuestClearData}
+        />
 
-      <Routes>
-        {/* Route Home */}
-        <Route path={"/"} element={<UserRoute></UserRoute>}>
-          <Route path={ROUTES.HOME} element={<HomePage />} />
-        </Route>
+        <Routes>
+          {/* Public Routes (Ví dụ: Login) */}
+          <Route path={ROUTES.LOGIN} element={<EmailEntry />} />
 
-        {/* Route Admin */}
-        <Route
-          path={ROUTES.ADMIN.ROOT}
-          element={
-            <AdminRoute>
-              <AdminLayout />
-            </AdminRoute>
-          }
-        >
-          <Route index element={<Navigate to={ROUTES.ADMIN.USERS} replace />} />
+          {/* Protected Routes (Yêu cầu phải là User hoặc Guest) */}
+          <Route element={<ProtectedRoute />}>
+            <Route path={ROUTES.HOME} element={<HomePage />} />
 
-          <Route path={ROUTES.ADMIN.USERS} element={<UsersPage />} />
-        </Route>
+            {/* Admin Only - Bọc thêm một lớp AdminRoute */}
+            <Route
+              path={ROUTES.ADMIN.ROOT}
+              element={
+                <AdminRoute>
+                  <AdminLayout />
+                </AdminRoute>
+              }
+            >
+              <Route path={ROUTES.ADMIN.USERS} element={<UsersPage />} />
+            </Route>
+          </Route>
 
-        <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
-      </Routes>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </StatusGuard>
     </BrowserRouter>
   );
 };

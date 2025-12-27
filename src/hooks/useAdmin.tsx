@@ -1,19 +1,21 @@
-import { useState, useEffect, useCallback } from "react";
 import { db } from "@/firebaseConfig";
+import { DataTable, UserProfile, UserRole, UserStatus } from "@/types";
 import {
   collection,
-  query,
-  getDocs,
   doc,
-  updateDoc,
+  getDocs,
   orderBy,
+  query,
+  updateDoc,
 } from "firebase/firestore"; // Bỏ 'where'
-import { DataTable, UserProfile, UserRole, UserStatus } from "@/types";
+import { useCallback, useEffect, useState } from "react";
+import { useConfirm } from "./useConfirm";
 
 export const useAdmin = (userProfile: UserProfile) => {
   // Đổi tên state từ pendingUsers -> allUsers
   const [allUsers, setAllUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(false);
+  const { confirm } = useConfirm();
 
   // Fetch ALL users (Bỏ where status == PENDING)
   const fetchUsers = useCallback(async () => {
@@ -59,7 +61,15 @@ export const useAdmin = (userProfile: UserProfile) => {
   };
 
   const rejectUser = async (email: string) => {
-    if (!confirm("Từ chối user này?")) return;
+    const isConfirmed = await confirm({
+      title: "Reject User?",
+      message: "Are you sure you want to reject this user?",
+      confirmText: "Reject",
+      cancelText: "Cancel",
+      variant: "destructive",
+    });
+    if (!isConfirmed) return;
+
     try {
       const docRef = doc(db, DataTable.USER, email);
       const value = {

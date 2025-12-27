@@ -6,12 +6,28 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ROUTES, STORAGE_KEY } from "@/constants";
 import { useAuth } from "@/hooks/useAuth";
 import { Loader2, PersonStanding } from "lucide-react"; // Import icon UserOff
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 // Thêm prop onGuestLogin
-const EmailEntry = ({ onGuestLogin }: { onGuestLogin: () => void }) => {
-  const { loginWithGoogle, loading, error } = useAuth();
+const EmailEntry = () => {
+  const { loginWithGoogle, userProfile, isGuest, loading, error, setIsGuest } =
+    useAuth();
+  const navigation = useNavigate();
+
+  useEffect(() => {
+    if (userProfile || isGuest) {
+      navigation(ROUTES.HOME);
+    }
+  }, [userProfile, isGuest]);
+
+  const onGuestLogin = () => {
+    localStorage.setItem(STORAGE_KEY.IS_GUEST, "true");
+    setIsGuest(true);
+  };
 
   const handleLogin = async () => {
     await loginWithGoogle();

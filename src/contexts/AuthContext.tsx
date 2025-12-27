@@ -1,6 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useEffect, useState, ReactNode } from "react";
+import { STORAGE_KEY } from "@/constants";
 import { auth, db, googleProvider } from "@/firebaseConfig";
+import { DataTable, UserProfile, UserRole, UserStatus } from "@/types";
 import {
   onAuthStateChanged,
   signInWithPopup,
@@ -8,8 +9,7 @@ import {
   User,
 } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
-import { DataTable, UserProfile, UserRole, UserStatus } from "@/types";
-import { STORAGE_KEY } from "@/constants";
+import { createContext, ReactNode, useEffect, useState } from "react";
 
 // 1. Định nghĩa kiểu dữ liệu cho Context
 export interface AuthContextType {
@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isGuest, setIsGuest] = useState(() => {
-    return localStorage.getItem?.(STORAGE_KEY.is_GUEST) === "true";
+    return localStorage.getItem?.(STORAGE_KEY.IS_GUEST) === "true";
   });
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -50,12 +50,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           if (userSnap.exists()) {
             // User cũ -> Get data
             const data = userSnap.data();
+            setUserProfile({ ...data } as UserProfile);
 
             // Update lastLogin
             await setDoc(userRef, { lastLoginAt: Date.now() }, { merge: true });
-
-            // Gán lại ID (vẫn là email) vào profile
-            setUserProfile({ ...data } as UserProfile);
           } else {
             // User mới -> Create data
             const newProfile: UserProfile = {
@@ -110,7 +108,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       if (!userProfile) {
         setIsGuest(false);
-        localStorage.removeItem(STORAGE_KEY.is_GUEST);
+        localStorage.removeItem(STORAGE_KEY.IS_GUEST);
         return;
       }
       await signOut(auth);
