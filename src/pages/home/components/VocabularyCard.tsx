@@ -11,7 +11,15 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { VocabularyItem } from "@/types";
-import { Check, Eye, EyeOff, PenLine, Volume2, X } from "lucide-react"; // Import PenLine
+import {
+  Check,
+  Eye,
+  EyeOff,
+  PenLine,
+  RotateCcw,
+  Volume2,
+  X,
+} from "lucide-react"; // Import PenLine
 import React, { useEffect, useState } from "react";
 import { EditPopoverContent } from "./EditPopoverContent"; // Import EditForm
 import { FlashcardCommand, FlashcardCommandType } from "./FlashcardSection";
@@ -19,7 +27,7 @@ import { FlashcardCommand, FlashcardCommandType } from "./FlashcardSection";
 interface VocabularyCardProps {
   item: VocabularyItem;
   command: FlashcardCommand | null;
-  onLearned: (id: string) => Promise<void> | void;
+  onLearned: (id: string, isLearned: boolean) => Promise<void> | void;
   remove: (id: string) => void;
   onFlip?: (isFlipped: boolean) => void;
   // --- THÊM PROPS ---
@@ -91,7 +99,8 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
     e.stopPropagation();
     setLoading(true);
     try {
-      await onLearned(item.id);
+      item.isLearned = !item.isLearned;
+      await onLearned(item.id, item.isLearned);
     } catch (error) {
       console.error(error);
     } finally {
@@ -322,17 +331,25 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <div
-                      className="p-1.5 rounded-full bg-green-50 dark:bg-green-950/50 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900 transition-colors cursor-pointer"
+                      className={`p-1.5 rounded-full transition-colors cursor-pointer ${
+                        !item.isLearned
+                          ? "bg-green-50 dark:bg-green-950/50 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900" // True: Màu Xanh
+                          : "bg-orange-50 dark:bg-orange-950/50 text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900" // False: Màu Cam
+                      }`}
                       onClick={handleMarkAsLearned}
                     >
                       {loading ? (
                         <span className="animate-spin text-xs">⏳</span>
+                      ) : item.isLearned ? (
+                        <RotateCcw size={14} />
                       ) : (
                         <Check size={14} />
                       )}
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent side="top">Mark as learned</TooltipContent>
+                  <TooltipContent side="top">
+                    {item.isLearned ? "Mark as unlearned" : "Mark as learned"}
+                  </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </div>

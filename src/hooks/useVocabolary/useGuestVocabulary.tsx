@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { GUEST_INFO } from "@/constants";
 import { AddReport, VocabularyItem } from "@/types";
 import { isToday } from "@/utils";
-import { GUEST_INFO } from "@/constants";
+import { useCallback, useEffect, useState } from "react";
 
 export const useGuestVocabulary = () => {
   const [allWords, setAllWords] = useState<VocabularyItem[]>([]);
@@ -10,7 +10,10 @@ export const useGuestVocabulary = () => {
 
   // --- HELPER ---
   const saveToLocal = (data: VocabularyItem[]) => {
-    localStorage.setItem(GUEST_INFO.storageKey.vocabulary, JSON.stringify(data));
+    localStorage.setItem(
+      GUEST_INFO.storageKey.vocabulary,
+      JSON.stringify(data)
+    );
     setAllWords(data);
   };
 
@@ -24,29 +27,38 @@ export const useGuestVocabulary = () => {
   };
 
   // --- 1. FETCH ---
-  const fetchAllWords = useCallback(async (options?: { keepFlashcards?: boolean }) => {
-    setLoading(true);
-    // Giả lập độ trễ nhỏ để UI không bị giật cục
-    await new Promise((resolve) => setTimeout(resolve, 300));
+  const fetchAllWords = useCallback(
+    async (options?: { keepFlashcards?: boolean }) => {
+      setLoading(true);
+      // Giả lập độ trễ nhỏ để UI không bị giật cục
+      await new Promise((resolve) => setTimeout(resolve, 300));
 
-    const localData = getFromLocal().sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-    setAllWords(localData);
+      const localData = getFromLocal().sort(
+        (a, b) => (b.createdAt || 0) - (a.createdAt || 0)
+      );
+      setAllWords(localData);
 
-    if (!options?.keepFlashcards) {
-      setDisplayCards(localData.filter((w) => isToday(w.createdAt) && !w.isLearned));
-    }
-    setLoading(false);
-  }, []);
+      if (!options?.keepFlashcards) {
+        setDisplayCards(
+          localData.filter((w) => isToday(w.createdAt) && !w.isLearned)
+        );
+      }
+      setLoading(false);
+    },
+    []
+  );
 
   useEffect(() => {
     fetchAllWords();
   }, [fetchAllWords]);
 
   // --- 2. ADD ---
-  const addVocabulary = async (newEntries: Partial<VocabularyItem>[]): Promise<AddReport> => {
+  const addVocabulary = async (
+    newEntries: Partial<VocabularyItem>[]
+  ): Promise<AddReport> => {
     const currentData = getFromLocal();
     const existingSet = new Set(currentData.map((w) => w.normalized));
-    
+
     const addedWords: string[] = [];
     const skippedWords: string[] = [];
     const entriesToAdd: VocabularyItem[] = [];
@@ -82,68 +94,84 @@ export const useGuestVocabulary = () => {
   // --- 3. UPDATE ---
   const updateWord = async (id: string, updates: Partial<VocabularyItem>) => {
     const currentData = getFromLocal();
-    const newData = currentData.map(w => w.id === id ? { ...w, ...updates } : w);
-    
+    const newData = currentData.map((w) =>
+      w.id === id ? { ...w, ...updates } : w
+    );
+
     saveToLocal(newData);
     // Update state hiển thị
-    setDisplayCards(prev => prev.map(w => w.id === id ? { ...w, ...updates } : w));
+    setDisplayCards((prev) =>
+      prev.map((w) => (w.id === id ? { ...w, ...updates } : w))
+    );
   };
 
   // --- 4. DELETE ---
   const deleteWord = async (id: string) => {
     const currentData = getFromLocal();
-    const newData = currentData.filter(w => w.id !== id);
-    
+    const newData = currentData.filter((w) => w.id !== id);
+
     saveToLocal(newData);
-    setDisplayCards(prev => prev.filter(w => w.id !== id));
+    setDisplayCards((prev) => prev.filter((w) => w.id !== id));
   };
 
   const bulkDeleteWords = async (ids: string[]) => {
     const currentData = getFromLocal();
-    const newData = currentData.filter(w => !ids.includes(w.id));
-    
+    const newData = currentData.filter((w) => !ids.includes(w.id));
+
     saveToLocal(newData);
-    setDisplayCards(prev => prev.filter(w => !ids.includes(w.id)));
+    setDisplayCards((prev) => prev.filter((w) => !ids.includes(w.id)));
   };
 
   // --- 5. LOGIC ACTIONS (Copy y nguyên logic cũ) ---
   const toggleLearnedStatus = async (id: string, currentStatus: boolean) => {
     await updateWord(id, { isLearned: !currentStatus });
-    if (!currentStatus === true) { // Nếu chuyển thành đã học
-        setDisplayCards(prev => prev.filter(w => w.id !== id));
+    if (!currentStatus === true) {
+      // Nếu chuyển thành đã học
+      setDisplayCards((prev) => prev.filter((w) => w.id !== id));
     }
   };
 
-  const markAsLearned = async (id: string) => {
-    await updateWord(id, { isLearned: true });
-    setDisplayCards(prev => prev.filter(w => w.id !== id));
+  const markAsLearned = async (id: string, isLearned: boolean) => {
+    await updateWord(id, { isLearned });
+    setDisplayCards((prev) =>
+      prev.map((w) => (w.id === id ? { ...w, isLearned } : w))
+    );
   };
 
   const bulkMarkLearned = async (ids: string[], status: boolean) => {
     const currentData = getFromLocal();
-    const newData = currentData.map(w => ids.includes(w.id) ? { ...w, isLearned: status } : w);
+    const newData = currentData.map((w) =>
+      ids.includes(w.id) ? { ...w, isLearned: status } : w
+    );
     saveToLocal(newData);
-    
+
     if (status === true) {
-      setDisplayCards(prev => prev.filter(w => !ids.includes(w.id)));
+      setDisplayCards((prev) => prev.filter((w) => !ids.includes(w.id)));
     } else {
-        // Nếu unlearn thì có thể cần hiện lại, logic này tùy bạn handle ở fetch
-        setAllWords(newData);
+      // Nếu unlearn thì có thể cần hiện lại, logic này tùy bạn handle ở fetch
+      setAllWords(newData);
     }
   };
 
-  const bulkUpdateWords = async (ids: string[], updates: Partial<VocabularyItem>) => {
-     const currentData = getFromLocal();
-     const newData = currentData.map(w => ids.includes(w.id) ? { ...w, ...updates } : w);
-     saveToLocal(newData);
-     setDisplayCards(prev => prev.map(w => ids.includes(w.id) ? { ...w, ...updates } : w));
+  const bulkUpdateWords = async (
+    ids: string[],
+    updates: Partial<VocabularyItem>
+  ) => {
+    const currentData = getFromLocal();
+    const newData = currentData.map((w) =>
+      ids.includes(w.id) ? { ...w, ...updates } : w
+    );
+    saveToLocal(newData);
+    setDisplayCards((prev) =>
+      prev.map((w) => (ids.includes(w.id) ? { ...w, ...updates } : w))
+    );
   };
 
   // Local State Actions (UI only)
   const addToPractice = (word: VocabularyItem) => {
     const exists = displayCards.find((w) => w.id === word.id);
     if (!exists) {
-      setDisplayCards((prev) => [{ ...word, isLearned: false }, ...prev]);
+      setDisplayCards((prev) => [{ ...word }, ...prev]);
     }
   };
 
@@ -154,9 +182,7 @@ export const useGuestVocabulary = () => {
   const bulkAddToPractice = (words: VocabularyItem[]) => {
     setDisplayCards((prev) => {
       const existingIds = new Set(prev.map((w) => w.id));
-      const newWords = words
-        .filter((w) => !existingIds.has(w.id))
-        .map((w) => ({ ...w, isLearned: false }));
+      const newWords = words.filter((w) => !existingIds.has(w.id));
       return [...newWords, ...prev];
     });
   };
@@ -177,6 +203,6 @@ export const useGuestVocabulary = () => {
     addToPractice,
     removeFromPractice,
     bulkAddToPractice,
-    bulkUpdateWords
+    bulkUpdateWords,
   };
 };

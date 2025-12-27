@@ -211,11 +211,13 @@ export const useFirebaseVocabulary = (userId: string | null) => {
   };
 
   // 7. FLASHCARD SPECIFIC ACTION: Mark As Learned
-  const markAsLearned = async (id: string) => {
+  const markAsLearned = async (id: string, isLearned: boolean) => {
     setAllWords((prev) =>
-      prev.map((w) => (w.id === id ? { ...w, isLearned: true } : w))
+      prev.map((w) => (w.id === id ? { ...w, isLearned } : w))
     );
-    setDisplayCards((prev) => prev.filter((w) => w.id !== id));
+    setDisplayCards((prev) =>
+      prev.map((w) => (w.id === id ? { ...w, isLearned } : w))
+    );
 
     try {
       const docRef = doc(db, DataTable.Vocabulary, id);
@@ -231,7 +233,7 @@ export const useFirebaseVocabulary = (userId: string | null) => {
   const addToPractice = (word: VocabularyItem) => {
     const exists = displayCards.find((w) => w.id === word.id);
     if (!exists) {
-      const wordToPractice = { ...word, isLearned: false };
+      const wordToPractice = word;
       setDisplayCards((prev) => [wordToPractice, ...prev]);
     }
   };
@@ -243,9 +245,7 @@ export const useFirebaseVocabulary = (userId: string | null) => {
   const bulkAddToPractice = (words: VocabularyItem[]) => {
     setDisplayCards((prev) => {
       const existingIds = new Set(prev.map((w) => w.id));
-      const newWords = words
-        .filter((w) => !existingIds.has(w.id))
-        .map((w) => ({ ...w, isLearned: false }));
+      const newWords = words.filter((w) => !existingIds.has(w.id));
       return [...newWords, ...prev];
     });
   };

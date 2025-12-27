@@ -41,7 +41,7 @@ interface FlashcardSectionProps {
   displayCards: VocabularyItem[];
   topics: TopicItem[];
   setDisplayCards: (vol: VocabularyItem[]) => void;
-  onMarkLearned: (id: string) => void;
+  onMarkLearned: (id: string, isLearned: boolean) => void;
   onUpdateWord: (id: string, updates: Partial<VocabularyItem>) => void;
   onDeleteWord: (id: string) => void;
   onAddWords: (newWords: VocabularyItem[]) => void;
