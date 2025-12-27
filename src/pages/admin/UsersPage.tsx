@@ -107,7 +107,7 @@ const UsersPage = () => {
               </p>
             </div>
           </div>
-          <div className="bg-card px-3 py-1.5 rounded-md border text-xs font-medium text-card-foreground">
+          <div className="bg-card px-3 mt-10 py-1.5 rounded-md border text-xs font-medium text-card-foreground">
             Tổng:{" "}
             <span className="text-blue-600 dark:text-blue-400 font-bold">
               {allUsers.length}
