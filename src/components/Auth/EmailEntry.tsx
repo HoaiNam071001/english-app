@@ -9,45 +9,173 @@ import {
 } from "@/components/ui/card";
 import { ROUTES, STORAGE_KEY } from "@/constants";
 import { useAuth } from "@/hooks/useAuth";
-import { Loader2, PersonStanding } from "lucide-react"; // Import icon UserOff
-import { useEffect } from "react";
+import { SavedAccount } from "@/types";
+import { CheckCircle2, Loader2, PersonStanding, User, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-// Thêm prop onGuestLogin
 const EmailEntry = () => {
-  const { loginWithGoogle, userProfile, isGuest, loading, error, setIsGuest } =
-    useAuth();
-  const navigation = useNavigate();
+  const {
+    loginWithGoogle,
+    userProfile, // Profile từ DB (null khi switch account)
+    user, // Firebase User (vẫn còn session khi switch account)
+    isGuest,
+    loading,
+    error,
+    setIsGuest,
+    removeSavedAccount,
+  } = useAuth();
 
+  const navigation = useNavigate();
+  const [savedAccounts, setSavedAccounts] = useState<SavedAccount[]>([]);
+
+  // Chỉ redirect nếu đã sync xong userProfile hoặc vào chế độ khách
   useEffect(() => {
     if (userProfile || isGuest) {
       navigation(ROUTES.HOME);
     }
-  }, [userProfile, isGuest]);
+  }, [userProfile, isGuest, navigation]);
+
+  // Load saved accounts
+  useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEY.SAVED_ACCOUNTS);
+    if (stored) {
+      setSavedAccounts(JSON.parse(stored));
+    }
+  }, []);
 
   const onGuestLogin = () => {
     localStorage.setItem(STORAGE_KEY.IS_GUEST, "true");
     setIsGuest(true);
   };
 
-  const handleLogin = async () => {
-    await loginWithGoogle();
+  const handleLogin = async (emailHint?: string) => {
+    await loginWithGoogle(emailHint);
+  };
+
+  const handleRemoveAccount = (e: React.MouseEvent, email: string) => {
+    e.stopPropagation();
+    removeSavedAccount(email);
+    setSavedAccounts((prev) => prev.filter((acc) => acc.email !== email));
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[100vh]">
-      <Card className="w-full max-w-md mx-4">
-        <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Hello 👋</CardTitle>
-          <CardDescription>Sign in to sync your vocabulary</CardDescription>
+    <div className="flex items-center justify-center min-h-screen bg-background p-4 transition-colors duration-300">
+      <Card className="w-full max-w-md shadow-lg border-border bg-card">
+        <CardHeader className="text-center pb-2">
+          <CardTitle className="text-2xl font-bold text-foreground">
+            Welcome Back 👋
+          </CardTitle>
+          <CardDescription className="text-muted-foreground">
+            Choose an account to continue
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {/* Google Login */}
+            {/* DANH SÁCH TÀI KHOẢN */}
+            {savedAccounts.length > 0 && (
+              <>
+                <div className="space-y-2 mb-4 max-h-[400px] overflow-auto">
+                  {savedAccounts.map((acc) => {
+                    // Kiểm tra active session
+                    const isActiveSession = user?.email === acc.email;
+
+                    return (
+                      <div
+                        key={acc.uid}
+                        className={`
+                        relative group flex items-center gap-3 p-3 border rounded-lg transition-all cursor-pointer
+                        ${
+                          isActiveSession
+                            ? "border-green-500/50 bg-green-500/10 dark:bg-green-500/20"
+                            : "border-border bg-card hover:bg-accent"
+                        }
+                      `}
+                        onClick={() => handleLogin(acc.email)}
+                      >
+                        {/* Avatar */}
+                        <div className="h-10 w-10 rounded-full overflow-hidden bg-muted border border-border flex items-center justify-center flex-shrink-0 relative">
+                          {acc.photoURL ? (
+                            <img
+                              src={acc.photoURL}
+                              alt="avatar"
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <User className="h-6 w-6 text-muted-foreground" />
+                          )}
+                          {/* Dot xanh nếu Active */}
+                          {isActiveSession && (
+                            <div className="absolute inset-0 bg-black/10 dark:bg-black/30 flex items-center justify-center rounded-full">
+                              <div className="bg-green-500 rounded-full p-0.5 border-2 border-background"></div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Info */}
+                        <div className="flex-1 min-w-0 text-left">
+                          <p className="font-medium text-sm text-foreground truncate">
+                            {acc.displayName || acc.email}
+                          </p>
+                          <div className="flex items-center gap-1">
+                            <span className="text-xs text-muted-foreground truncate">
+                              {acc.email}
+                            </span>
+                            {isActiveSession ? (
+                              <span className="text-[10px] text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/40 px-1.5 rounded-full ml-1 font-medium flex items-center gap-0.5 w-fit">
+                                Current
+                              </span>
+                            ) : (
+                              <span className="text-[10px] text-muted-foreground bg-muted px-1.5 rounded-full ml-1 w-fit">
+                                Signed out
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Remove Button (Chỉ hiện khi hover & không active) */}
+                        {!isActiveSession && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-opacity absolute right-2"
+                            onClick={(e) => handleRemoveAccount(e, acc.email)}
+                            title="Remove account"
+                          >
+                            <X size={16} />
+                          </Button>
+                        )}
+
+                        {/* Icon Check nếu active */}
+                        {isActiveSession && (
+                          <div className="absolute right-3 text-green-600 dark:text-green-500">
+                            <CheckCircle2 size={20} />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                {/* Divider Or Add Another */}
+
+                <div className="relative py-2">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-border" />
+                  </div>
+                  <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-2 text-muted-foreground">
+                      Or add another account
+                    </span>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {/* Google Login Button */}
             <Button
-              variant="outline"
-              className="w-full py-6 text-md flex gap-2 items-center justify-center"
-              onClick={handleLogin}
+              variant={savedAccounts.length > 0 ? "secondary" : "default"}
+              className={`w-full py-6 text-md flex gap-2 items-center justify-center`}
+              onClick={() => handleLogin()} // Gọi không tham số -> Mở bảng chọn tài khoản
               disabled={loading}
             >
               {loading ? (
@@ -55,24 +183,27 @@ const EmailEntry = () => {
               ) : (
                 <img src={logo} alt="Google Logo" className="h-5 w-5" />
               )}
-              Continue with Google
+              {savedAccounts.length > 0
+                ? "Sign in with another account"
+                : "Continue with Google"}
             </Button>
 
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
+            {/* Divider if no saved accounts */}
+            {savedAccounts.length === 0 && (
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t border-border" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-card px-2 text-muted-foreground">Or</span>
+                </div>
               </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  Or
-                </span>
-              </div>
-            </div>
+            )}
 
             {/* Guest Login Button */}
             <Button
-              variant="secondary"
-              className="w-full flex gap-2"
+              variant="ghost"
+              className="w-full flex gap-2 text-muted-foreground hover:text-foreground hover:bg-accent"
               onClick={onGuestLogin}
               disabled={loading}
             >
@@ -81,10 +212,12 @@ const EmailEntry = () => {
             </Button>
 
             {error && (
-              <p className="text-sm text-center text-red-500">{error}</p>
+              <p className="text-sm text-center text-destructive bg-destructive/10 p-2 rounded border border-destructive/20">
+                {error}
+              </p>
             )}
 
-            <div className="text-center text-xs text-muted-foreground mt-2">
+            <div className="text-center text-xs text-muted-foreground mt-4">
               Guest mode: Data is only saved on this device.
             </div>
           </div>

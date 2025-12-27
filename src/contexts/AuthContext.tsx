@@ -1,7 +1,13 @@
 /* eslint-disable react-refresh/only-export-components */
 import { STORAGE_KEY } from "@/constants";
 import { auth, db, googleProvider } from "@/firebaseConfig";
-import { DataTable, UserProfile, UserRole, UserStatus } from "@/types";
+import {
+  DataTable,
+  SavedAccount,
+  UserProfile,
+  UserRole,
+  UserStatus,
+} from "@/types";
 import {
   onAuthStateChanged,
   signInWithPopup,
@@ -11,24 +17,23 @@ import {
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { createContext, ReactNode, useEffect, useState } from "react";
 
-// 1. Định nghĩa kiểu dữ liệu cho Context
 export interface AuthContextType {
   user: User | null;
   userProfile: UserProfile | null;
   loading: boolean;
   error: string | null;
   isGuest: boolean;
-  loginWithGoogle: () => Promise<void>;
-  logout: () => Promise<void>;
+  loginWithGoogle: (emailHint?: string) => Promise<void>;
+  logout: () => Promise<void>; // Logout thật (xóa session)
+  switchAccount: () => void; // Logout mềm (giữ session để login lại nhanh)
   setIsGuest: (isGuest: boolean) => void;
+  removeSavedAccount: (email: string) => void;
 }
 
-// 2. Tạo Context
 export const AuthContext = createContext<AuthContextType | undefined>(
   undefined
 );
 
-// 3. Tạo Provider
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -37,41 +42,78 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isGuest, setIsGuest] = useState(() => {
     return localStorage.getItem?.(STORAGE_KEY.IS_GUEST) === "true";
   });
+
+  // --- LOGIC LƯU ACCOUNT LOCAL ---
+  const saveAccountToStorage = (currentUser: User) => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY.SAVED_ACCOUNTS);
+      let accounts: SavedAccount[] = stored ? JSON.parse(stored) : [];
+      accounts = accounts.filter((acc) => acc.email !== currentUser.email);
+      accounts.unshift({
+        uid: currentUser.uid,
+        email: currentUser.email || "",
+        displayName: currentUser.displayName,
+        photoURL: currentUser.photoURL,
+        lastLogin: Date.now(),
+      });
+      if (accounts.length > 5) accounts.pop();
+      localStorage.setItem(
+        STORAGE_KEY.SAVED_ACCOUNTS,
+        JSON.stringify(accounts)
+      );
+    } catch (e) {
+      console.error("Failed to save account", e);
+    }
+  };
+
+  const removeSavedAccount = (email: string) => {
+    const stored = localStorage.getItem(STORAGE_KEY.SAVED_ACCOUNTS);
+    if (stored) {
+      let accounts: SavedAccount[] = JSON.parse(stored);
+      accounts = accounts.filter((acc) => acc.email !== email);
+      localStorage.setItem(
+        STORAGE_KEY.SAVED_ACCOUNTS,
+        JSON.stringify(accounts)
+      );
+    }
+  };
+
+  // --- HÀM ĐỒNG BỘ FIRESTORE (Tách ra để tái sử dụng) ---
+  const syncUserToFirestore = async (currentUser: User) => {
+    const userRef = doc(db, DataTable.USER, currentUser.email!);
+    const userSnap = await getDoc(userRef);
+
+    if (userSnap.exists()) {
+      const data = userSnap.data();
+      setUserProfile({ ...data } as UserProfile);
+      await setDoc(userRef, { lastLoginAt: Date.now() }, { merge: true });
+    } else {
+      const newProfile: UserProfile = {
+        id: currentUser.uid,
+        email: currentUser.email,
+        role: UserRole.USER,
+        status: UserStatus.PENDING,
+        createdAt: Date.now(),
+        lastLoginAt: Date.now(),
+      };
+      await setDoc(userRef, newProfile);
+      setUserProfile(newProfile);
+    }
+  };
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      // Chỉ chạy loading nếu thực sự có sự thay đổi auth từ Firebase
+      // Nếu switchAccount (soft logout) thì không trigger cái này
       setLoading(true);
       if (currentUser && currentUser.email) {
         setUser(currentUser);
+        saveAccountToStorage(currentUser);
         try {
-          // --- GIỮ NGUYÊN LOGIC DÙNG EMAIL THEO YÊU CẦU ---
-          const userRef = doc(db, DataTable.USER, currentUser.email);
-          const userSnap = await getDoc(userRef);
-
-          if (userSnap.exists()) {
-            // User cũ -> Get data
-            const data = userSnap.data();
-            setUserProfile({ ...data } as UserProfile);
-
-            // Update lastLogin
-            await setDoc(userRef, { lastLoginAt: Date.now() }, { merge: true });
-          } else {
-            // User mới -> Create data
-            const newProfile: UserProfile = {
-              id: currentUser.uid,
-              email: currentUser.email, // Dùng email làm ID hiển thị
-              role: UserRole.USER,
-              status: UserStatus.PENDING,
-              createdAt: Date.now(),
-              lastLoginAt: Date.now(),
-            };
-
-            // Lưu vào DB với ID là Email
-            await setDoc(userRef, newProfile);
-            setUserProfile(newProfile);
-          }
+          await syncUserToFirestore(currentUser);
         } catch (err) {
-          console.error("Lỗi sync profile:", err);
-          setError("Lỗi đồng bộ thông tin người dùng.");
+          console.error("Sync error:", err);
+          setError("Lỗi đồng bộ thông tin.");
         }
       } else {
         setUser(null);
@@ -83,41 +125,67 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribe();
   }, []);
 
-  const loginWithGoogle = async () => {
+  // --- LOGIN THÔNG MINH ---
+  const loginWithGoogle = async (emailHint?: string) => {
     setLoading(true);
     setError(null);
     try {
-      googleProvider.setCustomParameters({ prompt: "select_account" });
+      // 1. Kiểm tra xem có phải đang Login lại chính User hiện tại không?
+      // (Trường hợp vừa bấm Switch Account xong bấm lại chính nick đó)
+      if (auth.currentUser?.email && emailHint === auth.currentUser.email) {
+        // User vẫn đang logged in ở Firebase, chỉ cần load lại Profile
+        await syncUserToFirestore(auth.currentUser);
+        setLoading(false);
+        return; // Xong, không cần hiện popup
+      }
+
+      // 2. Nếu chọn nick khác -> Phải SignOut nick cũ trước
+      if (auth.currentUser) {
+        await signOut(auth);
+      }
+
+      // 3. Quy trình Popup bình thường
+      if (emailHint) {
+        googleProvider.setCustomParameters({ login_hint: emailHint }); // Bỏ prompt select_account để auto login nếu được
+      } else {
+        googleProvider.setCustomParameters({ prompt: "select_account" });
+      }
+
       await signInWithPopup(auth, googleProvider);
-      // Không cần return user vì onAuthStateChanged sẽ tự bắt sự kiện
+      // onAuthStateChanged sẽ lo phần còn lại
     } catch (err) {
       console.error("Login failed:", err);
       if (err.code === "auth/popup-closed-by-user") {
-        setError("Login popup was closed.");
+        setError("Đã đóng cửa sổ đăng nhập.");
       } else {
         setError("Đăng nhập thất bại.");
       }
-    } finally {
-      // Lưu ý: setLoading(false) sẽ được xử lý bởi onAuthStateChanged,
-      // nhưng ta vẫn set ở đây để handle trường hợp lỗi ngay lập tức.
       setLoading(false);
     }
   };
 
+  // --- LOGOUT CỨNG (Xóa session) ---
   const logout = async () => {
     try {
-      if (!userProfile) {
+      if (isGuest) {
         setIsGuest(false);
         localStorage.removeItem(STORAGE_KEY.IS_GUEST);
         return;
       }
-      await signOut(auth);
+      await signOut(auth); // Xóa session Firebase
       setUserProfile(null);
       setUser(null);
-      window.location.reload();
+      // window.location.reload(); // Không cần reload, React state sẽ tự update UI
     } catch (err) {
       console.error("Logout failed:", err);
     }
+  };
+
+  // --- LOGOUT MỀM (Chuyển tài khoản) ---
+  const switchAccount = () => {
+    // Chỉ set Profile = null để App đá về trang Login
+    // Session Firebase vẫn giữ nguyên
+    setUserProfile(null);
   };
 
   const value = {
@@ -129,6 +197,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsGuest,
     loginWithGoogle,
     logout,
+    switchAccount,
+    removeSavedAccount,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

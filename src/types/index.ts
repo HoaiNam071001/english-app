@@ -55,3 +55,11 @@ export interface UserProfile {
   approvedBy?: string;
   approvedAt?: number;
 }
+
+export interface SavedAccount {
+  uid: string;
+  email: string;
+  displayName: string | null;
+  photoURL: string | null;
+  lastLogin: number;
+}

@@ -15,7 +15,8 @@ import { AdminLayout } from "./AdminLayout";
 import HomePage from "./home";
 
 export const MainLayout = () => {
-  const { user, isGuest, loading, setIsGuest, logout } = useAuth();
+  const { user, isGuest, loading, setIsGuest, logout, switchAccount } =
+    useAuth();
   const toast = useToast();
   const { confirm } = useConfirm();
 
@@ -55,8 +56,8 @@ export const MainLayout = () => {
           onLogout={logout}
           onGuestExit={logout}
           onGuestClearData={handleGuestClearData}
+          onSwitchAccount={switchAccount}
         />
-
         <Routes>
           {/* Public Routes (Ví dụ: Login) */}
           <Route path={ROUTES.LOGIN} element={<EmailEntry />} />
