@@ -6,6 +6,7 @@ import { AdminRoute } from "@/components/Auth/AdminRoute";
 import EmailEntry from "@/components/Auth/EmailEntry";
 import PendingScreen from "@/components/Auth/PendingScreen";
 import { RejectedScreen } from "@/components/Auth/RejectedScreen";
+import { UserRoute } from "@/components/Auth/UserRoute";
 import { UserFloatingMenu } from "@/components/UserFloatingMenu";
 import { GUEST_INFO, ROUTES, STORAGE_KEY } from "@/constants";
 import { useAuth } from "@/hooks/useAuth";
@@ -79,7 +80,9 @@ export const MainLayout = () => {
 
       <Routes>
         {/* Route Home */}
-        <Route path={ROUTES.HOME} element={<HomePage />} />
+        <Route path={"/"} element={<UserRoute></UserRoute>}>
+          <Route path={ROUTES.HOME} element={<HomePage />} />
+        </Route>
 
         {/* Route Admin */}
         <Route
