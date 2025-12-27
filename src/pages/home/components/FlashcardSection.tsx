@@ -124,12 +124,12 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
   };
 
   return (
-    <div className="w-full h-full p-6 bg-slate-50/50 rounded-xl border-2 border-dashed border-slate-200 min-h-[600px] flex flex-col">
+    <div className="w-full h-full p-6 bg-muted/30 rounded-xl border-2 border-dashed border-border min-h-[600px] flex flex-col">
       {/* --- TOOLBAR --- */}
       <div className="flex flex-wrap justify-between items-center mb-6 gap-4">
-        <h2 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+        <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
           🔥 Flashcards
-          <span className="bg-slate-200 text-slate-700 text-sm py-0.5 px-2.5 rounded-full">
+          <span className="bg-muted text-foreground text-sm py-0.5 px-2.5 rounded-full">
             {displayCards.length}
           </span>
         </h2>
@@ -143,10 +143,10 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
             onAdd={onAddWords}
           />
 
-          <div className="w-[1px] h-6 bg-slate-300 mx-1"></div>
+          <div className="w-[1px] h-6 bg-border mx-1"></div>
 
           {/* 2. CARD ROTATION GROUP (Flip/Face Down) */}
-          <div className="bg-white border rounded-lg p-0.5 flex gap-0.5 shadow-sm">
+          <div className="bg-card border rounded-lg p-0.5 flex gap-0.5 shadow-sm">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -154,7 +154,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
                     variant="ghost"
                     size="icon"
                     onClick={() => sendCommand(FlashcardCommandType.FLIP_ALL)}
-                    className="h-8 w-8 text-blue-600 hover:bg-blue-50"
+                    className="h-8 w-8 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950"
                   >
                     <BookOpen size={16} />
                   </Button>
@@ -170,7 +170,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
                     variant="ghost"
                     size="icon"
                     onClick={() => sendCommand(FlashcardCommandType.RESET_FLIP)}
-                    className="h-8 w-8 text-slate-600 hover:bg-slate-100"
+                    className="h-8 w-8 text-foreground hover:bg-accent"
                   >
                     <Book size={16} />
                   </Button>
@@ -181,7 +181,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
           </div>
 
           {/* 3. VISIBILITY GROUP (Meaning) */}
-          <div className="bg-white border rounded-lg p-0.5 flex gap-0.5 shadow-sm">
+          <div className="bg-card border rounded-lg p-0.5 flex gap-0.5 shadow-sm">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -191,7 +191,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
                     onClick={() =>
                       sendCommand(FlashcardCommandType.SHOW_MEANING_ALL)
                     }
-                    className="h-8 w-8 text-indigo-600 hover:bg-indigo-50"
+                    className="h-8 w-8 text-indigo-600 dark:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-950"
                   >
                     <Eye size={16} />
                   </Button>
@@ -209,7 +209,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
                     onClick={() =>
                       sendCommand(FlashcardCommandType.HIDE_MEANING_ALL)
                     }
-                    className="h-8 w-8 text-slate-500 hover:bg-slate-100"
+                    className="h-8 w-8 text-muted-foreground hover:bg-accent"
                   >
                     <EyeOff size={16} />
                   </Button>
@@ -280,7 +280,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
                   <h4 className="font-medium leading-none text-red-600">
                     Clear study session?
                   </h4>
-                  <p className="text-sm text-slate-500">
+                  <p className="text-sm text-muted-foreground">
                     This will remove all cards from this view. Data is not
                     deleted from database.
                   </p>
@@ -309,7 +309,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
 
       {/* --- GRID --- */}
       {displayCards.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center text-slate-400">
+        <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground">
           <div className="text-6xl mb-4 grayscale opacity-50">🎉</div>
           <p className="text-lg font-medium">Study list is empty!</p>
           <div className="mt-4">

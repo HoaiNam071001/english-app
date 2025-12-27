@@ -49,7 +49,7 @@ const MoveTopicModal: React.FC<MoveTopicModalProps> = ({
         </DialogHeader>
 
         <div className="py-4 space-y-3">
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-muted-foreground">
             Select the topic you want to assign to the selected words:
           </p>
           <TopicSelector

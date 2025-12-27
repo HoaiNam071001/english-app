@@ -88,7 +88,7 @@ export const ConfirmProvider: React.FC<{ children: ReactNode }> = ({
               )}
               {options.title}
             </DialogTitle>
-            <DialogDescription className="py-2 text-slate-600">
+            <DialogDescription className="py-2 text-muted-foreground">
               {options.message}
             </DialogDescription>
           </DialogHeader>

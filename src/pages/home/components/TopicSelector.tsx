@@ -58,8 +58,8 @@ const TopicSelector: React.FC<TopicSelectorProps> = ({
 
       <SelectContent>
         <SelectItem value={null}>
-          <div className="flex items-center gap-2 text-slate-500">
-            <div className="p-1 rounded-md bg-slate-100">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <div className="p-1 rounded-md bg-muted">
               <Folder size={14} />
             </div>
             <span>Uncategorized</span>

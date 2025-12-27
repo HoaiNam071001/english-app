@@ -110,8 +110,8 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
         relative w-full h-full flex flex-col items-center justify-center p-2 text-center shadow-lg border-2 transition-all duration-500 overflow-hidden
         ${
           isFlipped
-            ? "bg-white border-blue-200"
-            : "bg-slate-800 border-slate-700 shadow-slate-900"
+            ? "bg-card border-blue-200 dark:border-blue-800"
+            : "bg-slate-800 dark:bg-slate-900 border-slate-700 dark:border-slate-800 shadow-slate-900"
         }
       `}
       >
@@ -119,16 +119,16 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
         {!isFlipped && (
           <div className="flex flex-col items-center animate-in fade-in zoom-in duration-300">
             <div
-              className="absolute top-0 left-0 p-2 rounded-full hover:bg-white/10 transition-all opacity-0 group-hover:opacity-100 text-slate-500 hover:text-red-400 z-20"
+              className="absolute top-0 left-0 p-2 rounded-full hover:bg-white/10 dark:hover:bg-white/20 transition-all opacity-0 group-hover:opacity-100 text-slate-500 dark:text-slate-400 hover:text-red-400 dark:hover:text-red-500 z-20"
               onClick={handleRemove}
               title="Remove"
             >
               <X size={18} />
             </div>
-            <div className="text-slate-600 font-bold text-6xl select-none opacity-20">
+            <div className="text-slate-600 dark:text-slate-400 font-bold text-6xl select-none opacity-20">
               ?
             </div>
-            <p className="text-slate-500 text-xs mt-4 uppercase tracking-widest opacity-60">
+            <p className="text-slate-500 dark:text-slate-400 text-xs mt-4 uppercase tracking-widest opacity-60">
               Tap to flip
             </p>
           </div>
@@ -139,7 +139,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
           <div className="flex flex-col h-full w-full animate-in fade-in zoom-in duration-300 pt-4 pb-1 relative">
             {/* Nút Remove (Góc trái trên) */}
             <div
-              className="absolute top-0 left-0 p-2 rounded-full hover:bg-slate-100 text-slate-400 hover:text-red-500 transition-colors cursor-pointer z-30"
+              className="absolute top-0 left-0 p-2 rounded-full hover:bg-accent text-muted-foreground hover:text-destructive transition-colors cursor-pointer z-30"
               onClick={handleRemove}
               title="Remove"
             >
@@ -149,7 +149,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
             {/* Nút Loa */}
             <div className="flex justify-center absolute top-0 w-full">
               <div
-                className="p-1.5 rounded-full bg-blue-50 text-blue-600 hover:scale-110 transition-transform cursor-pointer"
+                className="p-1.5 rounded-full bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 hover:scale-110 transition-transform cursor-pointer"
                 onClick={handleSpeak}
                 title="Pronounce"
               >
@@ -162,7 +162,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
               <Popover open={isEditOpen} onOpenChange={setIsEditOpen}>
                 <PopoverTrigger asChild>
                   <div
-                    className="p-1.5 rounded-full hover:bg-slate-100 text-slate-400 hover:text-blue-600 transition-colors cursor-pointer"
+                    className="p-1.5 rounded-full hover:bg-accent text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
                     onClick={(e) => e.stopPropagation()} // Ngăn lật thẻ
                     title="Edit word"
                   >
@@ -194,7 +194,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                 <Popover>
                   <PopoverTrigger asChild>
                     <h3
-                      className="text-xl font-bold text-slate-800 mb-2 cursor-help decoration-dashed underline decoration-slate-300 underline-offset-4 hover:text-blue-600 transition-colors"
+                      className="text-xl font-bold text-foreground mb-2 cursor-help decoration-dashed underline decoration-border underline-offset-4 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                       onClick={(e) => e.stopPropagation()}
                       title="Click to see note"
                     >
@@ -202,21 +202,21 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                     </h3>
                   </PopoverTrigger>
                   <PopoverContent
-                    className="w-64 p-3 bg-white/95 backdrop-blur shadow-xl text-sm"
+                    className="w-64 p-3 bg-popover/95 backdrop-blur shadow-xl text-sm"
                     side="top"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    <div className="font-semibold text-slate-700 mb-1 border-b pb-1">
+                    <div className="font-semibold text-popover-foreground mb-1 border-b border-border pb-1">
                       Note:
                     </div>
-                    <p className="text-slate-600 italic leading-relaxed">
+                    <p className="text-popover-foreground/80 italic leading-relaxed">
                       {item.example}
                     </p>
                   </PopoverContent>
                 </Popover>
               ) : (
                 <h3
-                  className="text-lg font-bold text-slate-800 line-clamp-2"
+                  className="text-lg font-bold text-foreground line-clamp-2"
                   title={item.text}
                 >
                   {item.text}
@@ -239,8 +239,8 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                     setShowMeaning(!showMeaning);
                   }}
                 >
-                  <div className="w-8 h-[3px] bg-slate-200 rounded-full"></div>
-                  <p className="text-sm font-medium text-slate-600 break-words leading-relaxed text-center line-clamp-2">
+                  <div className="w-8 h-[3px] bg-border rounded-full"></div>
+                  <p className="text-sm font-medium text-foreground break-words leading-relaxed text-center line-clamp-2">
                     {item.meaning}
                   </p>
                 </div>
@@ -254,7 +254,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div
-                        className="right-0 p-2 rounded-full hover:bg-slate-100 text-blue-500 hover:text-blue-700 transition-colors cursor-pointer z-30"
+                        className="right-0 p-2 rounded-full hover:bg-accent text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors cursor-pointer z-30"
                         onClick={toggleMeaning}
                       >
                         {showMeaning ? <EyeOff size={18} /> : <Eye size={18} />}

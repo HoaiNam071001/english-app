@@ -53,7 +53,7 @@ const EmailEntry = ({ onGuestLogin }: { onGuestLogin: () => void }) => {
                 <span className="w-full border-t" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-white px-2 text-muted-foreground">
+                <span className="bg-background px-2 text-muted-foreground">
                   Hoặc
                 </span>
               </div>
@@ -74,7 +74,7 @@ const EmailEntry = ({ onGuestLogin }: { onGuestLogin: () => void }) => {
               <p className="text-sm text-center text-red-500">{error}</p>
             )}
 
-            <div className="text-center text-xs text-slate-400 mt-2">
+            <div className="text-center text-xs text-muted-foreground mt-2">
               Chế độ khách: Dữ liệu chỉ lưu trên thiết bị này.
             </div>
           </div>

@@ -117,7 +117,7 @@ export const ToastCard: React.FC<{ toast: ToastItem; onClose: () => void }> = ({
     <div
       className={`
         pointer-events-auto flex items-start gap-3 p-4 rounded-lg border shadow-lg transition-all duration-300 animate-in slide-in-from-right-full fade-in
-        bg-white ${config.border}
+        bg-popover ${config.border}
       `}
     >
       <Icon className={`h-5 w-5 mt-0.5 ${config.color}`} />
@@ -128,14 +128,14 @@ export const ToastCard: React.FC<{ toast: ToastItem; onClose: () => void }> = ({
             {toast.title}
           </h4>
         )}
-        <p className="text-sm text-slate-600 leading-relaxed">
+        <p className="text-sm text-popover-foreground leading-relaxed">
           {toast.message}
         </p>
       </div>
 
       <button
         onClick={onClose}
-        className="text-slate-400 hover:text-slate-600 transition-colors"
+        className="text-muted-foreground hover:text-foreground transition-colors"
       >
         <X size={16} />
       </button>

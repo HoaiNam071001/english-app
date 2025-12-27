@@ -163,11 +163,11 @@ export const AddCardControl: React.FC<AddCardControlProps> = ({
           </div>
 
           {/* 2. OPTION CONTENT BASED ON MODE */}
-          <div className="min-h-[150px] border rounded-md p-3 bg-slate-50">
+          <div className="min-h-[150px] border rounded-md p-3 bg-muted/50">
             {/* MODE: QUANTITY */}
             {mode === AddMode.QUANTITY && (
               <div className="space-y-4">
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-muted-foreground">
                   System will randomly select words not currently displayed.
                   <br />
                   (Available: <strong>{availableWords.length}</strong> words)
@@ -207,7 +207,7 @@ export const AddCardControl: React.FC<AddCardControlProps> = ({
             {mode === AddMode.DATE && (
               <ScrollArea className="h-[200px] pr-3">
                 {availableDates.length === 0 ? (
-                  <p className="text-xs text-slate-400 text-center pt-10">
+                  <p className="text-xs text-muted-foreground text-center pt-10">
                     No dates available
                   </p>
                 ) : (
@@ -215,7 +215,7 @@ export const AddCardControl: React.FC<AddCardControlProps> = ({
                     {availableDates.map((item) => (
                       <div
                         key={item.dateStr}
-                        className="flex items-center space-x-2 border-b border-slate-200 pb-2 last:border-0"
+                        className="flex items-center space-x-2 border-b border-border pb-2 last:border-0"
                       >
                         <Checkbox
                           id={`date-${item.dateStr}`}
@@ -233,7 +233,7 @@ export const AddCardControl: React.FC<AddCardControlProps> = ({
                           className="flex-1 flex justify-between cursor-pointer"
                         >
                           <div className="cursor-pointer">{item.label}</div>
-                          <span className="text-xs bg-slate-200 px-1.5 rounded-full text-slate-600 h-fit">
+                          <span className="text-xs bg-muted px-1.5 rounded-full text-foreground h-fit">
                             {item.count}
                           </span>
                         </Label>
@@ -248,7 +248,7 @@ export const AddCardControl: React.FC<AddCardControlProps> = ({
             {mode === AddMode.TOPIC && (
               <ScrollArea className="h-[200px] pr-3">
                 {topics.length === 0 ? (
-                  <p className="text-xs text-slate-400 text-center pt-10">
+                  <p className="text-xs text-muted-foreground text-center pt-10">
                     No topics found
                   </p>
                 ) : (
@@ -263,7 +263,7 @@ export const AddCardControl: React.FC<AddCardControlProps> = ({
                       return (
                         <div
                           key={topic.id}
-                          className="flex items-center space-x-2 border-b border-slate-200 pb-2 last:border-0"
+                          className="flex items-center space-x-2 border-b border-border pb-2 last:border-0"
                         >
                           <Checkbox
                             id={`topic-${topic.id}`}
@@ -283,7 +283,7 @@ export const AddCardControl: React.FC<AddCardControlProps> = ({
                             <div className="cursor-pointer truncate max-w-[180px]">
                               {topic.label}
                             </div>
-                            <span className="text-xs bg-slate-200 px-1.5 rounded-full text-slate-600 h-fit">
+                            <span className="text-xs bg-muted px-1.5 rounded-full text-foreground h-fit">
                               {count}
                             </span>
                           </Label>

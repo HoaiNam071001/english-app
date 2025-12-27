@@ -66,10 +66,10 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
 
   // 3. Lấy style màu từ Constants
   const topicColorStyle = useMemo(() => {
-    if (!currentTopic?.color) return { bg: "bg-slate-200" }; // Mặc định nếu không có topic
+    if (!currentTopic?.color) return { bg: "bg-muted" }; // Mặc định nếu không có topic
     return (
       TOPIC_COLORS.find((c) => c.id === currentTopic.color) || {
-        bg: "bg-slate-200",
+        bg: "bg-muted",
       }
     );
   }, [currentTopic]);
@@ -80,10 +80,10 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
         max-w-full relative select-none group/actions p-2 text-sm border rounded-lg transition-all flex items-start gap-3 group
         ${
           isSelected
-            ? "bg-blue-50/50 border-blue-200"
-            : "border-slate-100 hover:border-slate-200"
+            ? "bg-blue-50/50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800"
+            : "border-border hover:border-border/80"
         }
-        ${isActive ? "border-l-4 border-l-blue-500 bg-slate-50" : ""}
+        ${isActive ? "border-l-4 border-l-blue-500 dark:border-l-blue-400 bg-muted/50" : ""}
       `}
     >
       {/* Checkbox Wrapper */}
@@ -109,7 +109,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
               {word.isLearned ? (
                 <CheckCircle2 size={14} className="text-green-500 shrink-0" />
               ) : (
-                <Circle size={14} className="text-slate-300 shrink-0" />
+                <Circle size={14} className="text-muted-foreground shrink-0" />
               )}
 
               {/* 4. Topic Indicator (Chấm màu) */}
@@ -132,8 +132,8 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
               <span
                 className={`font-medium truncate max-w-[200px] ${
                   word.isLearned && !isActive
-                    ? "text-slate-400 line-through"
-                    : "text-slate-700"
+                    ? "text-muted-foreground line-through"
+                    : "text-foreground"
                 }`}
               >
                 {word.text}
@@ -142,7 +142,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
 
             <div className="mt-1 flex items-center gap-2">
               <div
-                className={`text-xs text-slate-500 transition-all duration-300 h-[16px] max-w-[200px] ${
+                className={`text-xs text-muted-foreground transition-all duration-300 h-[16px] max-w-[200px] ${
                   !isMeaningRevealed
                     ? "blur-[5px] select-none opacity-60"
                     : "blur-0 opacity-100"
@@ -168,7 +168,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
       {/* Action Buttons Panel */}
       <div
         className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1
-                  bg-white/95 backdrop-blur-sm shadow-md border border-slate-200 rounded-full p-1
+                  bg-popover/95 backdrop-blur-sm shadow-md border border-border rounded-full p-1
                   opacity-0 translate-x-2 scale-90 pointer-events-none
                   group-hover/actions:opacity-100 group-hover/actions:translate-x-0 group-hover/actions:scale-100 group-hover/actions:pointer-events-auto
                   transition-all duration-300 ease-out origin-right z-20"
@@ -181,8 +181,8 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
                 size="icon"
                 className={`h-7 w-7 rounded-full transition-colors ${
                   word.isLearned
-                    ? "text-orange-400 hover:text-orange-600 hover:bg-orange-50"
-                    : "text-slate-400 hover:text-green-600 hover:bg-green-50"
+                    ? "text-orange-400 dark:text-orange-500 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950"
+                    : "text-muted-foreground hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-950"
                 }`}
                 onClick={(e) => {
                   e.stopPropagation();
@@ -206,7 +206,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 rounded-full text-slate-400 hover:text-blue-600 hover:bg-blue-50"
+                className="h-7 w-7 rounded-full text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950"
                 onClick={(e) => {
                   e.stopPropagation();
                   onToggleReveal(word.id);
@@ -228,7 +228,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7 rounded-full text-blue-500 hover:text-red-600 hover:bg-red-50"
+                  className="h-7 w-7 rounded-full text-blue-500 dark:text-blue-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950"
                   onClick={(e) => {
                     e.stopPropagation();
                     onRemoveFromPractice(word);
@@ -249,7 +249,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-7 w-7 rounded-full text-slate-400 hover:text-green-600 hover:bg-green-50"
+                  className="h-7 w-7 rounded-full text-muted-foreground hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-950"
                   onClick={(e) => {
                     e.stopPropagation();
                     onAddToPractice(word);

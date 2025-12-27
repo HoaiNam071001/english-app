@@ -100,9 +100,9 @@ const TopicList: React.FC<TopicListProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-slate-50/50">
-      <div className="p-4 border-b flex justify-between items-center bg-white">
-        <h3 className="font-semibold text-slate-700">Topics</h3>
+    <div className="flex flex-col h-full bg-muted/30">
+      <div className="p-4 border-b flex justify-between items-center bg-card">
+        <h3 className="font-semibold text-card-foreground">Topics</h3>
         <Button
           size="sm"
           variant="outline"
@@ -118,14 +118,14 @@ const TopicList: React.FC<TopicListProps> = ({
           {/* Default 'All Topics' Item */}
           <div
             onClick={() => onSelectTopic(null)}
-            className="flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 hover:border-blue-400 cursor-pointer transition-all shadow-sm group"
+            className="flex items-center gap-3 p-3 rounded-lg bg-card border border-border hover:border-blue-400 dark:hover:border-blue-500 cursor-pointer transition-all shadow-sm group"
           >
-            <div className="bg-slate-100 p-2.5 rounded-full text-slate-600">
+            <div className="bg-muted p-2.5 rounded-full text-muted-foreground">
               <Folder size={20} />
             </div>
             <div className="flex-1">
-              <h4 className="font-bold text-slate-700">All Vocabulary</h4>
-              <p className="text-xs text-slate-500">
+              <h4 className="font-bold text-card-foreground">All Vocabulary</h4>
+              <p className="text-xs text-muted-foreground">
                 Total: {vocabulary.length} words
               </p>
             </div>
@@ -141,7 +141,7 @@ const TopicList: React.FC<TopicListProps> = ({
               <div
                 key={topic.id}
                 onClick={() => onSelectTopic(topic.id)}
-                className="relative flex items-center gap-3 p-3 rounded-lg bg-white border border-slate-200 hover:border-blue-400 cursor-pointer transition-all shadow-sm group"
+                className="relative flex items-center gap-3 p-3 rounded-lg bg-card border border-border hover:border-blue-400 dark:hover:border-blue-500 cursor-pointer transition-all shadow-sm group"
               >
                 {/* Icon */}
                 <div className={`${style.bg} ${style.text} p-2.5 rounded-full`}>
@@ -150,11 +150,11 @@ const TopicList: React.FC<TopicListProps> = ({
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
-                  <h4 className="font-medium text-slate-800 truncate">
+                  <h4 className="font-medium text-card-foreground truncate">
                     {topic.label}
                   </h4>
-                  <div className="flex items-center gap-2 text-xs text-slate-400">
-                    <span className="font-medium text-slate-500">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span className="font-medium text-muted-foreground">
                       {wordCount} words
                     </span>
                     <span>•</span>
@@ -237,12 +237,12 @@ const TopicList: React.FC<TopicListProps> = ({
                     } border-2 transition-all flex items-center justify-center
                       ${
                         color === c.id
-                          ? "border-slate-600 shadow-sm"
+                          ? "border-foreground shadow-sm"
                           : "border-transparent"
                       }`}
                   >
                     {color === c.id && (
-                      <div className="w-2.5 h-2.5 bg-slate-600 rounded-full" />
+                      <div className="w-2.5 h-2.5 bg-foreground rounded-full" />
                     )}
                   </button>
                 ))}
@@ -252,7 +252,7 @@ const TopicList: React.FC<TopicListProps> = ({
             {/* Icon Grid */}
             <div className="space-y-2">
               <Label>Icon</Label>
-              <ScrollArea className="h-32 rounded-md border p-2 bg-slate-50">
+              <ScrollArea className="h-32 rounded-md border p-2 bg-muted/50">
                 <div className="grid grid-cols-6 gap-2 p-1">
                   {ICON_KEYS.map((k) => {
                     const IconComp = ICON_MAP[k];
@@ -264,8 +264,8 @@ const TopicList: React.FC<TopicListProps> = ({
                         className={`p-2 rounded-md flex items-center justify-center transition-all
                           ${
                             icon === k
-                              ? "bg-slate-200 text-slate-800 ring-2 ring-slate-400"
-                              : "text-slate-500 hover:bg-white hover:shadow-sm"
+                              ? "bg-accent text-foreground ring-2 ring-ring"
+                              : "text-muted-foreground hover:bg-card hover:shadow-sm"
                           }`}
                       >
                         <IconComp size={20} />
@@ -281,7 +281,10 @@ const TopicList: React.FC<TopicListProps> = ({
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSave}>
+            <Button
+              onClick={handleSave}
+              className="bg-blue-600 hover:bg-blue-700 text-white "
+            >
               {editingTopicId ? "Save Changes" : "Create Topic"}
             </Button>
           </DialogFooter>

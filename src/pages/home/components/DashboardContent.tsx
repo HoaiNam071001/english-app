@@ -70,13 +70,13 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
   return (
     <div className="container mx-auto p-4 md:p-6 max-w-8xl min-h-screen flex flex-col">
       {/* HEADER */}
-      <header className="flex justify-between items-center mb-6 pb-4 border-b bg-white sticky top-0 z-50">
+      <header className="flex justify-between items-center mb-6 pb-4 border-b bg-background sticky top-0 z-50">
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="text-slate-600"
+            className="text-foreground"
           >
             {isSidebarOpen ? (
               <PanelLeftClose size={20} />
@@ -86,8 +86,8 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
           </Button>
 
           <div>
-            <div className="text-2xl font-bold">Vocabulary Manager</div>
-            <p className="text-sm text-slate-500 hidden sm:block">
+            <div className="text-2xl font-bold text-foreground">Vocabulary Manager</div>
+            <p className="text-sm text-muted-foreground hidden sm:block">
               User: {user?.email}
             </p>
           </div>
@@ -106,7 +106,7 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
         {/* SIDEBAR AREA (Giữ nguyên) */}
         <div
           className={`
-              h-[75vh] transition-all duration-300 ease-in-out border-r bg-white flex flex-col
+              h-[75vh] transition-all duration-300 ease-in-out border-r bg-card flex flex-col
               ${
                 isSidebarOpen
                   ? "w-80 md:w-1/4 opacity-100 translate-x-0 mr-4"
@@ -127,7 +127,7 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
             </div>
           ) : (
             <div className="h-full w-80 md:w-auto flex flex-col">
-              <div className="flex items-center gap-2 p-2 border-b bg-slate-50">
+              <div className="flex items-center gap-2 p-2 border-b bg-muted/50">
                 <Button
                   variant="ghost"
                   size="sm"

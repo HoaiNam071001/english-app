@@ -249,7 +249,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
   };
 
   return (
-    <div className="flex flex-col bg-white border-r pr-4 h-full overflow-y-hidden">
+    <div className="flex flex-col bg-card border-r pr-4 h-full overflow-y-hidden">
       {/* 1. COMPONENT MODAL (Đặt ở ngoài cùng để không bị lỗi z-index) */}
       <MoveTopicModal
         open={isMoveTopicModalOpen}
@@ -261,17 +261,17 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
       {/* SEARCH BAR */}
       <div className="p-3 pb-0 z-20">
         <div className="relative">
-          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-slate-400" />
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9 pr-8 bg-slate-50 border-slate-200 focus:bg-white transition-all h-9 text-sm"
+            className="pl-9 pr-8 bg-muted/50 border-border focus:bg-background transition-all h-9 text-sm"
           />
           {searchTerm && (
             <button
               onClick={() => setSearchTerm("")}
-              className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600 transition-colors"
+              className="absolute right-2.5 top-2.5 text-muted-foreground hover:text-foreground transition-colors"
             >
               <X size={16} />
             </button>
@@ -280,7 +280,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
       </div>
 
       {/* HEADER TOOLBAR */}
-      <div className="p-3 border-b flex items-center justify-between bg-white z-10">
+      <div className="p-3 border-b flex items-center justify-between bg-card z-10">
         <div className="flex items-center gap-2">
           <Checkbox
             checked={
@@ -289,7 +289,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
             }
             onCheckedChange={(c) => handleSelectAll(c as boolean)}
           />
-          <span className="text-sm font-semibold text-slate-700">
+          <span className="text-sm font-semibold text-card-foreground">
             {selectedIds.size > 0
               ? `${selectedIds.size} selected`
               : `List (${filteredWords.length})`}
@@ -307,7 +307,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                       variant="ghost"
                       size="icon"
                       onClick={handleDeselectAll}
-                      className="h-8 w-8 text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+                      className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-accent"
                     >
                       <X size={16} />
                     </Button>
@@ -324,7 +324,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                       variant="ghost"
                       size="icon"
                       onClick={handleBulkAdd}
-                      className="h-8 w-8 text-blue-600 hover:bg-blue-50"
+                      className="h-8 w-8 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950"
                     >
                       <BookOpen size={16} />
                     </Button>
@@ -342,7 +342,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 text-red-600 hover:bg-blue-50"
+                    className="h-8 w-8 text-destructive hover:bg-destructive/10 dark:hover:bg-destructive/20"
                   >
                     <Trash2 size={16} />
                   </Button>
@@ -378,7 +378,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 text-slate-600 hover:bg-slate-100"
+                    className="h-8 w-8 text-foreground hover:bg-accent"
                   >
                     <MoreHorizontal size={16} />
                   </Button>
@@ -423,7 +423,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                     variant="ghost"
                     size="icon"
                     onClick={toggleRevealAll}
-                    className="h-8 w-8 text-slate-500"
+                    className="h-8 w-8 text-muted-foreground"
                   >
                     {isAllRevealed ? <Eye size={18} /> : <EyeOff size={18} />}
                   </Button>
@@ -441,7 +441,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
       <ScrollArea className="flex-1 mt-0 overflow-y-auto pr-2 overflow-x-hidden">
         <div className="pb-10 overflow-x-hidden">
           {sortedDateKeys.length === 0 ? (
-            <div className="flex flex-col items-center justify-center mt-10 text-slate-400 gap-2">
+            <div className="flex flex-col items-center justify-center mt-10 text-muted-foreground gap-2">
               <Search size={32} className="opacity-20" />
               <span className="text-sm">No results found.</span>
             </div>
@@ -459,13 +459,13 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                   <div
                     onClick={() => handleSelectDate(dateKey)}
                     className={`
-                        sticky top-0 bg-white/95 backdrop-blur-sm z-10 px-2 py-2 mb-2
-                        text-xs font-bold uppercase tracking-wider border-b border-slate-100
-                        flex items-center justify-between cursor-pointer transition-colors hover:bg-slate-50
+                        sticky top-0 bg-card/95 backdrop-blur-sm z-10 px-2 py-2 mb-2
+                        text-xs font-bold uppercase tracking-wider border-b border-border
+                        flex items-center justify-between cursor-pointer transition-colors hover:bg-accent
                         ${
                           allSelected
-                            ? "text-blue-700 bg-blue-50/50"
-                            : "text-blue-600"
+                            ? "text-blue-700 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-950/30"
+                            : "text-blue-600 dark:text-blue-400"
                         }
                       `}
                     title="Click to select all items in this date"
@@ -483,8 +483,8 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                     <span
                       className={`px-1.5 rounded-full text-[10px] ${
                         allSelected
-                          ? "bg-blue-100 text-blue-700"
-                          : "bg-slate-100 text-slate-500"
+                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                          : "bg-muted text-muted-foreground"
                       }`}
                     >
                       {wordsInGroup.length}

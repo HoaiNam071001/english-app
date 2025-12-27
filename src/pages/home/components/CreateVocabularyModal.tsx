@@ -80,7 +80,7 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2">
+        <Button className="gap-2" variant="secondary">
           <Plus size={16} /> Thêm từ mới
         </Button>
       </DialogTrigger>
@@ -103,7 +103,7 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
           />
 
           {report && (
-            <div className="text-sm space-y-2 bg-slate-50 p-3 rounded-md border">
+            <div className="text-sm space-y-2 bg-muted/50 p-3 rounded-md border">
               {report.added.length > 0 && (
                 <div className="text-green-600 flex items-start gap-2">
                   <span>✅</span>
@@ -131,6 +131,7 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
           <Button
             onClick={handleProcessAndAdd}
             disabled={loading || !inputText}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
           >
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {loading ? "Đang xử lý..." : "Lưu vào kho"}
