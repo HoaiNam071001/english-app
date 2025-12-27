@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ADMIN_INFO } from "@/constants";
 import { Clock, LogOut } from "lucide-react";
 import React from "react";
 
@@ -27,7 +28,8 @@ const PendingScreen: React.FC<PendingScreenProps> = ({ onLogout, email }) => {
           <CardDescription className="pt-2">
             Account <strong>{email}</strong> has been registered.
             <br />
-            Please contact Admin to get access permission.
+            Please contact Admin (<strong>{ADMIN_INFO.email}</strong>) to get
+            access permission.
           </CardDescription>
         </CardHeader>
         <CardContent>

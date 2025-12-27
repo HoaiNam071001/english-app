@@ -54,6 +54,10 @@ export const STORAGE_KEY = {
   IS_GUEST: "is_GUEST",
 };
 
+export const ADMIN_INFO = {
+  email: "nam215543694@gmail.com",
+};
+
 export const ICON_MAP: Record<string, LucideIcon> = {
   folder: Folder,
   book: Book,

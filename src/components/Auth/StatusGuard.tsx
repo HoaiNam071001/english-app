@@ -11,7 +11,7 @@ export const StatusGuard = ({ children }: { children: React.ReactNode }) => {
       return <PendingScreen email={user.email!} onLogout={logout} />;
     }
     if (userProfile.status === UserStatus.REJECTED) {
-      return <RejectedScreen onLogout={logout} />;
+      return <RejectedScreen email={user.email!} onLogout={logout} />;
     }
   }
 
