@@ -54,7 +54,7 @@ export class GuestTopicService implements ITopicService {
     const now = Date.now();
     const newTopic: TopicItem = {
       id: crypto.randomUUID(),
-      userId: "guest",
+      userId: GUEST_INFO.id,
       createdAt: now,
       label: data.label || "New Topic",
       ...data,

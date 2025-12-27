@@ -48,7 +48,7 @@ export class GuestVocabularyService implements IVocabularyService {
           meaning: entry.meaning!,
           normalized: entry.normalized!,
           topicId: entry.topicId,
-          userId: "guest",
+          userId: GUEST_INFO.id,
           createdAt: now,
           updatedAt: now,
           isLearned: false,

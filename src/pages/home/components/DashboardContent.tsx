@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { GUEST_INFO } from "@/constants";
 import { useTopics } from "@/hooks/useTopics";
 import CreateVocabularyModal from "@/pages/home/components/CreateVocabularyModal";
 import FlashcardSection from "@/pages/home/components/FlashcardSection"; // Import Filter type
@@ -90,7 +91,7 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
               Vocabulary Manager
             </div>
             <p className="text-sm text-muted-foreground hidden sm:block">
-              User: {user?.email}
+              User: {user?.email || GUEST_INFO.name}
             </p>
           </div>
         </div>

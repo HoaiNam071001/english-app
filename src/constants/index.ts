@@ -209,6 +209,7 @@ export const TOPIC_COLORS: TopicColor[] = [
 
 export const GUEST_INFO = {
   name: "Guest",
+  id: "guest",
   storageKey: {
     topic: "topic_storage",
     vocabulary: "vocabulary_storage",
