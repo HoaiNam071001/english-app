@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
   Popover,
@@ -107,66 +106,99 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
     >
       <Card
         className={`
-        relative w-full h-full flex flex-col items-center justify-center p-2 text-center shadow-lg border-2 transition-all duration-500 overflow-hidden
+        relative w-full h-full flex flex-col items-center justify-center p-2 text-center shadow-lg border-2 overflow-hidden
+        transition-all duration-500 ease-in-out
         ${
           isFlipped
             ? "bg-card border-blue-200 dark:border-blue-800"
-            : "bg-slate-800 dark:bg-slate-900 border-slate-700 dark:border-slate-800 shadow-slate-900"
+            : "bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 dark:from-purple-950 dark:via-indigo-950 dark:to-blue-950 border-purple-500/50 dark:border-purple-400/30 shadow-2xl shadow-purple-500/20 dark:shadow-purple-400/10"
         }
       `}
       >
         {/* --- BACK SIDE (ÚP) --- */}
         {!isFlipped && (
-          <div className="flex flex-col items-center animate-in fade-in zoom-in duration-300">
+          <div className="flex flex-col items-center justify-center relative w-full h-full animate-in fade-in zoom-in-95 duration-500">
+            {/* Mystical pattern overlay - Multiple layers */}
+            <div className="absolute inset-0 opacity-15 dark:opacity-25">
+              {/* Dots pattern */}
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.15)_1px,transparent_1px)] bg-[length:16px_16px]"></div>
+              {/* Conic gradient */}
+              <div className="absolute inset-0 bg-[conic-gradient(from_0deg_at_50%_50%,transparent_0deg,rgba(168,85,247,0.15)_60deg,transparent_120deg,rgba(99,102,241,0.15)_180deg,transparent_240deg,rgba(59,130,246,0.15)_300deg,transparent_360deg)]"></div>
+              {/* Hexagon pattern */}
+              <div className="absolute inset-0 bg-[repeating-linear-gradient(30deg,transparent,transparent_10px,rgba(168,85,247,0.1)_10px,rgba(168,85,247,0.1)_11px)]"></div>
+            </div>
+
+            {/* Geometric shapes */}
+            <div className="absolute top-2 left-2 w-8 h-8 border-2 border-purple-400/30 rotate-45"></div>
+            <div className="absolute top-4 right-3 w-6 h-6 border-2 border-indigo-400/30 rounded-full"></div>
+            <div className="absolute bottom-3 left-4 w-5 h-5 border-2 border-blue-400/30 rotate-45"></div>
+            <div className="absolute bottom-2 right-2 w-7 h-7 border-2 border-purple-400/30 rounded-full"></div>
+
+            {/* Corner decorations */}
+            <div className="absolute top-0 left-0 w-12 h-12 border-t-2 border-l-2 border-purple-400/40"></div>
+            <div className="absolute top-0 right-0 w-12 h-12 border-t-2 border-r-2 border-indigo-400/40"></div>
+            <div className="absolute bottom-0 left-0 w-12 h-12 border-b-2 border-l-2 border-blue-400/40"></div>
+            <div className="absolute bottom-0 right-0 w-12 h-12 border-b-2 border-r-2 border-purple-400/40"></div>
+
+            {/* Glowing effect - static */}
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/15 via-indigo-500/15 to-blue-500/15 dark:from-purple-400/25 dark:via-indigo-400/25 dark:to-blue-400/25 blur-xl"></div>
+
+            {/* Remove button */}
             <div
-              className="absolute top-0 left-0 p-2 rounded-full hover:bg-white/10 dark:hover:bg-white/20 transition-all opacity-0 group-hover:opacity-100 text-slate-500 dark:text-slate-400 hover:text-red-400 dark:hover:text-red-500 z-20"
+              className="absolute top-2 right-2 p-1.5 rounded-full hover:bg-white/20 dark:hover:bg-white/30 transition-all opacity-0 group-hover:opacity-100 text-white/70 hover:text-red-300 dark:hover:text-red-400 z-20 backdrop-blur-sm"
               onClick={handleRemove}
               title="Remove"
             >
-              <X size={18} />
+              <X size={16} />
             </div>
-            <div className="text-slate-600 dark:text-slate-400 font-bold text-6xl select-none opacity-20">
-              ?
+
+            {/* Mystical question mark with glow - static */}
+            <div className="relative z-10 flex items-center justify-center">
+              <div className="text-white/95 dark:text-white font-bold text-6xl select-none drop-shadow-[0_0_12px_rgba(168,85,247,0.7)] dark:drop-shadow-[0_0_15px_rgba(196,181,253,0.8)]">
+                ?
+              </div>
+              <div className="absolute inset-0 text-white/30 dark:text-purple-300/30 font-bold text-6xl select-none blur-lg">
+                ?
+              </div>
             </div>
-            <p className="text-slate-500 dark:text-slate-400 text-xs mt-4 uppercase tracking-widest opacity-60">
-              Tap to flip
+
+            {/* Mystical text */}
+            <p className="text-white/85 dark:text-purple-200 text-[10px] mt-5 uppercase tracking-[0.2em] font-semibold z-10 drop-shadow-lg">
+              Tap to reveal
             </p>
+
+            {/* Static sparkle effects */}
+            <div className="absolute top-3 right-3 w-1.5 h-1.5 bg-white/70 rounded-full"></div>
+            <div className="absolute bottom-4 left-3 w-1 h-1 bg-purple-300/70 rounded-full"></div>
+            <div className="absolute top-1/2 right-4 w-1 h-1 bg-blue-300/70 rounded-full"></div>
+            <div className="absolute top-1/3 left-2 w-1.5 h-1.5 bg-indigo-300/70 rounded-full"></div>
+            <div className="absolute bottom-1/3 right-2 w-1 h-1 bg-purple-200/70 rounded-full"></div>
           </div>
         )}
 
         {/* --- FRONT SIDE (NGỬA) --- */}
         {isFlipped && (
-          <div className="flex flex-col h-full w-full animate-in fade-in zoom-in duration-300 pt-4 pb-1 relative">
-            {/* Nút Remove (Góc trái trên) */}
-            <div
-              className="absolute top-0 left-0 p-2 rounded-full hover:bg-accent text-muted-foreground hover:text-destructive transition-colors cursor-pointer z-30"
-              onClick={handleRemove}
-              title="Remove"
-            >
-              <X size={18} />
-            </div>
-
-            {/* Nút Loa */}
-            <div className="flex justify-center absolute top-0 w-full">
+          <div className="flex flex-col h-full w-full relative animate-in fade-in zoom-in-95 duration-500">
+            {/* Actions - Grouped at top right corner */}
+            <div className="absolute -top-1 left-0 w-full flex items-center gap-1 z-30">
+              {/* Remove button */}
               <div
-                className="p-1.5 rounded-full bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 hover:scale-110 transition-transform cursor-pointer"
-                onClick={handleSpeak}
-                title="Pronounce"
+                className="p-1.5 mr-auto rounded-full hover:bg-accent text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
+                onClick={handleRemove}
+                title="Remove"
               >
-                <Volume2 size={18} />
+                <X size={14} />
               </div>
-            </div>
 
-            <div className="absolute -top-1 -right-1 p-2 flex gap-1 z-30 items-center">
-              {/* Nút Edit (Popover) */}
+              {/* Edit button */}
               <Popover open={isEditOpen} onOpenChange={setIsEditOpen}>
                 <PopoverTrigger asChild>
                   <div
                     className="p-1.5 rounded-full hover:bg-accent text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
-                    onClick={(e) => e.stopPropagation()} // Ngăn lật thẻ
+                    onClick={(e) => e.stopPropagation()}
                     title="Edit word"
                   >
-                    <PenLine size={16} />
+                    <PenLine size={14} />
                   </div>
                 </PopoverTrigger>
                 <PopoverContent
@@ -187,77 +219,93 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
               </Popover>
             </div>
 
-            {/* CONTENT */}
-            <div className="flex-1 flex flex-col items-center justify-center mt-4">
-              {/* Từ vựng (Có thể click để xem note) */}
-              {item.example ? (
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <h3
-                      className="text-xl font-bold text-foreground mb-2 cursor-help decoration-dashed underline decoration-border underline-offset-4 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            {/* CONTENT - Word and Meaning together */}
+            <div className="flex-1 flex flex-col items-center justify-center px-3 py-8 min-h-0 overflow-hidden">
+              {/* Từ vựng */}
+              <div className="h-[55px] min-h-[55px] mb-2 flex flex-col justify-end">
+                {item.example ? (
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <div
+                        className="text-lg font-bold text-foreground cursor-help decoration-dashed underline decoration-border underline-offset-4 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-center"
+                        onClick={(e) => e.stopPropagation()}
+                        title="Click to see note"
+                      >
+                        {item.text}
+                      </div>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      className="w-64 p-3 bg-popover/95 backdrop-blur shadow-xl text-sm"
+                      side="top"
                       onClick={(e) => e.stopPropagation()}
-                      title="Click to see note"
                     >
-                      {item.text}
-                    </h3>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    className="w-64 p-3 bg-popover/95 backdrop-blur shadow-xl text-sm"
-                    side="top"
-                    onClick={(e) => e.stopPropagation()}
+                      <div className="font-semibold text-popover-foreground border-b border-border pb-1">
+                        Note:
+                      </div>
+                      <p className="text-popover-foreground/80 italic leading-relaxed">
+                        {item.example}
+                      </p>
+                    </PopoverContent>
+                  </Popover>
+                ) : (
+                  <div
+                    className="text-lg font-bold text-foreground line-clamp-2 text-center"
+                    title={item.text}
                   >
-                    <div className="font-semibold text-popover-foreground mb-1 border-b border-border pb-1">
-                      Note:
-                    </div>
-                    <p className="text-popover-foreground/80 italic leading-relaxed">
-                      {item.example}
-                    </p>
-                  </PopoverContent>
-                </Popover>
-              ) : (
-                <h3
-                  className="text-lg font-bold text-foreground line-clamp-2"
-                  title={item.text}
-                >
-                  {item.text}
-                </h3>
+                    {item.text}
+                  </div>
+                )}
+              </div>
+
+              {/* Divider */}
+              {item.meaning && (
+                <div className="w-12 !m-0 h-[2px] min-h-[2px] bg-border rounded-full my-2"></div>
               )}
 
-              {/* Nghĩa */}
+              {/* Nghĩa - Always visible, just blurred when hidden */}
               {item.meaning && (
                 <div
-                  className={`
-                  w-full px-2 transition-all duration-300 flex flex-col items-center gap-1
-                  ${
-                    showMeaning
-                      ? "opacity-100 blur-0"
-                      : "opacity-40 blur-sm select-none grayscale"
-                  }
-                `}
+                  className={` h-[40px] min-h-[40px] mt-2
+                   w-full transition-all duration-300 flex flex-col items-center
+                   ${
+                     showMeaning
+                       ? "opacity-100 blur-0"
+                       : "opacity-30 blur-md select-none grayscale"
+                   }
+                 `}
                   onClick={(e) => {
                     e.stopPropagation();
                     setShowMeaning(!showMeaning);
                   }}
                 >
-                  <div className="w-8 h-[3px] bg-border rounded-full"></div>
-                  <p className="text-sm font-medium text-foreground break-words leading-relaxed text-center line-clamp-2">
+                  <p className="text-[12px] font-medium text-muted-foreground italic break-words leading-relaxed text-center line-clamp-3">
                     {item.meaning}
                   </p>
                 </div>
               )}
             </div>
 
-            {/* ACTION FOOTER */}
-            <div className="flex justify-between">
+            {/* ACTION FOOTER - Grouped at bottom center */}
+            <div className="absolute bottom-0 left-0 w-full flex items-center justify-between gap-2 z-20">
+              {/* Speak button */}
+              <div
+                className="p-1.5 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors cursor-pointer"
+                onClick={handleSpeak}
+                title="Pronounce"
+              >
+                <Volume2 size={14} />
+              </div>
+
+              {/* Eye toggle */}
               {item.meaning && (
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <div
-                        className="right-0 p-2 rounded-full hover:bg-accent text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors cursor-pointer z-30"
+                        className="p-1.5 rounded-full hover:bg-accent text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors cursor-pointer"
                         onClick={toggleMeaning}
                       >
-                        {showMeaning ? <EyeOff size={18} /> : <Eye size={18} />}
+                        {showMeaning ? <EyeOff size={14} /> : <Eye size={14} />}
                       </div>
                     </TooltipTrigger>
                     <TooltipContent side="top">
@@ -268,21 +316,21 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                   </Tooltip>
                 </TooltipProvider>
               )}
+
+              {/* Learned button */}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button
-                      size="sm"
-                      className="w-full w-10 text-green-600 bg-transparent hover:bg-green-600 hover:text-white shadow-sm text-center"
+                    <div
+                      className="p-1.5 rounded-full bg-green-50 dark:bg-green-950/50 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900 transition-colors cursor-pointer"
                       onClick={handleMarkAsLearned}
-                      disabled={loading}
                     >
                       {loading ? (
-                        <span className="animate-spin mr-2">⏳</span>
+                        <span className="animate-spin text-xs">⏳</span>
                       ) : (
-                        <Check size={16} className="mr-1" />
+                        <Check size={14} />
                       )}
-                    </Button>
+                    </div>
                   </TooltipTrigger>
                   <TooltipContent side="top">Mark as learned</TooltipContent>
                 </Tooltip>
