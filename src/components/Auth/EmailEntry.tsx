@@ -18,7 +18,7 @@ const EmailEntry = ({ onGuestLogin }: { onGuestLogin: () => void }) => {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[80vh]">
+    <div className="flex items-center justify-center min-h-[100vh]">
       <Card className="w-full max-w-md mx-4">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Xin chào 👋</CardTitle>
