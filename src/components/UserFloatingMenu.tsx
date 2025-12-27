@@ -54,17 +54,17 @@ export const UserFloatingMenu = ({
           {/* Header nhỏ */}
           <div className="px-3 py-2 border-b border-border mb-1">
             <p className="text-sm font-medium text-popover-foreground truncate">
-              {user ? user.displayName : "Khách ghé thăm"}
+              {user ? user.displayName : "Guest User"}
             </p>
             <p className="text-xs text-muted-foreground truncate">
-              {user ? user.email : "Chế độ Offline"}
+              {user ? user.email : "Offline Mode"}
             </p>
           </div>
 
           {/* Theme Toggle */}
           <div className="px-3 py-2 border-b border-border mb-1">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-popover-foreground">Giao diện</span>
+              <span className="text-sm text-popover-foreground">Theme</span>
               <ThemeToggle />
             </div>
           </div>
@@ -75,7 +75,7 @@ export const UserFloatingMenu = ({
               onClick={onLogout}
               className="w-full flex items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 dark:hover:bg-destructive/20 rounded-md transition-colors"
             >
-              <LogOut size={16} /> Đăng xuất
+              <LogOut size={16} /> Logout
             </button>
           )}
 
@@ -86,14 +86,14 @@ export const UserFloatingMenu = ({
                 onClick={onGuestExit}
                 className="w-full flex items-center gap-2 px-3 py-2 text-sm text-popover-foreground hover:bg-accent rounded-md transition-colors"
               >
-                <LogOut size={16} /> Thoát chế độ khách
+                <LogOut size={16} /> Exit Guest Mode
               </button>
 
               <button
                 onClick={onGuestClearData}
                 className="w-full flex items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 dark:hover:bg-destructive/20 rounded-md transition-colors"
               >
-                <Trash2 size={16} /> Xóa dữ liệu & Thoát
+                <Trash2 size={16} /> Clear Data & Exit
               </button>
             </>
           )}

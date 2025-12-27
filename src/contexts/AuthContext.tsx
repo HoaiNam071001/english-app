@@ -95,7 +95,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (err) {
       console.error("Login failed:", err);
       if (err.code === "auth/popup-closed-by-user") {
-        setError("Bạn đã đóng popup đăng nhập.");
+        setError("Login popup was closed.");
       } else {
         setError("Đăng nhập thất bại.");
       }

@@ -21,10 +21,8 @@ const EmailEntry = ({ onGuestLogin }: { onGuestLogin: () => void }) => {
     <div className="flex items-center justify-center min-h-[100vh]">
       <Card className="w-full max-w-md mx-4">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl">Xin chào 👋</CardTitle>
-          <CardDescription>
-            Đăng nhập để đồng bộ từ vựng của bạn
-          </CardDescription>
+          <CardTitle className="text-2xl">Hello 👋</CardTitle>
+          <CardDescription>Sign in to sync your vocabulary</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -45,7 +43,7 @@ const EmailEntry = ({ onGuestLogin }: { onGuestLogin: () => void }) => {
                   ></path>
                 </svg>
               )}
-              Tiếp tục với Google
+              Continue with Google
             </Button>
 
             <div className="relative">
@@ -54,7 +52,7 @@ const EmailEntry = ({ onGuestLogin }: { onGuestLogin: () => void }) => {
               </div>
               <div className="relative flex justify-center text-xs uppercase">
                 <span className="bg-background px-2 text-muted-foreground">
-                  Hoặc
+                  Or
                 </span>
               </div>
             </div>
@@ -67,7 +65,7 @@ const EmailEntry = ({ onGuestLogin }: { onGuestLogin: () => void }) => {
               disabled={loading}
             >
               <PersonStanding className="h-4 w-4" />
-              Dùng thử không cần đăng nhập
+              Try without signing in
             </Button>
 
             {error && (
@@ -75,7 +73,7 @@ const EmailEntry = ({ onGuestLogin }: { onGuestLogin: () => void }) => {
             )}
 
             <div className="text-center text-xs text-muted-foreground mt-2">
-              Chế độ khách: Dữ liệu chỉ lưu trên thiết bị này.
+              Guest mode: Data is only saved on this device.
             </div>
           </div>
         </CardContent>

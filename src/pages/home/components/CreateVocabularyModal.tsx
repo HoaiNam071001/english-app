@@ -71,7 +71,7 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
       }
       setOpen(false);
     } catch (error) {
-      console.error("Lỗi khi thêm từ:", error);
+      console.error("Error adding words:", error);
     } finally {
       setLoading(false);
     }
@@ -81,21 +81,21 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="gap-2" variant="secondary">
-          <Plus size={16} /> Thêm từ mới
+          <Plus size={16} /> Add New Words
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Import Từ Vựng</DialogTitle>
+          <DialogTitle>Import Vocabulary</DialogTitle>
           <DialogDescription>
-            Nhập danh sách theo định dạng: <code>Word: Meaning</code> hoặc{" "}
-            <code>Word</code>. Xuống dòng để tách từ.
+            Enter words in format: <code>Word: Meaning</code> or{" "}
+            <code>Word</code>. Use new line to separate words.
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
           <Textarea
-            placeholder={`Hello: Xin chào\nApple\nDog: Con chó`}
+            placeholder={`Hello: Greeting\nApple\nDog: A pet animal`}
             className="min-h-[150px]"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
@@ -108,7 +108,7 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
                 <div className="text-green-600 flex items-start gap-2">
                   <span>✅</span>
                   <span>
-                    Đã thêm ({report.added.length}): {report.added.join(", ")}
+                    Added ({report.added.length}): {report.added.join(", ")}
                   </span>
                 </div>
               )}
@@ -116,7 +116,8 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
                 <div className="text-red-500 flex items-start gap-2">
                   <span>⚠️</span>
                   <span>
-                    Trùng ({report.skipped.length}): {report.skipped.join(", ")}
+                    Duplicate ({report.skipped.length}):{" "}
+                    {report.skipped.join(", ")}
                   </span>
                 </div>
               )}
@@ -126,7 +127,7 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
 
         <div className="flex justify-end gap-2">
           <Button variant="outline" onClick={() => setOpen(false)}>
-            Đóng
+            Cancel
           </Button>
           <Button
             onClick={handleProcessAndAdd}
@@ -134,7 +135,7 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
             className="bg-blue-600 hover:bg-blue-700 text-white"
           >
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {loading ? "Đang xử lý..." : "Lưu vào kho"}
+            {loading ? "Processing..." : "Save to Library"}
           </Button>
         </div>
       </DialogContent>

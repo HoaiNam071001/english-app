@@ -221,7 +221,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
 
             {/* CONTENT - Word and Meaning together */}
             <div className="flex-1 flex flex-col items-center justify-center px-3 py-8 min-h-0 overflow-hidden">
-              {/* Từ vựng */}
+              {/* Vocabulary Word */}
               <div className="h-[55px] min-h-[55px] mb-2 flex flex-col justify-end">
                 {item.example ? (
                   <Popover>
@@ -262,7 +262,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                 <div className="w-12 !m-0 h-[2px] min-h-[2px] bg-border rounded-full my-2"></div>
               )}
 
-              {/* Nghĩa - Always visible, just blurred when hidden */}
+              {/* Meaning - Always visible, just blurred when hidden */}
               {item.meaning && (
                 <div
                   className={` h-[40px] min-h-[40px] mt-2

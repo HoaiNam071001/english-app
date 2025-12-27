@@ -27,11 +27,11 @@ export const MainLayout = () => {
 
   const handleGuestClearData = async () => {
     const isConfirmed = await confirm({
-      title: "Xóa dữ liệu?",
+      title: "Clear Data?",
       message:
-        "Bạn có chắc muốn xóa toàn bộ dữ liệu (từ vựng, chủ đề) đã lưu trên máy này không? Hành động này không thể hoàn tác.",
-      confirmText: "Xóa ngay",
-      cancelText: "Thôi",
+        "Are you sure you want to delete all data (vocabulary, topics) saved on this device? This action cannot be undone.",
+      confirmText: "Clear Now",
+      cancelText: "Cancel",
       variant: "destructive",
     });
     if (isConfirmed) {
@@ -42,7 +42,7 @@ export const MainLayout = () => {
       });
 
       setIsGuest(false);
-      toast.success("Xóa dữ liệu thành công!");
+      toast.success("Data cleared successfully!");
     }
   };
 

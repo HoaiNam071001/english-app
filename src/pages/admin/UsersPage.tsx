@@ -20,8 +20,8 @@ import {
 // --- 1. HELPER COMPONENTS & FUNCTIONS ---
 
 const formatDate = (timestamp?: number) => {
-  if (!timestamp) return "Chưa cập nhật";
-  return new Date(timestamp).toLocaleString("vi-VN", {
+  if (!timestamp) return "Not updated";
+  return new Date(timestamp).toLocaleString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
     day: "2-digit",
@@ -67,9 +67,9 @@ const StatusBadge = ({ status }: { status: UserStatus }) => {
   };
 
   const labels = {
-    [UserStatus.PENDING]: "Chờ duyệt",
-    [UserStatus.APPROVED]: "Đang hoạt động",
-    [UserStatus.REJECTED]: "Đã chặn",
+    [UserStatus.PENDING]: "Pending",
+    [UserStatus.APPROVED]: "Active",
+    [UserStatus.REJECTED]: "Blocked",
   };
 
   return (
@@ -100,15 +100,15 @@ const UsersPage = () => {
             />
             <div>
               <div className="text-2xl font-bold text-foreground mb-2">
-                Quản trị hệ thống
+                System Administration
               </div>
               <p className="text-xs text-muted-foreground">
-                Kiểm soát truy cập và thành viên
+                Manage access and members
               </p>
             </div>
           </div>
           <div className="bg-card px-3 mt-10 py-1.5 rounded-md border text-xs font-medium text-card-foreground">
-            Tổng:{" "}
+            Total:{" "}
             <span className="text-blue-600 dark:text-blue-400 font-bold">
               {allUsers.length}
             </span>
@@ -118,19 +118,19 @@ const UsersPage = () => {
         {/* LIST */}
         <Card className="border shadow-sm bg-card">
           <CardHeader className="border-b bg-muted/30 py-3 px-4">
-            <CardTitle className="text-base">Danh sách tài khoản</CardTitle>
+            <CardTitle className="text-base">User List</CardTitle>
           </CardHeader>
 
           <CardContent className="p-0">
             {loading ? (
               <div className="py-12 text-center text-muted-foreground">
                 <Clock className="animate-spin mb-2 h-6 w-6 mx-auto text-blue-500" />
-                <p className="text-sm">Đang đồng bộ dữ liệu...</p>
+                <p className="text-sm">Syncing data...</p>
               </div>
             ) : allUsers.length === 0 ? (
               <div className="py-12 text-center text-muted-foreground">
                 <UserIcon className="mx-auto h-10 w-10 text-muted-foreground/50 mb-2" />
-                <p className="text-sm">Hệ thống chưa có dữ liệu user.</p>
+                <p className="text-sm">No user data available.</p>
               </div>
             ) : (
               <div className="divide-y divide-border">
@@ -213,8 +213,8 @@ const UsersPage = () => {
                               <Check size={12} className="mr-1" />
                             )}
                             {user.status === UserStatus.REJECTED
-                              ? "Mở lại"
-                              : "Duyệt"}
+                              ? "Reopen"
+                              : "Approve"}
                           </Button>
                         )}
 
@@ -233,8 +233,8 @@ const UsersPage = () => {
                                 <X size={12} className="mr-1" />
                               )}
                               {user.status === UserStatus.APPROVED
-                                ? "Chặn"
-                                : "Từ chối"}
+                                ? "Block"
+                                : "Reject"}
                             </Button>
                           )}
                       </div>

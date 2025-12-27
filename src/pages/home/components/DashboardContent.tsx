@@ -138,7 +138,7 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
                 </Button>
                 <span className="font-semibold text-sm truncate">
                   {selectedTopicId === ALL_TOPIC_KEY
-                    ? "Tất cả từ vựng"
+                    ? "All Vocabulary"
                     : currentTopic?.label}
                 </span>
               </div>

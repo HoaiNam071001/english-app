@@ -14,13 +14,13 @@ export const AdminLayout = () => {
             to="/admin/users"
             className="p-2 hover:bg-sidebar-accent rounded transition-colors text-sidebar-foreground"
           >
-            Quản lý Users
+            Manage Users
           </Link>
           <Link
             to="/"
             className="p-2 hover:bg-sidebar-accent rounded transition-colors text-sidebar-foreground/70 hover:text-sidebar-foreground"
           >
-            Về trang chủ
+            Back to Home
           </Link>
         </nav>
       </aside>

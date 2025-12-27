@@ -62,10 +62,10 @@ export const useFirebaseVocabulary = (userId: string | null) => {
     if (addedWords.length > 0) {
       try {
         await batch.commit();
-        toast.success(`${addedWords.length} từ mới được thêm vào`);
+        toast.success(`${addedWords.length} new words added`);
       } catch (e) {
         console.error("Error adding batch:", e);
-        toast.error("Thêm thất bại!");
+        toast.error("Failed to add words!");
       }
     }
 

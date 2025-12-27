@@ -63,11 +63,11 @@ export const useGuestTopics = (enabled: boolean) => {
 
   const deleteTopic = async (id: string) => {
     const isConfirmed = await confirm({
-      title: "Xóa chủ đề?",
+      title: "Delete Topic?",
       message:
-        "Bạn có chắc muốn xóa chủ đề này không? Hành động này không thể hoàn tác.",
-      confirmText: "Xóa ngay",
-      cancelText: "Thôi",
+        "Are you sure you want to delete this topic? This action cannot be undone.",
+      confirmText: "Delete Now",
+      cancelText: "Cancel",
       variant: "destructive",
     });
     if (!isConfirmed) return;
