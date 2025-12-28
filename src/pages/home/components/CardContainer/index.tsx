@@ -1,6 +1,6 @@
 import { SimpleTooltip } from "@/components/SimpleTooltip";
 import { Button } from "@/components/ui/button";
-import { useConfirm } from "@/hooks/useConfirm"; // Giả sử path hook confirm của bạn
+import { useConfirm } from "@/hooks/useConfirm";
 import { useTabSession } from "@/hooks/useTabSession";
 import { TabSession, TopicItem, VocabularyItem } from "@/types";
 import { isToday } from "@/utils";
@@ -14,7 +14,7 @@ import React, {
   useState,
 } from "react";
 import FlashcardSection from "./FlashcardSection";
-import { TabItem } from "./TabItem";
+import { TabItem } from "./TabItem"; // Giả sử bạn đã tách file TabItem
 
 export interface CardContainerRef {
   addWordsToSession: (words: VocabularyItem[]) => void;
@@ -35,9 +35,7 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
       setTabs,
       activeTabId,
       setActiveTabId,
-      staleData,
       isLoaded,
-      restoreStaleSession,
       resetSession,
       generateNewTab,
     } = useTabSession();
@@ -45,6 +43,8 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
     const [editingTabId, setEditingTabId] = useState<string | null>(null);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const hasInitialized = useRef(false);
+
+    // Optimization Map
     const wordMap = useMemo(() => {
       const map: Record<string, VocabularyItem> = {};
       allWords.forEach((word) => {
@@ -55,7 +55,7 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
 
     const { confirm } = useConfirm();
 
-    // Hàm tạo session mặc định (tách ra để dùng cho Init và Reset Button)
+    // Hàm Init mặc định
     const initDefaultSession = () => {
       const todayWords = allWords.filter(
         (w) => isToday(w.createdAt) && !w.isLearned
@@ -68,42 +68,27 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
       setActiveTabId(newTab.id);
     };
 
-    // 1. INITIALIZATION & STALE CHECK
+    // 1. INITIALIZATION
     useEffect(() => {
       const checkAndInit = async () => {
-        // Chỉ chạy khi đã load cache xong và có allWords
+        // Chờ Load cache xong & Có dữ liệu từ vựng
         if (!isLoaded || allWords.length === 0) return;
+
+        // Nếu đã init rồi thì thôi
         if (hasInitialized.current) return;
 
-        // A. Nếu có Stale Data (khác ngày) -> Hỏi User
-        if (staleData) {
-          const isConfirmed = await confirm({
-            title: "Restore Previous Session?",
-            message: `We found a session from ${staleData.tabs.length} tabs from a previous day. Do you want to continue where you left off?`,
-            confirmText: "Restore Session",
-            cancelText: "Start New Day",
-            variant: "default",
-          });
-
-          if (isConfirmed) {
-            restoreStaleSession();
-          } else {
-            // Cancel -> Reset -> Init Default
-            resetSession();
-            initDefaultSession();
-          }
-        }
-        // B. Nếu không có Tabs nào (Mới tinh hoặc đã clear cache) -> Init Default
-        else if (tabs.length === 0) {
+        // Nếu tabs rỗng (không có cache hoặc cache bị xóa) -> Init mặc định
+        if (tabs.length === 0) {
           initDefaultSession();
         }
+        // Nếu tabs đã có (do useTabSession load được từ sessionStorage) -> Tự động dùng luôn, không cần làm gì thêm
 
         hasInitialized.current = true;
       };
 
       checkAndInit();
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isLoaded, allWords.length, staleData]); // Chạy lại khi staleData thay đổi
+    }, [isLoaded, allWords.length]);
 
     // 2. EXPOSE METHODS
     useImperativeHandle(ref, () => ({
@@ -125,28 +110,34 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
       },
     }));
 
-    // 3. MANUAL RESET HANDLER
+    // 3. MANUAL RESET HANDLER (Vẫn giữ Confirm cho hành động phá hủy này)
     const handleManualReset = async () => {
       const isConfirmed = await confirm({
         title: "Start Fresh Session?",
         message:
-          "This will close all current tabs and create a new session with today's unlearned words. Unsaved progress in tabs will be lost.",
+          "This will close all current tabs and create a new session with today's unlearned words.",
         confirmText: "Start Fresh",
         cancelText: "Cancel",
         variant: "destructive",
       });
 
       if (isConfirmed) {
-        resetSession(); // Xóa cache & state
-        setTimeout(() => initDefaultSession(), 0); // Init lại cái mới
+        resetSession();
+        // Cần reset lại hasInitialized hoặc gọi trực tiếp init
+        setTimeout(() => initDefaultSession(), 0);
       }
     };
 
     // --- Tab Handlers ---
     const handleAddTab = () => {
       const newId = `tab-${Date.now()}`;
-      setTabs((prev) => [...prev, generateNewTab(prev.length + 1, [])]);
+      // [FIX] Sửa logic tạo tab mới dùng generateNewTab
+      const newTab = generateNewTab(tabs.length + 1, []);
+      newTab.id = newId; // Override ID nếu muốn chắc chắn unique theo time click
+
+      setTabs((prev) => [...prev, newTab]);
       setActiveTabId(newId);
+
       setTimeout(() => {
         if (scrollContainerRef.current) {
           scrollContainerRef.current.scrollTo({
@@ -194,10 +185,9 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
     };
 
     // --- RENDER ---
-    // Kiểm tra activeTab an toàn
     const activeTab = tabs.find((t) => t.id === activeTabId) || tabs[0];
 
-    // Nếu đang load cache hoặc chưa có tab nào (đang init) -> Render Loading hoặc Null
+    // Loading State
     if (!isLoaded || !activeTab)
       return (
         <div className="h-full w-full flex items-center justify-center text-muted-foreground animate-pulse">
@@ -213,7 +203,6 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
       <div className="flex flex-col h-full gap-2">
         {/* --- TAB BAR CONTAINER --- */}
         <div className="flex items-center border-b px-2 bg-background/95 backdrop-blur gap-1 h-[46px] z-10">
-          {/* Left Scroll */}
           <Button
             variant="ghost"
             size="icon"
@@ -223,7 +212,6 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
             <ChevronLeft size={16} />
           </Button>
 
-          {/* Scrollable Tabs */}
           <div
             ref={scrollContainerRef}
             className="flex-1 flex overflow-x-auto scrollbar-hide items-end h-full gap-2 px-1"
@@ -245,7 +233,6 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
             ))}
           </div>
 
-          {/* Right Scroll */}
           <Button
             variant="ghost"
             size="icon"
@@ -257,20 +244,18 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
 
           <div className="w-[1px] h-5 bg-border mx-1"></div>
 
-          {/* [NEW] Reset Button */}
           <SimpleTooltip content={"Reset"}>
             <Button
               variant="ghost"
               size="icon"
               onClick={handleManualReset}
               className="h-9 w-9 shrink-0 text-orange-500 hover:text-orange-600 hover:bg-orange-50"
-              title="Start New Day (Reset)"
+              title="Reset Session"
             >
               <RotateCcw size={16} />
             </Button>
           </SimpleTooltip>
 
-          {/* Add Button */}
           <SimpleTooltip content={"New Tab"}>
             <Button
               variant="ghost"
