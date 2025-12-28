@@ -1,14 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { GUEST_INFO } from "@/constants";
 import { useTopics } from "@/hooks/useTopics";
+import { useVocabulary } from "@/hooks/useVocabulary";
 import CreateVocabularyModal from "@/pages/home/components/CreateVocabularyModal";
-import FlashcardSection from "@/pages/home/components/FlashcardSection"; // Import Filter type
-import TopicList from "@/pages/home/components/TopicList";
-import VocabularySidebar from "@/pages/home/components/VocabularySidebar";
+import TopicList from "@/pages/home/components/TopicContainer/TopicList";
+import VocabularySidebar from "@/pages/home/components/TopicContainer/VocabularySidebar";
 import { UserProfile, VocabularyItem } from "@/types";
 import { ChevronLeft, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useMemo, useState } from "react";
-import { useVocabulary } from "../../../hooks/useVocabulary";
+import FlashcardSection from "./CardContainer/FlashcardSection";
 
 interface DashboardContentProps {
   user: UserProfile | null;

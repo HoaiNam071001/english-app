@@ -21,7 +21,7 @@ import {
   X,
 } from "lucide-react"; // Import PenLine
 import React, { useEffect, useState } from "react";
-import { EditPopoverContent } from "./EditPopoverContent"; // Import EditForm
+import { EditPopoverContent } from "../common/EditPopoverContent";
 import { FlashcardCommand, FlashcardCommandType } from "./FlashcardSection";
 
 interface VocabularyCardProps {

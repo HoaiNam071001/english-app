@@ -39,7 +39,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { VocabularyItem } from "@/types";
-import MoveTopicModal from "./MoveTopicModal"; // <--- Import Component Mới
+import MoveTopicModal from "../common/MoveTopicModal"; // <--- Import Component Mới
 import { VocabularyItemRow } from "./VocabularyItemRow";
 
 moment.locale("vi");

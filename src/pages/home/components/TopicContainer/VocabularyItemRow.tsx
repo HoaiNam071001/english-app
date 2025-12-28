@@ -25,8 +25,8 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { useMemo, useState } from "react";
-import { EditPopoverContent } from "./EditPopoverContent";
-import { Button } from "../../../components/ui/button";
+import { Button } from "../../../../components/ui/button";
+import { EditPopoverContent } from "../common/EditPopoverContent";
 
 interface VocabularyItemRowProps {
   word: VocabularyItem;
@@ -83,7 +83,11 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
             ? "bg-blue-50/50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800"
             : "border-border hover:border-border/80"
         }
-        ${isActive ? "border-l-4 border-l-blue-500 dark:border-l-blue-400 bg-muted/50" : ""}
+        ${
+          isActive
+            ? "border-l-4 border-l-blue-500 dark:border-l-blue-400 bg-muted/50"
+            : ""
+        }
       `}
     >
       {/* Checkbox Wrapper */}
