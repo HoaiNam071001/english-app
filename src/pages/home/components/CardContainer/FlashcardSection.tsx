@@ -29,7 +29,7 @@ import {
   Eye,
   EyeOff,
   MoreHorizontal,
-  RotateCcw, // Shuffle icon
+  RotateCcw,
   Trash2,
 } from "lucide-react";
 import React, { useState } from "react";
@@ -71,13 +71,15 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
 }) => {
   const [command, setCommand] = useState<FlashcardCommand | null>(null);
   const [isDeleteAllOpen, setIsDeleteAllOpen] = useState(false);
+
+  // State quản lý việc lật thẻ nằm ở đây (Source of Truth)
   const [flippedIds, setFlippedIds] = useState<Set<string>>(new Set());
 
   // --- Logic Command & Flip ---
   const sendCommand = (type: FlashcardCommandType) => {
     setCommand({ type, timestamp: Date.now() });
 
-    // Update local flipped state based on command
+    // Cập nhật state flippedIds dựa trên command
     if (type === FlashcardCommandType.FLIP_ALL) {
       setFlippedIds(new Set(displayCards.map((card) => card.id)));
     } else if (type === FlashcardCommandType.RESET_FLIP) {
@@ -88,7 +90,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
   const handleShuffle = () => {
     const shuffled = [...displayCards].sort(() => Math.random() - 0.5);
     setDisplayCards(shuffled);
-    sendCommand(FlashcardCommandType.RESET_FLIP); // Reset to face down when shuffling
+    sendCommand(FlashcardCommandType.RESET_FLIP);
   };
 
   const confirmRemoveAll = () => {
@@ -97,6 +99,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
     setIsDeleteAllOpen(false);
   };
 
+  // Hàm này giờ đóng vai trò như setIsFlipped
   const handleCardFlipReport = (id: string, isFlipped: boolean) => {
     setFlippedIds((prev) => {
       const newSet = new Set(prev);
@@ -125,7 +128,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
 
   return (
     <div className="w-full h-full p-6 bg-muted/30 rounded-xl border-2 border-dashed border-border min-h-[600px] flex flex-col">
-      {/* --- TOOLBAR --- */}
+      {/* --- TOOLBAR (Giữ nguyên không đổi) --- */}
       <div className="flex flex-wrap justify-between items-center mb-6 gap-4">
         <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
           🔥 Flashcards
@@ -145,7 +148,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
 
           <div className="w-[1px] h-6 bg-border mx-1"></div>
 
-          {/* 2. CARD ROTATION GROUP (Flip/Face Down) */}
+          {/* 2. CARD ROTATION GROUP */}
           <div className="bg-card border rounded-lg p-0.5 flex gap-0.5 shadow-sm">
             <TooltipProvider>
               <Tooltip>
@@ -180,7 +183,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
             </TooltipProvider>
           </div>
 
-          {/* 3. VISIBILITY GROUP (Meaning) */}
+          {/* 3. VISIBILITY GROUP */}
           <div className="bg-card border rounded-lg p-0.5 flex gap-0.5 shadow-sm">
             <TooltipProvider>
               <Tooltip>
@@ -328,11 +331,14 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
               key={item.id}
               item={item}
               command={command}
+              isFlipped={flippedIds.has(item.id)}
               onLearned={onMarkLearned}
               remove={(id) =>
                 setDisplayCards(displayCards.filter((w) => w.id !== id))
               }
-              onFlip={(isFlipped) => handleCardFlipReport(item.id, isFlipped)}
+              onFlip={(newIsFlipped) =>
+                handleCardFlipReport(item.id, newIsFlipped)
+              } // [OUTPUT] Gọi hàm cập nhật state ở parent
               onUpdate={onUpdateWord}
               onDelete={onDeleteWord}
             />
