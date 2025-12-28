@@ -109,8 +109,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (currentUser && currentUser.email) {
         setUser(currentUser);
         saveAccountToStorage(currentUser);
+
         try {
-          await syncUserToFirestore(currentUser);
+          if (!isGuest) {
+            await syncUserToFirestore(currentUser);
+          }
         } catch (err) {
           console.error("Sync error:", err);
           setError("Lỗi đồng bộ thông tin.");
