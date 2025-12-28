@@ -5,13 +5,23 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { TopicItem, VocabularyItem } from "@/types";
+import { useConfirm } from "@/hooks/useConfirm"; // Giả sử path hook confirm của bạn
+import { useTabSession } from "@/hooks/useTabSession";
+import { TabSession, TopicItem, VocabularyItem } from "@/types";
 import { isToday } from "@/utils";
-import { Check, ChevronLeft, ChevronRight, Plus, X } from "lucide-react";
+import {
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+  RotateCcw,
+  X,
+} from "lucide-react";
 import React, {
   forwardRef,
   useEffect,
   useImperativeHandle,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -29,15 +39,7 @@ interface CardContainerProps {
   onDeleteWord: (id: string) => void;
 }
 
-interface TabSession {
-  id: string;
-  title: string;
-  wordIds: string[];
-  flippedIds: Set<string>;
-  meaningIds: Set<string>;
-}
-
-// --- Component con: TabItem với Popover Edit ---
+// ... (Giữ nguyên component TabItem như cũ) ...
 interface TabItemProps {
   tab: TabSession;
   isActive: boolean;
@@ -62,32 +64,24 @@ const TabItem = ({
   onEditCancel,
 }: TabItemProps) => {
   const [tempTitle, setTempTitle] = useState(tab.title);
-
-  // Reset tempTitle khi tab title thay đổi hoặc khi bắt đầu edit
   useEffect(() => {
     setTempTitle(tab.title);
   }, [tab.title, isEditing]);
-
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       e.preventDefault();
       onEditSave(tempTitle);
     }
   };
-
   return (
     <div
       onClick={onActivate}
-      className={`
-        group flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-t-lg cursor-pointer border-t border-x transition-all select-none min-w-[120px] max-w-[200px] shrink-0
-        ${
-          isActive
-            ? "bg-muted/30 border-border text-foreground relative -mb-[1px] border-b-transparent z-10 shadow-sm"
-            : "bg-transparent border-transparent text-muted-foreground hover:bg-muted/50 hover:text-foreground"
-        }
-      `}
+      className={`group flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-t-lg cursor-pointer border-t border-x transition-all select-none min-w-[120px] max-w-[200px] shrink-0 ${
+        isActive
+          ? "bg-muted/30 border-border text-foreground relative -mb-[1px] border-b-transparent z-10 shadow-sm"
+          : "bg-transparent border-transparent text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+      }`}
     >
-      {/* Popover Edit Title */}
       <Popover
         open={isEditing}
         onOpenChange={(isOpen) => {
@@ -106,7 +100,6 @@ const TabItem = ({
             {tab.title}
           </span>
         </PopoverTrigger>
-
         <PopoverContent className="w-64 p-2" align="start" sideOffset={-10}>
           <div className="flex items-center gap-2">
             <Input
@@ -127,13 +120,9 @@ const TabItem = ({
           </div>
         </PopoverContent>
       </Popover>
-
-      {/* Count Badge */}
       <span className="text-[10px] bg-muted-foreground/10 px-1.5 rounded-full min-w-[1.5rem] text-center flex-shrink-0">
         {tab.wordIds.length}
       </span>
-
-      {/* Close Button */}
       {!disableClose && (
         <div
           onClick={onClose}
@@ -146,57 +135,88 @@ const TabItem = ({
   );
 };
 
-// --- Component chính ---
+// --- MAIN COMPONENT ---
 const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
   ({ allWords, topics, onMarkLearned, onUpdateWord, onDeleteWord }, ref) => {
-    const [tabs, setTabs] = useState<TabSession[]>([
-      {
-        id: "tab-default",
-        title: "Session 1",
-        wordIds: [],
-        flippedIds: new Set(),
-        meaningIds: new Set(),
-      },
-    ]);
-    const [activeTabId, setActiveTabId] = useState<string>("tab-default");
+    const {
+      tabs,
+      setTabs,
+      activeTabId,
+      setActiveTabId,
+      staleData,
+      isLoaded,
+      restoreStaleSession,
+      resetSession,
+    } = useTabSession();
+
     const [editingTabId, setEditingTabId] = useState<string | null>(null);
-
-    const hasInitialized = useRef(false);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-    // --- 1. INITIALIZATION ---
-    useEffect(() => {
-      if (!hasInitialized.current && allWords.length > 0) {
-        const todayWords = allWords.filter(
-          (w) => isToday(w.createdAt) && !w.isLearned
-        );
-        setTabs((prev) =>
-          prev.map((t) =>
-            t.id === "tab-default"
-              ? { ...t, wordIds: todayWords.map((w) => w.id) }
-              : t
-          )
-        );
-        hasInitialized.current = true;
-      }
-    }, [allWords]);
-
-    // --- 2. SYNC LOGIC ---
-    useEffect(() => {
-      setTabs((prevTabs) => {
-        return prevTabs.map((tab) => {
-          const validIds = tab.wordIds.filter((id) =>
-            allWords.some((w) => w.id === id)
-          );
-          if (validIds.length !== tab.wordIds.length) {
-            return { ...tab, wordIds: validIds };
-          }
-          return tab;
-        });
+    const hasInitialized = useRef(false);
+    const wordMap = useMemo(() => {
+      const map: Record<string, VocabularyItem> = {};
+      allWords.forEach((word) => {
+        map[word.id] = word;
       });
+      return map;
     }, [allWords]);
 
-    // --- 3. EXPOSE METHOD ---
+    const { confirm } = useConfirm();
+
+    // Hàm tạo session mặc định (tách ra để dùng cho Init và Reset Button)
+    const initDefaultSession = () => {
+      const todayWords = allWords.filter(
+        (w) => isToday(w.createdAt) && !w.isLearned
+      );
+      setTabs([
+        {
+          id: "tab-default",
+          title: "Session 1",
+          wordIds: todayWords.map((w) => w.id),
+          flippedIds: new Set(),
+          meaningIds: new Set(),
+        },
+      ]);
+      setActiveTabId("tab-default");
+    };
+
+    // 1. INITIALIZATION & STALE CHECK
+    useEffect(() => {
+      const checkAndInit = async () => {
+        // Chỉ chạy khi đã load cache xong và có allWords
+        if (!isLoaded || allWords.length === 0) return;
+        if (hasInitialized.current) return;
+
+        // A. Nếu có Stale Data (khác ngày) -> Hỏi User
+        if (staleData) {
+          const isConfirmed = await confirm({
+            title: "Restore Previous Session?",
+            message: `We found a session from ${staleData.tabs.length} tabs from a previous day. Do you want to continue where you left off?`,
+            confirmText: "Restore Session",
+            cancelText: "Start New Day",
+            variant: "default", // Hoặc "outline"
+          });
+
+          if (isConfirmed) {
+            restoreStaleSession();
+          } else {
+            // Cancel -> Reset -> Init Default
+            resetSession();
+            initDefaultSession();
+          }
+        }
+        // B. Nếu không có Tabs nào (Mới tinh hoặc đã clear cache) -> Init Default
+        else if (tabs.length === 0) {
+          initDefaultSession();
+        }
+
+        hasInitialized.current = true;
+      };
+
+      checkAndInit();
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isLoaded, allWords.length, staleData]); // Chạy lại khi staleData thay đổi
+
+    // 2. EXPOSE METHODS
     useImperativeHandle(ref, () => ({
       addWordsToSession: (newWords: VocabularyItem[]) => {
         setTabs((prevTabs) => {
@@ -216,14 +236,31 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
       },
     }));
 
-    // --- HANDLERS ---
+    // 3. MANUAL RESET HANDLER
+    const handleManualReset = async () => {
+      const isConfirmed = await confirm({
+        title: "Start Fresh Session?",
+        message:
+          "This will close all current tabs and create a new session with today's unlearned words. Unsaved progress in tabs will be lost.",
+        confirmText: "Start Fresh",
+        cancelText: "Cancel",
+        variant: "destructive",
+      });
+
+      if (isConfirmed) {
+        resetSession(); // Xóa cache & state
+        setTimeout(() => initDefaultSession(), 0); // Init lại cái mới
+      }
+    };
+
+    // --- Tab Handlers ---
     const handleAddTab = () => {
       const newId = `tab-${Date.now()}`;
-      setTabs([
-        ...tabs,
+      setTabs((prev) => [
+        ...prev,
         {
           id: newId,
-          title: `Session ${tabs.length + 1}`,
+          title: `Session ${prev.length + 1}`,
           wordIds: [],
           flippedIds: new Set(),
           meaningIds: new Set(),
@@ -277,9 +314,19 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
     };
 
     // --- RENDER ---
+    // Kiểm tra activeTab an toàn
     const activeTab = tabs.find((t) => t.id === activeTabId) || tabs[0];
+
+    // Nếu đang load cache hoặc chưa có tab nào (đang init) -> Render Loading hoặc Null
+    if (!isLoaded || !activeTab)
+      return (
+        <div className="h-full w-full flex items-center justify-center text-muted-foreground animate-pulse">
+          Loading Session...
+        </div>
+      );
+
     const activeDisplayCards = activeTab.wordIds
-      .map((id) => allWords.find((w) => w.id === id))
+      .map((id) => wordMap[id])
       .filter((w): w is VocabularyItem => !!w);
 
     return (
@@ -296,7 +343,7 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
             <ChevronLeft size={16} />
           </Button>
 
-          {/* Tab List Scrollable Area */}
+          {/* Scrollable Tabs */}
           <div
             ref={scrollContainerRef}
             className="flex-1 flex overflow-x-auto scrollbar-hide items-end h-full gap-2 px-1"
@@ -328,10 +375,20 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
             <ChevronRight size={16} />
           </Button>
 
-          {/* Separator */}
           <div className="w-[1px] h-5 bg-border mx-1"></div>
 
-          {/* Fixed Add Button */}
+          {/* [NEW] Reset Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleManualReset}
+            className="h-9 w-9 shrink-0 text-orange-500 hover:text-orange-600 hover:bg-orange-50"
+            title="Start New Day (Reset)"
+          >
+            <RotateCcw size={16} />
+          </Button>
+
+          {/* Add Button */}
           <Button
             variant="ghost"
             size="icon"

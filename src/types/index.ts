@@ -63,3 +63,12 @@ export interface SavedAccount {
   photoURL: string | null;
   lastLogin: number;
 }
+
+// card tabs
+export interface TabSession {
+  id: string;
+  title: string;
+  wordIds: string[]; // Quan trọng: Lưu danh sách ID bài học
+  flippedIds: Set<string>;
+  meaningIds: Set<string>;
+}
