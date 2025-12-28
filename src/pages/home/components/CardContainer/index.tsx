@@ -1,3 +1,4 @@
+import { SimpleTooltip } from "@/components/SimpleTooltip";
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/hooks/useConfirm"; // Giả sử path hook confirm của bạn
 import { useTabSession } from "@/hooks/useTabSession";
@@ -144,16 +145,7 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
     // --- Tab Handlers ---
     const handleAddTab = () => {
       const newId = `tab-${Date.now()}`;
-      setTabs((prev) => [
-        ...prev,
-        {
-          id: newId,
-          title: `Session ${prev.length + 1}`,
-          wordIds: [],
-          flippedIds: new Set(),
-          meaningIds: new Set(),
-        },
-      ]);
+      setTabs((prev) => [...prev, generateNewTab(prev.length + 1, [])]);
       setActiveTabId(newId);
       setTimeout(() => {
         if (scrollContainerRef.current) {
@@ -266,26 +258,30 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
           <div className="w-[1px] h-5 bg-border mx-1"></div>
 
           {/* [NEW] Reset Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleManualReset}
-            className="h-9 w-9 shrink-0 text-orange-500 hover:text-orange-600 hover:bg-orange-50"
-            title="Start New Day (Reset)"
-          >
-            <RotateCcw size={16} />
-          </Button>
+          <SimpleTooltip content={"Reset"}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleManualReset}
+              className="h-9 w-9 shrink-0 text-orange-500 hover:text-orange-600 hover:bg-orange-50"
+              title="Start New Day (Reset)"
+            >
+              <RotateCcw size={16} />
+            </Button>
+          </SimpleTooltip>
 
           {/* Add Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={handleAddTab}
-            className="h-9 w-9 shrink-0 text-muted-foreground hover:text-foreground"
-            title="New Session"
-          >
-            <Plus size={18} />
-          </Button>
+          <SimpleTooltip content={"New Tab"}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleAddTab}
+              className="h-9 w-9 shrink-0 text-muted-foreground hover:text-foreground"
+              title="New Tab"
+            >
+              <Plus size={18} />
+            </Button>
+          </SimpleTooltip>
         </div>
 
         {/* --- CONTENT --- */}

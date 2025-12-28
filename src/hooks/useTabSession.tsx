@@ -138,7 +138,7 @@ export const useTabSession = () => {
   ): TabSession => {
     return {
       id: `tab-${moment().valueOf()}`, // ID theo timestamp
-      title: `Session ${index}`, // Tên theo số thứ tự
+      title: `Tab ${index}`, // Tên theo số thứ tự
       wordIds: wordIds,
       flippedIds: new Set(),
       meaningIds: new Set(),

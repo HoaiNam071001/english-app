@@ -1,4 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
+import { SimpleTooltip } from "@/components/SimpleTooltip";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -171,62 +172,76 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
         <div className="flex items-center gap-1">
           {/* Group: Flip */}
           <div className="flex items-center bg-muted/50 rounded-md p-0.5 border">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => sendCommand(FlashcardCommandType.FLIP_ALL)}
-              className="h-7 w-7 text-blue-600 dark:text-blue-400 hover:bg-background"
-              title="Flip All Up"
-            >
-              <BookOpen size={14} />
-            </Button>
+            <SimpleTooltip content={"Flip All Up"}>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => sendCommand(FlashcardCommandType.FLIP_ALL)}
+                className="h-7 w-7 text-blue-600 dark:text-blue-400 hover:bg-background"
+                title="Flip All Up"
+              >
+                <BookOpen size={14} />
+              </Button>
+            </SimpleTooltip>
             <div className="w-[1px] h-4 bg-border/50 mx-0.5"></div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => sendCommand(FlashcardCommandType.RESET_FLIP)}
-              className="h-7 w-7 text-muted-foreground hover:bg-background"
-              title="Flip All Down"
-            >
-              <Book size={14} />
-            </Button>
+            <SimpleTooltip content={"Flip All Down"}>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => sendCommand(FlashcardCommandType.RESET_FLIP)}
+                className="h-7 w-7 text-muted-foreground hover:bg-background"
+                title="Flip All Down"
+              >
+                <Book size={14} />
+              </Button>
+            </SimpleTooltip>
           </div>
 
           {/* Group: Meaning */}
           <div className="flex items-center bg-muted/50 rounded-md p-0.5 border ml-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => sendCommand(FlashcardCommandType.SHOW_MEANING_ALL)}
-              className="h-7 w-7 text-indigo-600 dark:text-indigo-400 hover:bg-background"
-              title="Show All Meanings"
-            >
-              <Eye size={14} />
-            </Button>
+            <SimpleTooltip content={"Show All Meanings"}>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() =>
+                  sendCommand(FlashcardCommandType.SHOW_MEANING_ALL)
+                }
+                className="h-7 w-7 text-indigo-600 dark:text-indigo-400 hover:bg-background"
+                title="Show All Meanings"
+              >
+                <Eye size={14} />
+              </Button>
+            </SimpleTooltip>
             <div className="w-[1px] h-4 bg-border/50 mx-0.5"></div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => sendCommand(FlashcardCommandType.HIDE_MEANING_ALL)}
-              className="h-7 w-7 text-muted-foreground hover:bg-background"
-              title="Hide All Meanings"
-            >
-              <EyeOff size={14} />
-            </Button>
+            <SimpleTooltip content={"Hide All Meanings"}>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() =>
+                  sendCommand(FlashcardCommandType.HIDE_MEANING_ALL)
+                }
+                className="h-7 w-7 text-muted-foreground hover:bg-background"
+                title="Hide All Meanings"
+              >
+                <EyeOff size={14} />
+              </Button>
+            </SimpleTooltip>
           </div>
 
           <div className="w-[1px] h-4 bg-border mx-1"></div>
 
           {/* Shuffle */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-muted-foreground hover:text-foreground"
-            onClick={handleShuffle}
-            title="Shuffle"
-          >
-            <RotateCcw size={15} />
-          </Button>
+          <SimpleTooltip content={"Shuffle"}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              onClick={handleShuffle}
+              title="Shuffle"
+            >
+              <RotateCcw size={15} />
+            </Button>
+          </SimpleTooltip>
 
           {/* More Menu */}
           <DropdownMenu>
