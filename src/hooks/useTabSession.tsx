@@ -24,8 +24,18 @@ export const getTodayString = () => moment().format("YYYY-MM-DD");
 
 export const useTabSession = () => {
   const { userProfile, isGuest } = useAuth();
-  const userId = isGuest ? GUEST_INFO.name : userProfile?.email || "unknown";
-  const storageKey = `${STORAGE_KEY.CAR_TABS}_${userId}`; // Thêm dấu _ cho dễ nhìn
+  const [userId, setUserId] = useState<string>();
+  const [storageKey, setStorageKey] = useState<string>();
+
+  useEffect(() => {
+    if (isGuest) {
+      setUserId(GUEST_INFO.id);
+      setStorageKey(GUEST_INFO.storageKey.cardTabs);
+    } else if (userProfile) {
+      setUserId(userProfile.id);
+      setStorageKey(`${STORAGE_KEY.CAR_TABS}_${userProfile.email}`);
+    }
+  }, [isGuest, userProfile]);
 
   const [tabs, setTabs] = useState<TabSession[]>([]);
   const [activeTabId, setActiveTabId] = useState<string>("tab-default");
@@ -47,6 +57,7 @@ export const useTabSession = () => {
 
     const timer = setTimeout(() => {
       try {
+        if (!storageKey) return;
         const rawData = localStorage.getItem(storageKey);
         if (rawData) {
           const parsed: StoredData = JSON.parse(rawData);
@@ -86,7 +97,7 @@ export const useTabSession = () => {
     }, 0);
 
     return () => clearTimeout(timer);
-  }, [userId, storageKey]);
+  }, [storageKey, userId]);
 
   // --- 2. SAVE DATA ---
   useEffect(() => {

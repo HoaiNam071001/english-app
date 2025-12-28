@@ -219,6 +219,7 @@ export const GUEST_INFO = {
   storageKey: {
     topic: "topic_storage",
     vocabulary: "vocabulary_storage",
+    cardTabs: "cardTabs",
   },
 };
 
