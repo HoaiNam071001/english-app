@@ -10,17 +10,19 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { VocabularyItem } from "@/types";
+import { TOPIC_COLORS } from "@/constants";
+import { TopicItem, VocabularyItem } from "@/types";
 import {
   Check,
   Eye,
   EyeOff,
+  FolderSearch,
   PenLine,
   RotateCcw,
   Volume2,
   X,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { EditPopoverContent } from "../common/EditPopoverContent";
 import { FlashcardCommand } from "./FlashcardSection";
 
@@ -28,7 +30,8 @@ interface VocabularyCardProps {
   item: VocabularyItem;
   command: FlashcardCommand | null;
   isFlipped: boolean;
-  showMeaning: boolean; // [NEW] Nhận vào từ Props
+  showMeaning: boolean;
+  topics: TopicItem[];
   onLearned: (id: string, isLearned: boolean) => Promise<void> | void;
   remove: (id: string) => void;
   onFlip: (isFlipped: boolean) => void;
@@ -39,7 +42,7 @@ interface VocabularyCardProps {
 
 const VocabularyCard: React.FC<VocabularyCardProps> = ({
   item,
-  // command, // Không cần dùng command ở đây nữa vì Parent đã xử lý qua props
+  topics,
   isFlipped,
   showMeaning,
   onLearned,
@@ -49,11 +52,22 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
   onUpdate,
   onDelete,
 }) => {
-  // Đã bỏ state local: const [showMeaning, setShowMeaning] = useState(false);
-  // Đã bỏ useEffect lắng nghe command liên quan đến meaning
-
   const [loading, setLoading] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+
+  const currentTopic = useMemo(() => {
+    if (!item.topicId) return null;
+    return topics.find((t) => t.id === item.topicId);
+  }, [item.topicId, topics]);
+
+  const topicColorStyle = useMemo(() => {
+    if (!currentTopic?.color) return { text: "bg-muted" };
+    return (
+      TOPIC_COLORS.find((c) => c.id === currentTopic.color) || {
+        text: "bg-muted",
+      }
+    );
+  }, [currentTopic]);
 
   const handleCardClick = () => {
     if (isEditOpen) return;
@@ -89,6 +103,27 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
     } finally {
       setLoading(false);
     }
+  };
+
+  const renderTopic = () => {
+    return (
+      <>
+        {currentTopic && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <FolderSearch
+                  className={`w-4 absolute top-[2px] -translate-x-1/2 left-1/2 ${topicColorStyle.text}`}
+                />
+              </TooltipTrigger>
+              <TooltipContent side="top" className="text-xs">
+                Topic: {currentTopic.label}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+      </>
+    );
   };
 
   return (
@@ -169,6 +204,8 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
               >
                 <X size={14} />
               </div>
+
+              {renderTopic()}
 
               <Popover open={isEditOpen} onOpenChange={setIsEditOpen}>
                 <PopoverTrigger asChild>

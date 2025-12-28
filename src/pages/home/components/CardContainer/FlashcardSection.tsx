@@ -14,6 +14,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useTopics } from "@/hooks/useTopics";
 import { TopicItem, VocabularyItem } from "@/types";
 import {
   ArrowDownToLine,
@@ -62,7 +63,6 @@ export type FlashcardCommand = {
 const FlashcardSection: React.FC<FlashcardSectionProps> = ({
   allWords,
   displayCards,
-  topics,
   flippedIds,
   meaningIds,
   onFlippedIdsChange,
@@ -75,6 +75,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
 }) => {
   const [command, setCommand] = useState<FlashcardCommand | null>(null);
   const [isDeleteAllOpen, setIsDeleteAllOpen] = useState(false);
+  const { topics } = useTopics();
 
   // --- Logic Command ---
   const sendCommand = (type: FlashcardCommandType) => {
@@ -339,6 +340,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
               <VocabularyCard
                 key={item.id}
                 item={item}
+                topics={topics}
                 command={command}
                 isFlipped={flippedIds.has(item.id)}
                 showMeaning={meaningIds.has(item.id)}
