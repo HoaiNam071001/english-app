@@ -148,7 +148,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
   return (
     <div className="w-full h-full flex flex-col bg-muted/10 overflow-hidden">
       {/* --- TOOLBAR COMPACT --- */}
-      <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 border-b bg-background/80 backdrop-blur-sm shrink-0 z-10">
+      <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 border-b bg-background/80 backdrop-blur-sm shrink-0">
         {/* Left: Title & Count */}
         <div className="flex items-center gap-2">
           <div className="text-sm font-semibold text-muted-foreground flex items-center gap-1.5">

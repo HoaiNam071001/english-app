@@ -1,6 +1,7 @@
 import { GUEST_INFO, STORAGE_KEY } from "@/constants";
 import { useAuth } from "@/hooks/useAuth";
 import { TabSession } from "@/types";
+import moment from "moment"; // Cần cài: npm install moment
 import { useEffect, useRef, useState } from "react";
 
 // Định nghĩa Type cho Storage
@@ -19,12 +20,12 @@ interface StoredData {
   tabs: StoredTabSession[];
 }
 
-const getTodayString = () => new Date().toISOString().split("T")[0];
+export const getTodayString = () => moment().format("YYYY-MM-DD");
 
 export const useTabSession = () => {
   const { userProfile, isGuest } = useAuth();
   const userId = isGuest ? GUEST_INFO.name : userProfile?.email || "unknown";
-  const storageKey = `${STORAGE_KEY.CAR_TABS}${userId}`;
+  const storageKey = `${STORAGE_KEY.CAR_TABS}_${userId}`; // Thêm dấu _ cho dễ nhìn
 
   const [tabs, setTabs] = useState<TabSession[]>([]);
   const [activeTabId, setActiveTabId] = useState<string>("tab-default");
@@ -35,7 +36,6 @@ export const useTabSession = () => {
     activeTabId: string;
   } | null>(null);
 
-  // State đánh dấu đã load xong (dù có data hay không)
   const [isLoaded, setIsLoaded] = useState(false);
   const isHydrated = useRef(false);
 
@@ -45,7 +45,6 @@ export const useTabSession = () => {
     isHydrated.current = false;
     setStaleData(null);
 
-    // Dùng setTimeout để không block UI lúc mount component
     const timer = setTimeout(() => {
       try {
         const rawData = localStorage.getItem(storageKey);
@@ -65,18 +64,15 @@ export const useTabSession = () => {
             }));
 
             if (parsed.date === todayStr) {
-              // Cùng ngày -> Load luôn
               setTabs(hydratedTabs);
               setActiveTabId(parsed.activeTabId);
             } else {
-              // Khác ngày -> Lưu vào staleData để hỏi user
               setStaleData({
                 tabs: hydratedTabs,
                 activeTabId: parsed.activeTabId,
               });
             }
           } else {
-            // Khác user -> Xóa cache
             localStorage.removeItem(storageKey);
           }
         }
@@ -92,11 +88,10 @@ export const useTabSession = () => {
     return () => clearTimeout(timer);
   }, [userId, storageKey]);
 
-  // --- 2. SAVE DATA (Debounced / Async) ---
+  // --- 2. SAVE DATA ---
   useEffect(() => {
     if (!isHydrated.current) return;
 
-    // Chỉ save khi có tabs (nếu rỗng thì coi như đã reset hoặc chưa init)
     if (tabs?.length > 0) {
       const timer = setTimeout(() => {
         const todayStr = getTodayString();
@@ -123,8 +118,6 @@ export const useTabSession = () => {
   }, [tabs, activeTabId, userId, storageKey]);
 
   // --- ACTIONS ---
-
-  // Dùng lại session cũ (Update lại date thành hôm nay)
   const restoreStaleSession = () => {
     if (staleData) {
       setTabs(staleData.tabs);
@@ -133,11 +126,23 @@ export const useTabSession = () => {
     }
   };
 
-  // Xóa session để init mới
   const resetSession = () => {
     setTabs([]);
     setStaleData(null);
     localStorage.removeItem(storageKey);
+  };
+
+  const generateNewTab = (
+    index: number,
+    wordIds: string[] = []
+  ): TabSession => {
+    return {
+      id: `tab-${moment().valueOf()}`, // ID theo timestamp
+      title: `Session ${index}`, // Tên theo số thứ tự
+      wordIds: wordIds,
+      flippedIds: new Set(),
+      meaningIds: new Set(),
+    };
   };
 
   return {
@@ -145,9 +150,10 @@ export const useTabSession = () => {
     setTabs,
     activeTabId,
     setActiveTabId,
-    staleData, // Dữ liệu cũ để hiển thị confirm
-    isLoaded, // Cờ báo hiệu đã check cache xong
-    restoreStaleSession, // Hàm khôi phục
-    resetSession, // Hàm reset
+    staleData,
+    isLoaded,
+    restoreStaleSession,
+    resetSession,
+    generateNewTab,
   };
 };
