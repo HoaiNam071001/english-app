@@ -1,9 +1,7 @@
-// hooks/useVocabulary.ts
 import { FirebaseVocabularyService } from "@/services/vocabulary/firebase.adapter";
 import { GuestVocabularyService } from "@/services/vocabulary/guest.adapter";
 import { IVocabularyService } from "@/services/vocabulary/types";
 import { AddReport, VocabularyItem } from "@/types";
-import { isToday } from "@/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "./useAuth";
 import { useToast } from "./useToast";
@@ -11,7 +9,6 @@ import { useToast } from "./useToast";
 export const useVocabulary = () => {
   const { userProfile } = useAuth();
   const [allWords, setAllWords] = useState<VocabularyItem[]>([]);
-  const [displayCards, setDisplayCards] = useState<VocabularyItem[]>([]);
   const [loading, setLoading] = useState(false);
   const toast = useToast();
 
@@ -22,40 +19,30 @@ export const useVocabulary = () => {
   }, [userProfile]);
 
   // --- DATA FETCHING ---
-  const fetchAllWords = useCallback(
-    async (options?: { keepFlashcards?: boolean }) => {
-      setLoading(true);
-      try {
-        const fetchedWords = await service.fetchAll();
-        setAllWords(fetchedWords);
-
-        if (!options?.keepFlashcards) {
-          setDisplayCards(
-            fetchedWords.filter((w) => isToday(w.createdAt) && !w.isLearned)
-          );
-        }
-      } catch (error) {
-        console.error("Fetch failed", error);
-        toast.error("Failed to load vocabulary");
-      } finally {
-        setLoading(false);
-      }
-    },
-    [service, toast]
-  );
+  const fetchAllWords = useCallback(async () => {
+    setLoading(true);
+    try {
+      const fetchedWords = await service.fetchAll();
+      setAllWords(fetchedWords);
+    } catch (error) {
+      console.error("Fetch failed", error);
+      toast.error("Failed to load vocabulary");
+    } finally {
+      setLoading(false);
+    }
+  }, [service]);
 
   useEffect(() => {
     fetchAllWords();
-  }, []);
+  }, [fetchAllWords]);
 
   const addVocabulary = async (
     newEntries: Partial<VocabularyItem>[]
   ): Promise<AddReport> => {
     try {
       const report = await service.add(newEntries, allWords);
-
-      // Refresh lại data sau khi thêm để đảm bảo đồng bộ ID/Timestamp
-      await fetchAllWords({ keepFlashcards: true });
+      // Refresh lại data sau khi thêm
+      await fetchAllWords();
 
       if (report.added.length > 0) {
         toast.success(`${report.added.length} new words added`);
@@ -69,11 +56,10 @@ export const useVocabulary = () => {
   };
 
   const updateWord = async (id: string, updates: Partial<VocabularyItem>) => {
-    const applyUpdate = (prev: VocabularyItem[]) =>
-      prev.map((w) => (w.id === id ? { ...w, ...updates } : w));
-
-    setAllWords(applyUpdate);
-    setDisplayCards(applyUpdate);
+    // Optimistic Update
+    setAllWords((prev) =>
+      prev.map((w) => (w.id === id ? { ...w, ...updates } : w))
+    );
 
     try {
       await service.update(id, updates);
@@ -81,14 +67,12 @@ export const useVocabulary = () => {
     } catch (error) {
       console.error(error);
       toast.error("Update failed!");
-      // Revert if needed (đơn giản nhất là fetch lại)
-      fetchAllWords({ keepFlashcards: true });
+      fetchAllWords(); // Revert
     }
   };
 
   const deleteWord = async (id: string) => {
     setAllWords((prev) => prev.filter((w) => w.id !== id));
-    setDisplayCards((prev) => prev.filter((w) => w.id !== id));
     try {
       await service.delete(id);
       toast.success("Deleted successfully!");
@@ -100,7 +84,6 @@ export const useVocabulary = () => {
 
   const bulkDeleteWords = async (ids: string[]) => {
     setAllWords((prev) => prev.filter((w) => !ids.includes(w.id)));
-    setDisplayCards((prev) => prev.filter((w) => !ids.includes(w.id)));
     try {
       await service.bulkDelete(ids);
       toast.success("Deleted successfully!");
@@ -114,11 +97,9 @@ export const useVocabulary = () => {
     ids: string[],
     updates: Partial<VocabularyItem>
   ) => {
-    const applyUpdate = (prev: VocabularyItem[]) =>
-      prev.map((w) => (ids.includes(w.id) ? { ...w, ...updates } : w));
-
-    setAllWords(applyUpdate);
-    setDisplayCards(applyUpdate);
+    setAllWords((prev) =>
+      prev.map((w) => (ids.includes(w.id) ? { ...w, ...updates } : w))
+    );
 
     try {
       await service.bulkUpdate(ids, updates);
@@ -131,13 +112,9 @@ export const useVocabulary = () => {
 
   const toggleLearnedStatus = async (id: string, currentStatus: boolean) => {
     const newStatus = !currentStatus;
-    // Update local UI logic specifically for "learned"
     setAllWords((prev) =>
       prev.map((w) => (w.id === id ? { ...w, isLearned: newStatus } : w))
     );
-    if (newStatus === true) {
-      setDisplayCards((prev) => prev.filter((w) => w.id !== id));
-    }
 
     try {
       await service.update(id, { isLearned: newStatus });
@@ -149,16 +126,12 @@ export const useVocabulary = () => {
   };
 
   const markAsLearned = async (id: string, isLearned: boolean) => {
-    // Logic riêng cho Flashcard
     setAllWords((prev) =>
-      prev.map((w) => (w.id === id ? { ...w, isLearned } : w))
-    );
-    setDisplayCards((prev) =>
       prev.map((w) => (w.id === id ? { ...w, isLearned } : w))
     );
 
     try {
-      await service.update(id, { isLearned: true }); // Luôn save true theo logic cũ
+      await service.update(id, { isLearned: true });
       toast.success("Updated successfully!");
     } catch (error) {
       console.error(error);
@@ -170,9 +143,6 @@ export const useVocabulary = () => {
     setAllWords((prev) =>
       prev.map((w) => (ids.includes(w.id) ? { ...w, isLearned: status } : w))
     );
-    if (status === true) {
-      setDisplayCards((prev) => prev.filter((w) => !ids.includes(w.id)));
-    }
 
     try {
       await service.bulkUpdate(ids, { isLearned: status });
@@ -183,30 +153,8 @@ export const useVocabulary = () => {
     }
   };
 
-  // --- LOCAL ONLY ACTIONS (Không gọi Service) ---
-  const addToPractice = (word: VocabularyItem) => {
-    const exists = displayCards.find((w) => w.id === word.id);
-    if (!exists) {
-      setDisplayCards((prev) => [word, ...prev]);
-    }
-  };
-
-  const removeFromPractice = (word: VocabularyItem) => {
-    setDisplayCards((prev) => prev.filter((w) => w.id !== word.id));
-  };
-
-  const bulkAddToPractice = (words: VocabularyItem[]) => {
-    setDisplayCards((prev) => {
-      const existingIds = new Set(prev.map((w) => w.id));
-      const newWords = words.filter((w) => !existingIds.has(w.id));
-      return [...newWords, ...prev];
-    });
-  };
-
   return {
     allWords,
-    displayCards,
-    setDisplayCards,
     loading,
     fetchAllWords,
     addVocabulary,
@@ -217,8 +165,5 @@ export const useVocabulary = () => {
     bulkMarkLearned,
     markAsLearned,
     bulkUpdateWords,
-    addToPractice,
-    removeFromPractice,
-    bulkAddToPractice,
   };
 };

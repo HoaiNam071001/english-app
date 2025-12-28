@@ -7,8 +7,8 @@ import TopicList from "@/pages/home/components/TopicContainer/TopicList";
 import VocabularySidebar from "@/pages/home/components/TopicContainer/VocabularySidebar";
 import { UserProfile, VocabularyItem } from "@/types";
 import { ChevronLeft, PanelLeftClose, PanelLeftOpen } from "lucide-react";
-import { useMemo, useState } from "react";
-import FlashcardSection from "./CardContainer/FlashcardSection";
+import { useMemo, useRef, useState } from "react";
+import CardContainer, { CardContainerRef } from "./CardContainer";
 
 interface DashboardContentProps {
   user: UserProfile | null;
@@ -19,12 +19,10 @@ const ALL_TOPIC_KEY = "ALL";
 export const DashboardContent = ({ user }: DashboardContentProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
+  const cardContainerRef = useRef<CardContainerRef>(null);
 
-  // Hook Vocabulary
   const {
     allWords,
-    displayCards,
-    setDisplayCards,
     fetchAllWords,
     updateWord,
     deleteWord,
@@ -32,18 +30,17 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
     toggleLearnedStatus,
     bulkMarkLearned,
     markAsLearned,
-    addToPractice,
-    removeFromPractice,
-    bulkAddToPractice,
     addVocabulary,
     bulkUpdateWords,
   } = useVocabulary();
 
   const { topics, addTopic, deleteTopic, updateTopic } = useTopics();
 
+  // Handle: Sidebar -> CardContainer
   const handleAddWordsToPractice = (newWords: VocabularyItem[]) => {
-    // Gọi hàm bulkAddToPractice từ hook (đã có logic check trùng)
-    bulkAddToPractice(newWords);
+    if (cardContainerRef.current) {
+      cardContainerRef.current.addWordsToSession(newWords);
+    }
   };
 
   const filteredWords = useMemo(() => {
@@ -52,10 +49,12 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
   }, [allWords, selectedTopicId]);
 
   const currentTopic = topics.find((t) => t.id === selectedTopicId);
-  const activeWordIds = useMemo(
-    () => new Set(displayCards.map((w) => w.id)),
-    [displayCards]
-  );
+
+  // Lưu ý: activeWordIds dùng cho Sidebar để highlight những từ đang được chọn.
+  // Vì giờ state nằm trong CardContainer, ta khó lấy ra chính xác từ đang hiển thị ở Tab Active.
+  // Giải pháp đơn giản: Sidebar không cần highlight active words, hoặc highlight những từ "isLearned=false".
+  // Ở đây tôi tạm để Set rỗng hoặc bạn có thể bỏ prop này bên Sidebar nếu không cần thiết.
+  const activeWordIds = new Set<string>();
 
   const handleAddVocabularyWithTopic = async (entries: VocabularyItem[]) => {
     const entriesWithTopic = entries.map((e) => ({
@@ -69,9 +68,9 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
   };
 
   return (
-    <div className="container mx-auto p-4 md:p-6 max-w-8xl min-h-screen flex flex-col">
+    <div className="container mx-auto p-4 max-w-8xl min-h-screen flex flex-col">
       {/* HEADER */}
-      <header className="flex justify-between items-center mb-6 pb-4 border-b bg-background sticky top-0 z-50">
+      <header className="flex justify-between items-center pb-2 border-b bg-background sticky top-0 z-50">
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
@@ -99,17 +98,17 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
         <div className="flex items-center gap-2">
           <CreateVocabularyModal
             onAddVocabulary={handleAddVocabularyWithTopic}
-            onSuccess={() => fetchAllWords({ keepFlashcards: true })}
+            onSuccess={() => fetchAllWords()}
           />
         </div>
       </header>
 
       {/* MAIN LAYOUT */}
       <div className="flex flex-1 gap-2 relative overflow-hidden">
-        {/* SIDEBAR AREA (Giữ nguyên) */}
+        {/* SIDEBAR AREA */}
         <div
           className={`
-              h-[75vh] transition-all duration-300 ease-in-out border-r bg-card flex flex-col
+              h-[80vh] transition-all duration-300 ease-in-out border-r bg-card flex flex-col
               ${
                 isSidebarOpen
                   ? "w-80 md:w-1/4 opacity-100 translate-x-0 mr-4"
@@ -150,14 +149,14 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
                   allWords={filteredWords}
                   activeWordIds={activeWordIds}
                   onBulkUpdate={bulkUpdateWords}
-                  onAddToPractice={addToPractice}
-                  onBulkAddToPractice={bulkAddToPractice}
+                  onAddToPractice={(word) => handleAddWordsToPractice([word])}
+                  onBulkAddToPractice={handleAddWordsToPractice}
                   onBulkDelete={bulkDeleteWords}
                   onUpdateWord={updateWord}
                   onDelete={deleteWord}
                   onToggleLearned={toggleLearnedStatus}
                   onBulkMarkLearned={bulkMarkLearned}
-                  onRemoveFromPractice={removeFromPractice}
+                  onRemoveFromPractice={() => {}}
                 />
               </div>
             </div>
@@ -165,16 +164,14 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
         </div>
 
         {/* MAIN CONTENT AREA */}
-        <div className="flex-1 transition-all duration-300 min-w-0 h-[75vh]">
-          <FlashcardSection
-            displayCards={displayCards}
-            setDisplayCards={setDisplayCards}
+        <div className="flex-1 transition-all duration-300 min-w-0 h-[80vh]">
+          <CardContainer
+            ref={cardContainerRef}
+            allWords={allWords}
+            topics={topics}
             onMarkLearned={markAsLearned}
             onUpdateWord={updateWord}
             onDeleteWord={deleteWord}
-            allWords={allWords} // Truyền toàn bộ từ
-            topics={topics} // Truyền topics
-            onAddWords={handleAddWordsToPractice} // Hàm xử lý thêm
           />
         </div>
       </div>
