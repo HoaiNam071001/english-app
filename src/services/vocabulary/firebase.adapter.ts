@@ -57,6 +57,7 @@ export class FirebaseVocabularyService implements IVocabularyService {
           text: entry.text,
           meaning: entry.meaning,
           normalized: entry.normalized,
+          example: entry.example || null,
           topicId: entry.topicId || null,
           userId: this.userId,
           createdAt: serverTimestamp(),

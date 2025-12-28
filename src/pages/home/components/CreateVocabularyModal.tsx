@@ -8,7 +8,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { AddReport, VocabularyItem } from "@/types"; // Đảm bảo bạn đã định nghĩa type này
+import { AddReport, VocabularyItem } from "@/types";
 import { Loader2, Plus } from "lucide-react";
 import React, { useState } from "react";
 
@@ -31,23 +31,43 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
     setLoading(true);
     setReport(null);
 
-    // 1. Xử lý logic tách chuỗi (Parsing Logic) - Giữ tại UI
+    // 1. Xử lý logic tách chuỗi (Parsing Logic)
     const rawLines = inputText.split(/[\n;]+/);
-    const newEntries: { text: string; meaning: string; normalized: string }[] =
-      [];
+
+    // Cập nhật type định nghĩa có thêm example
+    const newEntries: {
+      text: string;
+      meaning: string;
+      normalized: string;
+      example: string;
+    }[] = [];
 
     rawLines.forEach((line) => {
       const cleanLine = line.trim();
       if (!cleanLine) return;
+
       let english = "";
       let vietnamese = "";
+      let example = "";
 
-      if (cleanLine.includes(":")) {
-        const parts = cleanLine.split(":");
+      // Bước 1: Tách phần Example ra trước (ngăn cách bởi dấu |)
+      // Ví dụ: "mean: ý nghĩa | ví dụ giải thích" -> ["mean: ý nghĩa", "ví dụ giải thích"]
+      let contentPart = cleanLine; // Phần chứa word: meaning
+
+      if (cleanLine.includes("|")) {
+        const parts = cleanLine.split("|");
+        contentPart = parts[0].trim();
+        // Lấy tất cả phần sau dấu | đầu tiên làm example (đề phòng user gõ nhiều dấu |)
+        example = parts.slice(1).join("|").trim();
+      }
+
+      // Bước 2: Tách Word và Meaning từ phần contentPart (ngăn cách bởi dấu :)
+      if (contentPart.includes(":")) {
+        const parts = contentPart.split(":");
         english = parts[0].trim();
         vietnamese = parts.slice(1).join(":").trim();
       } else {
-        english = cleanLine;
+        english = contentPart;
       }
 
       if (english) {
@@ -55,6 +75,7 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
           text: english,
           meaning: vietnamese,
           normalized: english.toLowerCase(),
+          example: example,
         });
       }
     });
@@ -62,14 +83,12 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
     // 2. Gọi hàm từ Hook để lưu vào DB
     try {
       const result = await onAddVocabulary(newEntries);
-
       setReport(result);
 
       if (result.added.length > 0) {
         setInputText("");
         if (onSuccess) onSuccess();
       }
-      setOpen(false);
     } catch (error) {
       console.error("Error adding words:", error);
     } finally {
@@ -84,26 +103,26 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
           <Plus size={16} /> Add New Words
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Import Vocabulary</DialogTitle>
           <DialogDescription>
-            Enter words in format: <code>Word: Meaning</code> or{" "}
-            <code>Word</code>. Use new line to separate words.
+            Enter words in format: <code>Word: Meaning | Example</code>. <br />
+            Or simple format: <code>Word: Meaning</code>.
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
           <Textarea
-            placeholder={`Hello: Greeting\nApple\nDog: A pet animal`}
-            className="min-h-[150px]"
+            placeholder={`mean: ý nghĩa | phần giải thích\nHello | He said hello to me\nApple: Quả táo`}
+            className="min-h-[200px] font-mono text-sm"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             disabled={loading}
           />
 
           {report && (
-            <div className="text-sm space-y-2 bg-muted/50 p-3 rounded-md border">
+            <div className="text-sm space-y-2 bg-muted/50 p-3 rounded-md border max-h-[150px] overflow-y-auto">
               {report.added.length > 0 && (
                 <div className="text-green-600 flex items-start gap-2">
                   <span>✅</span>
@@ -127,7 +146,7 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
 
         <div className="flex justify-end gap-2">
           <Button variant="outline" onClick={() => setOpen(false)}>
-            Cancel
+            Close
           </Button>
           <Button
             onClick={handleProcessAndAdd}
