@@ -20,59 +20,49 @@ import {
   Volume2,
   X,
 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { EditPopoverContent } from "../common/EditPopoverContent";
-import { FlashcardCommand, FlashcardCommandType } from "./FlashcardSection";
+import { FlashcardCommand } from "./FlashcardSection";
 
 interface VocabularyCardProps {
   item: VocabularyItem;
   command: FlashcardCommand | null;
   isFlipped: boolean;
+  showMeaning: boolean; // [NEW] Nhận vào từ Props
   onLearned: (id: string, isLearned: boolean) => Promise<void> | void;
   remove: (id: string) => void;
   onFlip: (isFlipped: boolean) => void;
+  onToggleMeaning: (showMeaning: boolean) => void; // [NEW] Callback cập nhật ngược lại
   onUpdate: (id: string, updates: Partial<VocabularyItem>) => void;
   onDelete: (id: string) => void;
 }
 
 const VocabularyCard: React.FC<VocabularyCardProps> = ({
   item,
-  command,
+  // command, // Không cần dùng command ở đây nữa vì Parent đã xử lý qua props
   isFlipped,
+  showMeaning,
   onLearned,
   remove,
   onFlip,
+  onToggleMeaning,
   onUpdate,
   onDelete,
 }) => {
-  const [showMeaning, setShowMeaning] = useState(false);
+  // Đã bỏ state local: const [showMeaning, setShowMeaning] = useState(false);
+  // Đã bỏ useEffect lắng nghe command liên quan đến meaning
+
   const [loading, setLoading] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
 
-  useEffect(() => {
-    if (command) {
-      if (command.type === FlashcardCommandType.SHOW_MEANING_ALL)
-        setShowMeaning(true);
-      if (command.type === FlashcardCommandType.HIDE_MEANING_ALL)
-        setShowMeaning(false);
-
-      if (command.type === FlashcardCommandType.RESET_FLIP) {
-        setShowMeaning(false);
-      }
-    }
-  }, [command]);
-
   const handleCardClick = () => {
-    // Nếu đang mở edit thì không cho lật thẻ
     if (isEditOpen) return;
-
-    // Trigger onFlip với trạng thái ngược lại của prop hiện tại
     onFlip(!isFlipped);
   };
 
   const toggleMeaning = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setShowMeaning((prev) => !prev);
+    onToggleMeaning(!showMeaning); // Gọi lên parent
   };
 
   const handleSpeak = (e: React.MouseEvent) => {
@@ -120,6 +110,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
         {/* --- BACK SIDE (ÚP) --- */}
         {!isFlipped && (
           <div className="flex flex-col items-center justify-center relative w-full h-full animate-in fade-in zoom-in-95 duration-500">
+            {/* ... Giữ nguyên phần UI Back Side ... */}
             <div className="absolute inset-0 opacity-15 dark:opacity-25">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.15)_1px,transparent_1px)] bg-[length:16px_16px]"></div>
               <div className="absolute inset-0 bg-[conic-gradient(from_0deg_at_50%_50%,transparent_0deg,rgba(168,85,247,0.15)_60deg,transparent_120deg,rgba(99,102,241,0.15)_180deg,transparent_240deg,rgba(59,130,246,0.15)_300deg,transparent_360deg)]"></div>
@@ -257,7 +248,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                 onClick={(e) => {
                   if (!item.meaning) return;
                   e.stopPropagation();
-                  setShowMeaning(!showMeaning);
+                  onToggleMeaning(!showMeaning); // Gọi callback
                 }}
               >
                 <p className="text-[12px] font-medium text-muted-foreground italic break-words leading-relaxed text-center line-clamp-3">

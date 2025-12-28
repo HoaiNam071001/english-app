@@ -71,35 +71,40 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
 }) => {
   const [command, setCommand] = useState<FlashcardCommand | null>(null);
   const [isDeleteAllOpen, setIsDeleteAllOpen] = useState(false);
-
-  // State quản lý việc lật thẻ nằm ở đây (Source of Truth)
   const [flippedIds, setFlippedIds] = useState<Set<string>>(new Set());
+  const [meaningIds, setMeaningIds] = useState<Set<string>>(new Set());
 
-  // --- Logic Command & Flip ---
   const sendCommand = (type: FlashcardCommandType) => {
     setCommand({ type, timestamp: Date.now() });
 
-    // Cập nhật state flippedIds dựa trên command
     if (type === FlashcardCommandType.FLIP_ALL) {
       setFlippedIds(new Set(displayCards.map((card) => card.id)));
     } else if (type === FlashcardCommandType.RESET_FLIP) {
       setFlippedIds(new Set());
+      setMeaningIds(new Set()); // Úp thẻ thì ẩn luôn nghĩa
+    } else if (type === FlashcardCommandType.SHOW_MEANING_ALL) {
+      setMeaningIds(new Set(displayCards.map((card) => card.id)));
+    } else if (type === FlashcardCommandType.HIDE_MEANING_ALL) {
+      setMeaningIds(new Set());
     }
   };
 
   const handleShuffle = () => {
     const shuffled = [...displayCards].sort(() => Math.random() - 0.5);
     setDisplayCards(shuffled);
-    sendCommand(FlashcardCommandType.RESET_FLIP);
+    // Reset trạng thái khi shuffle
+    setFlippedIds(new Set());
+    setMeaningIds(new Set());
   };
 
   const confirmRemoveAll = () => {
     setDisplayCards([]);
     setFlippedIds(new Set());
+    setMeaningIds(new Set());
     setIsDeleteAllOpen(false);
   };
 
-  // Hàm này giờ đóng vai trò như setIsFlipped
+  // --- Handlers Update State ---
   const handleCardFlipReport = (id: string, isFlipped: boolean) => {
     setFlippedIds((prev) => {
       const newSet = new Set(prev);
@@ -109,11 +114,30 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
     });
   };
 
+  const handleShowMeaningReport = (id: string, isShowing: boolean) => {
+    setMeaningIds((prev) => {
+      const newSet = new Set(prev);
+      if (isShowing) newSet.add(id);
+      else newSet.delete(id);
+      return newSet;
+    });
+  };
+
   const removeFlippedCards = () => {
     if (flippedIds.size === 0) return;
     const remaining = displayCards.filter((card) => !flippedIds.has(card.id));
     setDisplayCards(remaining);
-    setFlippedIds(new Set());
+    // Cleanup IDs of removed cards
+    const newFlippedIds = new Set<string>(); // Clear flipped
+    const newMeaningIds = new Set(meaningIds);
+    // Remove deleted IDs from meaningIds to keep memory clean
+    displayCards.forEach((card) => {
+      if (flippedIds.has(card.id)) {
+        newMeaningIds.delete(card.id);
+      }
+    });
+    setFlippedIds(newFlippedIds);
+    setMeaningIds(newMeaningIds);
   };
 
   const sortFlippedCards = (direction: "top" | "bottom") => {
@@ -128,7 +152,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
 
   return (
     <div className="w-full h-full p-6 bg-muted/30 rounded-xl border-2 border-dashed border-border min-h-[600px] flex flex-col">
-      {/* --- TOOLBAR (Giữ nguyên không đổi) --- */}
+      {/* --- TOOLBAR --- */}
       <div className="flex flex-wrap justify-between items-center mb-6 gap-4">
         <h2 className="text-2xl font-bold text-foreground flex items-center gap-2">
           🔥 Flashcards
@@ -332,13 +356,23 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
               item={item}
               command={command}
               isFlipped={flippedIds.has(item.id)}
+              showMeaning={meaningIds.has(item.id)}
               onLearned={onMarkLearned}
-              remove={(id) =>
-                setDisplayCards(displayCards.filter((w) => w.id !== id))
-              }
+              remove={(id) => {
+                setDisplayCards(displayCards.filter((w) => w.id !== id));
+                const newFlipped = new Set(flippedIds);
+                newFlipped.delete(id);
+                setFlippedIds(newFlipped);
+                const newMeanings = new Set(meaningIds);
+                newMeanings.delete(id);
+                setMeaningIds(newMeanings);
+              }}
               onFlip={(newIsFlipped) =>
                 handleCardFlipReport(item.id, newIsFlipped)
-              } // [OUTPUT] Gọi hàm cập nhật state ở parent
+              }
+              onToggleMeaning={(newShowMeaning) =>
+                handleShowMeaningReport(item.id, newShowMeaning)
+              }
               onUpdate={onUpdateWord}
               onDelete={onDeleteWord}
             />
