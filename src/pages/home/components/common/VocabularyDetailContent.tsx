@@ -64,7 +64,7 @@ export const VocabularyDetailContent: React.FC<
         </div>
 
         {item.example && (
-          <div className="bg-muted/50 p-2 rounded-md border border-border/50">
+          <div className="bg-muted/50 p-2 rounded-md border border-border/50 max-h-[300px] overflow-auto">
             <div className="text-sm italic text-muted-foreground">
               <DisplayText text={item.example} />
             </div>

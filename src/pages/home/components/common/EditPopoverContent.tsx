@@ -39,7 +39,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
 
   if (showDeleteConfirm) {
     return (
-      <div className="space-y-3 w-80">
+      <div className="space-y-3 w-90">
         <h4 className="font-medium text-sm text-red-600">
           Confirm deletion of this word?
         </h4>
@@ -67,7 +67,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
   }
 
   return (
-    <div className="grid gap-4 w-80">
+    <div className="grid gap-4 w-90">
       <div className="space-y-2">
         <h4 className="font-medium leading-none">Edit</h4>
         <p className="text-xs text-muted-foreground">
@@ -124,7 +124,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
             id="example"
             value={form.example}
             onChange={(e) => setForm({ ...form, example: e.target.value })}
-            className="col-span-3 text-sm min-h-[60px]"
+            className="col-span-3 text-sm min-h-[60px] max-h-[250px]"
             placeholder="Example sentence..."
           />
         </div>

@@ -216,7 +216,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                   </div>
                 </PopoverTrigger>
                 <PopoverContent
-                  className="w-90 p-4"
+                  className="w-max p-4"
                   align="end"
                   onClick={(e) => e.stopPropagation()}
                 >
