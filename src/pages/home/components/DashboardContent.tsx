@@ -33,13 +33,23 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
     addVocabulary,
     bulkUpdateWords,
   } = useVocabulary();
-  const [mappingActiveWords, setMappingActiveWords] = useState<Set<string>>(new Set());
+  const [mappingActiveWords, setMappingActiveWords] = useState<Set<string>>(
+    new Set()
+  );
   const { topics, addTopic, deleteTopic, updateTopic } = useTopics();
 
   // Handle: Sidebar -> CardContainer
   const handleAddWordsToPractice = (newWords: VocabularyItem[]) => {
     if (cardContainerRef.current) {
       cardContainerRef.current.addWordsToSession(newWords);
+    }
+  };
+
+  const handleRemoveWordsToPractice = (words: VocabularyItem[]) => {
+    if (cardContainerRef.current) {
+      cardContainerRef.current.removeWordsToSession(
+        words?.map((e) => e.id) || []
+      );
     }
   };
 
@@ -150,7 +160,9 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
                   onDelete={deleteWord}
                   onToggleLearned={toggleLearnedStatus}
                   onBulkMarkLearned={bulkMarkLearned}
-                  onRemoveFromPractice={() => {}}
+                  onRemoveFromPractice={(value) =>
+                    handleRemoveWordsToPractice([value])
+                  }
                 />
               </div>
             </div>

@@ -30,6 +30,7 @@ export class FirebaseVocabularyService implements IVocabularyService {
       id: doc.id,
       ...doc.data(),
       createdAt: doc.data().createdAt?.toMillis() || 0,
+      updatedAt: doc.data().updatedAt?.toMillis() || 0,
       isLearned: doc.data().isLearned || false,
     })) as VocabularyItem[];
   }
@@ -79,7 +80,10 @@ export class FirebaseVocabularyService implements IVocabularyService {
   }
 
   async update(id: string, updates: Partial<VocabularyItem>): Promise<void> {
-    await updateDoc(doc(db, DataTable.Vocabulary, id), updates);
+    await updateDoc(doc(db, DataTable.Vocabulary, id), {
+      ...updates,
+      updatedAt: serverTimestamp(),
+    });
   }
 
   async delete(id: string): Promise<void> {
@@ -98,7 +102,10 @@ export class FirebaseVocabularyService implements IVocabularyService {
   ): Promise<void> {
     const batch = writeBatch(db);
     ids.forEach((id) => {
-      batch.update(doc(db, DataTable.Vocabulary, id), updates);
+      batch.update(doc(db, DataTable.Vocabulary, id), {
+        ...updates,
+        updatedAt: serverTimestamp(),
+      });
     });
     await batch.commit();
   }

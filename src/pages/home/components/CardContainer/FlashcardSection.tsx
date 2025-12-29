@@ -274,18 +274,20 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
               <RotateCcw size={15} />
             </Button>
           </SimpleTooltip>
-          
+
           <SimpleTooltip content={"Remove learned"}>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-foreground"
-              onClick={removeLearnedCards}
-              disabled={!hasLearnedCards}
-              title="Shuffle"
-            >
-              <CheckCircle size={15} />
-            </Button>
+            <div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                onClick={removeLearnedCards}
+                disabled={!hasLearnedCards}
+                title="Shuffle"
+              >
+                <CheckCircle size={15} />
+              </Button>
+            </div>
           </SimpleTooltip>
 
           {/* More Menu */}
@@ -325,17 +327,19 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
 
           {/* Delete All Popover giữ nguyên */}
           <Popover open={isDeleteAllOpen} onOpenChange={setIsDeleteAllOpen}>
-            {/* ... */}
-            <PopoverTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                title="Clear Session"
-              >
-                <Trash2 size={15} />
-              </Button>
-            </PopoverTrigger>
+            <SimpleTooltip content={"Clear Session"}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                  title="Clear Session"
+                >
+                  <Trash2 size={15} />
+                </Button>
+              </PopoverTrigger>
+            </SimpleTooltip>
+
             <PopoverContent className="w-64 p-3" align="end">
               <div className="space-y-2">
                 <h4 className="font-medium text-sm text-destructive">

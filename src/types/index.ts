@@ -7,7 +7,7 @@ export interface VocabularyItem {
   updatedAt: number;
   isLearned?: boolean;
   example?: string;
-  topicId?: string | null; // <--- Change: Allow null
+  topicId?: string | null;
   userId: string;
 }
 

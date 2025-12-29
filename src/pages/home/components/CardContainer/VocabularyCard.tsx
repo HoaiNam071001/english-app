@@ -14,9 +14,9 @@ import { TOPIC_COLORS } from "@/constants";
 import { TopicItem, VocabularyItem } from "@/types";
 import {
   Check,
-  Eye,
-  EyeOff,
+  Eye, // Dùng icon Eye làm biểu tượng "Xem chi tiết" hoặc "Hover to show"
   FolderSearch,
+  Info, // Icon mới cho nút xem chi tiết (nếu muốn đổi)
   PenLine,
   RotateCcw,
   Volume2,
@@ -25,6 +25,8 @@ import {
 import React, { useMemo, useState } from "react";
 import { EditPopoverContent } from "../common/EditPopoverContent";
 import { FlashcardCommand } from "./FlashcardSection";
+import { DisplayText } from "@/components/DisplayText";
+import { VocabularyDetailContent } from "../common/VocabularyDetailContent";
 
 interface VocabularyCardProps {
   item: VocabularyItem;
@@ -35,7 +37,7 @@ interface VocabularyCardProps {
   onLearned: (id: string, isLearned: boolean) => Promise<void> | void;
   remove: (id: string) => void;
   onFlip: (isFlipped: boolean) => void;
-  onToggleMeaning: (showMeaning: boolean) => void; // [NEW] Callback cập nhật ngược lại
+  onToggleMeaning: (showMeaning: boolean) => void;
   onUpdate: (id: string, updates: Partial<VocabularyItem>) => void;
   onDelete: (id: string) => void;
 }
@@ -54,7 +56,8 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
-
+  // State mới cho Popover chi tiết (nếu cần control open state, ở đây để tự động)
+  
   const currentTopic = useMemo(() => {
     if (!item.topicId) return null;
     return topics.find((t) => t.id === item.topicId);
@@ -72,11 +75,6 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
   const handleCardClick = () => {
     if (isEditOpen) return;
     onFlip(!isFlipped);
-  };
-
-  const toggleMeaning = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onToggleMeaning(!showMeaning); // Gọi lên parent
   };
 
   const handleSpeak = (e: React.MouseEvent) => {
@@ -236,6 +234,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
             </div>
 
             <div className="flex-1 flex flex-col items-center justify-center px-3 py-8 min-h-0 overflow-hidden">
+              {/* --- TEXT SECTION --- */}
               <div className="h-[55px] min-h-[55px] mb-2 flex flex-col justify-end">
                 {item.example ? (
                   <Popover>
@@ -257,7 +256,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                         Note:
                       </div>
                       <p className="text-popover-foreground/80 italic leading-relaxed">
-                        {item.example}
+                        <DisplayText text={item.example}/>
                       </p>
                     </PopoverContent>
                   </Popover>
@@ -273,24 +272,36 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
 
               <div className="w-12 !m-0 h-[2px] min-h-[2px] bg-border rounded-full my-2"></div>
 
+              {/* --- MEANING SECTION (MODIFIED) --- */}
               <div
-                className={` h-[40px] min-h-[40px] mt-2
-                   w-full transition-all duration-300 flex flex-col items-center
-                   ${
-                     showMeaning
-                       ? "opacity-100 blur-0"
-                       : "opacity-30 blur-md select-none grayscale"
-                   }
-                 `}
+                className="relative group/meaning h-[40px] min-h-[40px] mt-2 w-full flex flex-col items-center justify-center cursor-pointer"
                 onClick={(e) => {
                   if (!item.meaning) return;
                   e.stopPropagation();
-                  onToggleMeaning(!showMeaning); // Gọi callback
+                  onToggleMeaning(!showMeaning);
                 }}
               >
-                <p className="text-[12px] font-medium text-muted-foreground italic break-words leading-relaxed text-center line-clamp-3">
+                {/* Lớp nội dung (Text) */}
+                <p
+                  className={`
+                    text-[12px] font-medium text-muted-foreground italic break-words leading-relaxed text-center line-clamp-3 transition-all duration-300
+                    ${
+                      showMeaning
+                        ? "opacity-100 blur-0"
+                        : "opacity-30 blur-md select-none grayscale"
+                    }
+                  `}
+                >
                   {item.meaning}
                 </p>
+
+                {/* Lớp Overlay chỉ hiện khi hover và đang bị ẩn (showMeaning = false) */}
+                {!showMeaning && item.meaning && (
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/meaning:opacity-100 transition-opacity duration-200 z-10">
+                     {/* Icon báo hiệu có thể click để xem */}
+                     <Eye size={18} className="text-primary/70 bg-background/80 rounded-full p-0.5 shadow-sm" />
+                  </div>
+                )}
               </div>
             </div>
 
@@ -303,25 +314,35 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                 <Volume2 size={14} />
               </div>
 
-              {item.meaning && (
+              {/* --- NÚT CON MẮT CŨ -> GIỜ LÀ NÚT XEM FULL DETAIL --- */}
+              <Popover>
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <div
-                        className="p-1.5 rounded-full hover:bg-accent text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors cursor-pointer"
-                        onClick={toggleMeaning}
-                      >
-                        {showMeaning ? <EyeOff size={14} /> : <Eye size={14} />}
-                      </div>
+                      <PopoverTrigger asChild>
+                        <div
+                          className="p-1.5 rounded-full hover:bg-accent text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors cursor-pointer"
+                          onClick={(e) => e.stopPropagation()} // Chỉ mở popover, không flip card
+                        >
+                          {/* Dùng icon Info hoặc Eye tùy sở thích để biểu thị "Xem chi tiết" */}
+                          <Info size={14} />
+                        </div>
+                      </PopoverTrigger>
                     </TooltipTrigger>
                     <TooltipContent side="top">
-                      <p className="text-xs">
-                        {showMeaning ? "Hide meaning" : "View meaning"}
-                      </p>
+                      <p className="text-xs">View details</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
-              )}
+
+                <PopoverContent 
+                    side="top" 
+                    className="w-80 p-4"
+                    onClick={(e) => e.stopPropagation()}
+                >
+                   <VocabularyDetailContent item={item} topic={currentTopic || undefined} />
+                </PopoverContent>
+              </Popover>
 
               <TooltipProvider>
                 <Tooltip>

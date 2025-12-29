@@ -223,6 +223,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
     const newSet = new Set(revealedIds);
     newSet.has(id) ? newSet.delete(id) : newSet.add(id);
     setRevealedIds(newSet);
+
   };
 
   const handleSelectDate = (dateKey: string) => {

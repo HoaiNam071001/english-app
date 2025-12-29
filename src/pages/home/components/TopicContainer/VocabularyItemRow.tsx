@@ -12,21 +12,24 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { TOPIC_COLORS } from "@/constants"; // <--- 1. Import Constants
+import { TOPIC_COLORS } from "@/constants";
 import { useTopics } from "@/hooks/useTopics";
 import {
   Check,
   CheckCircle2,
   Circle,
-  Eye,
-  EyeOff,
+  Eye, // Import lại Eye
+  EyeOff, // Import lại EyeOff
+  Info,
   Minus,
+  PenLine, // Import thêm PenLine cho nút Edit
   Plus,
   RotateCcw,
 } from "lucide-react";
 import { useMemo, useState } from "react";
-import { Button } from "../../../../components/ui/button";
+import { Button } from "@/components/ui/button";
 import { EditPopoverContent } from "../common/EditPopoverContent";
+import { VocabularyDetailContent } from "../common/VocabularyDetailContent";
 
 interface VocabularyItemRowProps {
   word: VocabularyItem;
@@ -56,17 +59,17 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
   onRemoveFromPractice,
 }) => {
   const { topics } = useTopics();
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [isEditPopoverOpen, setIsEditPopoverOpen] = useState(false);
 
-  // 2. Tìm Topic hiện tại của từ
+  // Tìm Topic hiện tại của từ
   const currentTopic = useMemo(() => {
     if (!word.topicId) return null;
     return topics.find((t) => t.id === word.topicId);
   }, [word.topicId, topics]);
 
-  // 3. Lấy style màu từ Constants
+  // Lấy style màu từ Constants
   const topicColorStyle = useMemo(() => {
-    if (!currentTopic?.color) return { bg: "bg-muted" }; // Mặc định nếu không có topic
+    if (!currentTopic?.color) return { bg: "bg-muted" };
     return (
       TOPIC_COLORS.find((c) => c.id === currentTopic.color) || {
         bg: "bg-muted",
@@ -105,69 +108,59 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
         />
       </div>
 
-      <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
-        <PopoverTrigger asChild>
-          <div className="flex-1 min-w-0 cursor-pointer pb-1">
-            <div className="flex items-center gap-2">
-              {/* Learned Status Icon */}
-              {word.isLearned ? (
-                <CheckCircle2 size={14} className="text-green-500 shrink-0" />
-              ) : (
-                <Circle size={14} className="text-muted-foreground shrink-0" />
-              )}
+      {/* Main Content Area - KHÔNG CÒN Click để Edit */}
+      <div className="flex-1 min-w-0 pb-1 cursor-default">
+        <div className="flex items-center gap-2">
+          {/* Learned Status Icon */}
+          {word.isLearned ? (
+            <CheckCircle2 size={14} className="text-green-500 shrink-0" />
+          ) : (
+            <Circle size={14} className="text-muted-foreground shrink-0" />
+          )}
 
-              {/* 4. Topic Indicator (Chấm màu) */}
-              {currentTopic && (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div
-                        className={`w-2 h-2 rounded-full shrink-0 ${topicColorStyle.bg} cursor-help`}
-                      />
-                    </TooltipTrigger>
-                    <TooltipContent side="top" className="text-xs">
-                      Topic: {currentTopic.label}
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              )}
+          {/* Topic Indicator */}
+          {currentTopic && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div
+                    className={`w-2 h-2 rounded-full shrink-0 ${topicColorStyle.bg} cursor-help`}
+                  />
+                </TooltipTrigger>
+                <TooltipContent side="top" className="text-xs">
+                  Topic: {currentTopic.label}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
 
-              {/* Vocabulary Text */}
-              <span
-                className={`font-medium truncate max-w-[200px] ${
-                  word.isLearned && !isActive
-                    ? "text-muted-foreground line-through"
-                    : "text-foreground"
-                }`}
-              >
-                {word.text}
-              </span>
-            </div>
+          {/* Vocabulary Text */}
+          <span
+            className={`font-medium truncate max-w-[200px] ${
+              word.isLearned && !isActive
+                ? "text-muted-foreground line-through"
+                : "text-foreground"
+            }`}
+          >
+            {word.text}
+          </span>
+        </div>
 
-            <div className="mt-1 flex items-center gap-2">
-              <div
-                className={`text-xs text-muted-foreground transition-all duration-300 h-[16px] max-w-[200px] ${
-                  !isMeaningRevealed
-                    ? "blur-[5px] select-none opacity-60"
-                    : "blur-0 opacity-100"
-                }`}
-              >
-                {word.meaning}
-              </div>
-            </div>
+        <div className="mt-1 relative w-fit h-[16px]">
+          {/* Layer Text hiển thị nghĩa - KHÔNG CÒN Click để Show/Hide */}
+          <div
+            className={`text-xs text-muted-foreground truncate duration-100 max-w-[200px] cursor-default
+              ${
+                !isMeaningRevealed
+                  ? "blur-[4px] select-none opacity-60"
+                  : "blur-0 opacity-100"
+              }
+            `}
+          >
+            {word.meaning}
           </div>
-        </PopoverTrigger>
-
-        {/* Edit Form */}
-        <PopoverContent align="start" side="right" className="p-4 w-90">
-          <EditPopoverContent
-            word={word}
-            onSave={onUpdate}
-            onDelete={onDelete}
-            onClose={() => setIsPopoverOpen(false)}
-          />
-        </PopoverContent>
-      </Popover>
+        </div>
+      </div>
 
       {/* Action Buttons Panel */}
       <div
@@ -177,6 +170,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
                   group-hover/actions:opacity-100 group-hover/actions:translate-x-0 group-hover/actions:scale-100 group-hover/actions:pointer-events-auto
                   transition-all duration-300 ease-out origin-right z-20"
       >
+        {/* 1. Toggle Learned Button */}
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -204,6 +198,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
           </Tooltip>
         </TooltipProvider>
 
+        {/* 2. [NEW] Show/Hide Meaning Button */}
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -220,11 +215,86 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
               </Button>
             </TooltipTrigger>
             <TooltipContent side="top">
-              <p className="text-xs">Show/Hide meaning</p>
+              <p className="text-xs">
+                {isMeaningRevealed ? "Hide meaning" : "Show meaning"}
+              </p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
 
+        {/* 3. [NEW] Edit Button (Moved here) */}
+        <Popover open={isEditPopoverOpen} onOpenChange={setIsEditPopoverOpen}>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 rounded-full text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <PenLine size={14} />
+                  </Button>
+                </PopoverTrigger>
+              </TooltipTrigger>
+              <TooltipContent side="top">
+                <p className="text-xs">Edit word</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <PopoverContent
+            align="end"
+            side="top"
+            className="w-90 p-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <EditPopoverContent
+              word={word}
+              onSave={onUpdate}
+              onDelete={onDelete}
+              onClose={() => setIsEditPopoverOpen(false)}
+            />
+          </PopoverContent>
+        </Popover>
+
+        {/* 4. Detail Info Button */}
+        <Popover>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-7 w-7 rounded-full text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Info size={14} />
+                  </Button>
+                </PopoverTrigger>
+              </TooltipTrigger>
+              <TooltipContent side="top" align="center">
+                <p className="text-xs">View details</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <PopoverContent
+            align="end"
+            side="top"
+            className="w-80 p-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <VocabularyDetailContent
+              item={word}
+              topic={currentTopic || undefined}
+            />
+          </PopoverContent>
+        </Popover>
+
+        {/* 5. Add/Remove Practice Button */}
         {isActive ? (
           <TooltipProvider>
             <Tooltip>

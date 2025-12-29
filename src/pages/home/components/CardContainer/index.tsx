@@ -18,6 +18,7 @@ import { TabItem } from "./TabItem"; // Giả sử bạn đã tách file TabItem
 
 export interface CardContainerRef {
   addWordsToSession: (words: VocabularyItem[]) => void;
+  removeWordsToSession: (wordIds: string[]) => void;
 }
 
 interface CardContainerProps {
@@ -108,6 +109,31 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
             return tab;
           });
         });
+      },
+      removeWordsToSession: (idsToRemove: string[]) => {
+        if (!idsToRemove.length) return;
+
+      setTabs((prevTabs) => {
+        return prevTabs.map((tab) => {
+          if (tab.id === activeTabId) {
+            const idsSet = new Set(idsToRemove);
+
+            const newWordIds = tab.wordIds.filter((id) => !idsSet.has(id));
+
+            if (newWordIds.length === tab.wordIds.length) return tab;
+            const newFlippedIds = tab.flippedIds?.values()?.filter(id => !idsSet.has(id)) || [];
+            const newMeaningIds = tab.meaningIds?.values()?.filter(id => !idsSet.has(id)) || [];
+
+            return {
+              ...tab,
+              wordIds: newWordIds,
+              flippedIds: new Set(newFlippedIds),
+              meaningIds: new Set(newMeaningIds)
+            };
+          }
+          return tab;
+        });
+      });
       },
     }));
 
