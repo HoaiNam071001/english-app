@@ -245,8 +245,8 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
           </TooltipProvider>
 
           <PopoverContent
-            align="end"
-            side="top"
+            align="start"
+            side="bottom"
             className="w-90 p-4"
             onClick={(e) => e.stopPropagation()}
           >
@@ -275,15 +275,15 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
                   </Button>
                 </PopoverTrigger>
               </TooltipTrigger>
-              <TooltipContent side="top" align="center">
+              <TooltipContent side="top">
                 <p className="text-xs">View details</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
 
           <PopoverContent
-            align="end"
-            side="top"
+            align="start"
+            side="bottom"
             className="w-80 p-4"
             onClick={(e) => e.stopPropagation()}
           >
