@@ -274,7 +274,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
 
               {/* --- MEANING SECTION (MODIFIED) --- */}
               <div
-                className="relative group/meaning h-[40px] min-h-[40px] mt-2 w-full flex flex-col items-center justify-center cursor-pointer"
+                className="relative group/meaning h-[40px] min-h-[40px] mt-2 w-full flex flex-col items-center justify-start cursor-pointer"
                 onClick={(e) => {
                   if (!item.meaning) return;
                   e.stopPropagation();
