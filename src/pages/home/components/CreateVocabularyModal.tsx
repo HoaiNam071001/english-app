@@ -115,7 +115,7 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
         <div className="grid gap-4 py-4">
           <Textarea
             placeholder={`mean: ý nghĩa | phần giải thích\nHello | He said hello to me\nApple: Quả táo`}
-            className="min-h-[200px] font-mono text-sm"
+            className="min-h-[300px] max-h-[500px] font-mono text-sm"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             disabled={loading}
