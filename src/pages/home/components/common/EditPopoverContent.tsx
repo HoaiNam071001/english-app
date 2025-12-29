@@ -24,7 +24,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
     text: word.text,
     meaning: word.meaning,
     example: word.example || "",
-    topicId: word.topicId,
+    topicId: word.topicId || null,
   });
 
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -32,7 +32,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
   const handleSave = () => {
     onSave(word.id, {
       ...form,
-      topicId: form.topicId,
+      topicId: form.topicId || null,
     });
     onClose();
   };
