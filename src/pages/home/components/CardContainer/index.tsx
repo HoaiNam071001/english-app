@@ -23,13 +23,14 @@ export interface CardContainerRef {
 interface CardContainerProps {
   allWords: VocabularyItem[];
   topics: TopicItem[];
+  onActiveChanged:(mapping: Set<string>) => void;
   onMarkLearned: (id: string, isLearned: boolean) => void;
   onUpdateWord: (id: string, updates: Partial<VocabularyItem>) => void;
   onDeleteWord: (id: string) => void;
 }
 
 const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
-  ({ allWords, topics, onMarkLearned, onUpdateWord, onDeleteWord }, ref) => {
+  ({ allWords, topics, onMarkLearned, onUpdateWord, onDeleteWord, onActiveChanged }, ref) => {
     const {
       tabs,
       setTabs,
@@ -187,6 +188,16 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
     // --- RENDER ---
     const activeTab = tabs.find((t) => t.id === activeTabId) || tabs[0];
 
+    useEffect(() => {
+      onActiveChanged(new Set(activeTab?.wordIds || []));
+    }, [activeTab]);
+    
+    const activeDisplayCards = useMemo(()=> {
+      return activeTab?.wordIds
+      .map((id) => wordMap[id])
+      .filter((w): w is VocabularyItem => !!w);
+    }, [activeTab?.wordIds, wordMap]) ;
+
     // Loading State
     if (!isLoaded || !activeTab)
       return (
@@ -195,9 +206,7 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
         </div>
       );
 
-    const activeDisplayCards = activeTab.wordIds
-      .map((id) => wordMap[id])
-      .filter((w): w is VocabularyItem => !!w);
+
 
     return (
       <div className="flex flex-col h-full gap-2">

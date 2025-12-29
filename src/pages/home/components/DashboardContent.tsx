@@ -33,7 +33,7 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
     addVocabulary,
     bulkUpdateWords,
   } = useVocabulary();
-
+  const [mappingActiveWords, setMappingActiveWords] = useState<Set<string>>(new Set());
   const { topics, addTopic, deleteTopic, updateTopic } = useTopics();
 
   // Handle: Sidebar -> CardContainer
@@ -49,12 +49,6 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
   }, [allWords, selectedTopicId]);
 
   const currentTopic = topics.find((t) => t.id === selectedTopicId);
-
-  // Lưu ý: activeWordIds dùng cho Sidebar để highlight những từ đang được chọn.
-  // Vì giờ state nằm trong CardContainer, ta khó lấy ra chính xác từ đang hiển thị ở Tab Active.
-  // Giải pháp đơn giản: Sidebar không cần highlight active words, hoặc highlight những từ "isLearned=false".
-  // Ở đây tôi tạm để Set rỗng hoặc bạn có thể bỏ prop này bên Sidebar nếu không cần thiết.
-  const activeWordIds = new Set<string>();
 
   const handleAddVocabularyWithTopic = async (entries: VocabularyItem[]) => {
     const entriesWithTopic = entries.map((e) => ({
@@ -147,7 +141,7 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
               <div className="flex-1 overflow-hidden">
                 <VocabularySidebar
                   allWords={filteredWords}
-                  activeWordIds={activeWordIds}
+                  activeWordIds={mappingActiveWords}
                   onBulkUpdate={bulkUpdateWords}
                   onAddToPractice={(word) => handleAddWordsToPractice([word])}
                   onBulkAddToPractice={handleAddWordsToPractice}
@@ -169,6 +163,7 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
             ref={cardContainerRef}
             allWords={allWords}
             topics={topics}
+            onActiveChanged={setMappingActiveWords}
             onMarkLearned={markAsLearned}
             onUpdateWord={updateWord}
             onDeleteWord={deleteWord}

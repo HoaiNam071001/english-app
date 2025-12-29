@@ -21,6 +21,7 @@ import {
   ArrowUpToLine,
   Book,
   BookOpen,
+  CheckCircle, // <--- 1. Thêm import icon
   Eraser,
   Eye,
   EyeOff,
@@ -32,7 +33,7 @@ import React, { useState } from "react";
 import { AddCardControl } from "./AddCardControl";
 import VocabularyCard from "./VocabularyCard";
 
-// --- INTERFACES ---
+// ... (Giữ nguyên các Interfaces và Enum)
 export interface FlashcardSectionProps {
   allWords: VocabularyItem[];
   displayCards: VocabularyItem[];
@@ -136,6 +137,32 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
     onMeaningIdsChange(newMeaningIds);
   };
 
+  // --- 2. Thêm logic xóa từ đã học ---
+  const removeLearnedCards = () => {
+    // Lọc ra các thẻ chưa học
+    const remaining = displayCards.filter((card) => !card.isLearned);
+
+    // Nếu không có gì thay đổi thì return luôn
+    if (remaining.length === displayCards.length) return;
+
+    setDisplayCards(remaining);
+
+    // Clean up state flip/meaning cho các thẻ bị xóa
+    const newFlippedIds = new Set(flippedIds);
+    const newMeaningIds = new Set(meaningIds);
+
+    // Tìm các thẻ đã học để xóa khỏi state flip/meaning
+    displayCards.forEach((card) => {
+      if (card.isLearned) {
+        newFlippedIds.delete(card.id);
+        newMeaningIds.delete(card.id);
+      }
+    });
+
+    onFlippedIdsChange(newFlippedIds);
+    onMeaningIdsChange(newMeaningIds);
+  };
+
   const sortFlippedCards = (direction: "top" | "bottom") => {
     const flipped = displayCards.filter((card) => flippedIds.has(card.id));
     const unflipped = displayCards.filter((card) => !flippedIds.has(card.id));
@@ -146,20 +173,22 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
     );
   };
 
+  // Tính toán xem có từ nào đã học không để disable nút
+  const hasLearnedCards = displayCards.some((c) => c.isLearned);
+
   // --- RENDER ---
   return (
     <div className="w-full h-full flex flex-col bg-muted/10 overflow-hidden">
-      {/* --- TOOLBAR COMPACT --- */}
+      {/* ... (Phần Toolbar Title & Actions bên trái giữ nguyên) ... */}
       <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 border-b bg-background/80 backdrop-blur-sm shrink-0">
-        {/* Left: Title & Count */}
         <div className="flex items-center gap-2">
+          {/* ... Content bên trái ... */}
           <div className="text-sm font-semibold text-muted-foreground flex items-center gap-1.5">
             <span>CARDS</span>
             <span className="bg-primary/10 text-primary px-1.5 py-0.5 rounded text-xs font-bold">
               {displayCards.length}
             </span>
           </div>
-          {/* Add Control integrated here to save space */}
           <div className="h-4 w-[1px] bg-border mx-1 hidden sm:block"></div>
           <AddCardControl
             allWords={allWords}
@@ -171,6 +200,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
 
         {/* Right: Actions */}
         <div className="flex items-center gap-1">
+          {/* ... (Các nút Flip All, Show Meaning, Shuffle giữ nguyên) ... */}
           {/* Group: Flip */}
           <div className="flex items-center bg-muted/50 rounded-md p-0.5 border">
             <SimpleTooltip content={"Flip All Up"}>
@@ -200,6 +230,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
 
           {/* Group: Meaning */}
           <div className="flex items-center bg-muted/50 rounded-md p-0.5 border ml-1">
+            {/* ... */}
             <SimpleTooltip content={"Show All Meanings"}>
               <Button
                 variant="ghost"
@@ -243,6 +274,19 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
               <RotateCcw size={15} />
             </Button>
           </SimpleTooltip>
+          
+          <SimpleTooltip content={"Remove learned"}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              onClick={removeLearnedCards}
+              disabled={!hasLearnedCards}
+              title="Shuffle"
+            >
+              <CheckCircle size={15} />
+            </Button>
+          </SimpleTooltip>
 
           {/* More Menu */}
           <DropdownMenu>
@@ -255,7 +299,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
                 <MoreHorizontal size={15} />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-52">
+            <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel className="text-xs">
                 Flipped Cards ({flippedIds.size})
               </DropdownMenuLabel>
@@ -266,6 +310,9 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
               <DropdownMenuItem onClick={() => sortFlippedCards("bottom")}>
                 <ArrowDownToLine className="mr-2 h-3.5 w-3.5" /> Move to bottom
               </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
               <DropdownMenuItem
                 onClick={removeFlippedCards}
                 disabled={flippedIds.size === 0}
@@ -276,8 +323,9 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Delete All */}
+          {/* Delete All Popover giữ nguyên */}
           <Popover open={isDeleteAllOpen} onOpenChange={setIsDeleteAllOpen}>
+            {/* ... */}
             <PopoverTrigger asChild>
               <Button
                 variant="ghost"
@@ -317,13 +365,13 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
         </div>
       </div>
 
-      {/* --- GRID SCROLL AREA --- */}
+      {/* --- GRID SCROLL AREA giữ nguyên --- */}
       {displayCards.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground">
+          {/* ... */}
           <div className="text-4xl mb-2 grayscale opacity-30">📇</div>
           <p className="text-sm font-medium">No cards in session</p>
           <div className="mt-3">
-            {/* Duplicate Add button for empty state convenience */}
             <AddCardControl
               allWords={allWords}
               displayCards={displayCards}
@@ -333,7 +381,6 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
           </div>
         </div>
       ) : (
-        // Giảm padding và gap để chứa nhiều thẻ hơn
         <div className="flex-1 overflow-y-auto p-3 scrollbar-thin">
           <div className="flex flex-wrap gap-3 justify-center content-start pb-8">
             {displayCards.map((item) => (
