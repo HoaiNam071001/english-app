@@ -84,17 +84,17 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
     const usAudio = item.phonetics?.find(
       (p) => p.audio && p.accent === AccentType.US
     );
-    if (usAudio?.audio) return "us";
+    if (usAudio?.audio) return AccentType.US;
 
     const otherAudio = item.phonetics?.find((p) => p.audio);
-    if (otherAudio?.audio) return "other"; // Đã đổi 'any' -> 'other'
+    if (otherAudio?.audio) return "other";
 
     return "tts";
   }, [item.phonetics]);
 
   const speakerStyle = useMemo(() => {
     switch (audioSourceType) {
-      case "us":
+      case AccentType.US:
         // Xanh dương đậm (Xịn nhất)
         return "bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-800";
       case "other":
@@ -191,13 +191,21 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
   };
 
   // Helper render POS strings ngắn gọn (n, v, adj...)
-  const renderPosShorts = () => {
-    if (!item.partOfSpeech || item.partOfSpeech.length === 0) return null;
-    return (
-      <div className="text-[9px] uppercase font-mono tracking-wider text-muted-foreground/70 select-none">
-        {item.partOfSpeech ? `[${item.partOfSpeech.join(", ")}]` : ""}
-      </div>
-    );
+  const renderPhonetics = () => {
+    const usInfo = item.phonetics?.find((p) => p.accent === AccentType.US);
+    if (usInfo)
+      return (
+        <div className="text-[10px]  text-blue-500 font-mono tracking-wider select-none">
+          {usInfo.text}
+        </div>
+      );
+    const ukInfo = item.phonetics?.find((p) => p.accent === AccentType.UK);
+    if (ukInfo)
+      return (
+        <div className="text-[10px] font-mono tracking-wider text-cyan-500 select-none">
+          {ukInfo.text}
+        </div>
+      );
   };
 
   const renderTopic = () => {
@@ -332,7 +340,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
             <div className="flex-1 flex flex-col items-center justify-center px-3 py-8 min-h-0 overflow-hidden">
               {/* --- TEXT SECTION --- */}
               <div className="h-[60px] min-h-[60px] mb-1 flex flex-col justify-end">
-                {renderPosShorts()}
+                {renderPhonetics()}
                 {item.example ? (
                   <Popover>
                     <PopoverTrigger asChild>
