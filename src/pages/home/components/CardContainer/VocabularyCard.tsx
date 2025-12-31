@@ -12,12 +12,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { TOPIC_COLORS } from "@/constants";
-import { TopicItem, VocabularyItem } from "@/types";
+import { AccentType, TopicItem, VocabularyItem } from "@/types";
 import {
   Check,
-  Eye, // Dùng icon Eye làm biểu tượng "Xem chi tiết" hoặc "Hover to show"
+  Eye,
   FolderSearch,
-  Info, // Icon mới cho nút xem chi tiết (nếu muốn đổi)
+  Info,
   PenLine,
   RotateCcw,
   Volume2,
@@ -27,7 +27,11 @@ import React, { useMemo, useState } from "react";
 import { EditPopoverContent } from "../EditPopoverContent";
 import { VocabularyDetailContent } from "../common/VocabularyDetailContent";
 import { FlashcardCommand } from "./FlashcardSection";
-
+declare global {
+  interface Window {
+    webkitAudioContext?: typeof AudioContext;
+  }
+}
 interface VocabularyCardProps {
   item: VocabularyItem;
   command: FlashcardCommand | null;
@@ -56,7 +60,6 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  // State mới cho Popover chi tiết (nếu cần control open state, ở đây để tự động)
 
   const currentTopic = useMemo(() => {
     if (!item.topicId) return null;
@@ -77,12 +80,96 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
     onFlip(!isFlipped);
   };
 
+  const audioSourceType = useMemo(() => {
+    const usAudio = item.phonetics?.find(
+      (p) => p.audio && p.accent === AccentType.US
+    );
+    if (usAudio?.audio) return "us";
+
+    const otherAudio = item.phonetics?.find((p) => p.audio);
+    if (otherAudio?.audio) return "other"; // Đã đổi 'any' -> 'other'
+
+    return "tts";
+  }, [item.phonetics]);
+
+  const speakerStyle = useMemo(() => {
+    switch (audioSourceType) {
+      case "us":
+        // Xanh dương đậm (Xịn nhất)
+        return "bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-800";
+      case "other":
+        // Xanh ngọc (Có file thực nhưng giọng khác)
+        return "bg-cyan-100 text-cyan-700 hover:bg-cyan-200 dark:bg-cyan-900/50 dark:text-cyan-300 dark:hover:bg-cyan-800";
+      case "tts":
+      default:
+        // Cam (Máy đọc)
+        return "bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/50 dark:text-orange-300 dark:hover:bg-orange-800";
+    }
+  }, [audioSourceType]);
+
+  const speakerTooltip = useMemo(() => {
+    if (audioSourceType === "us") return "Play US Audio (Real voice)";
+    if (audioSourceType === "other") return "Play Audio (Real voice)";
+    return "Browser Text-to-Speech (Robot voice)";
+  }, [audioSourceType]);
+
+  const playBoostedAudio = (url: string) => {
+    try {
+      const AudioContextClass =
+        window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) {
+        new Audio(url).play();
+        return;
+      }
+
+      const audioCtx = new AudioContextClass();
+      const audio = new Audio(url);
+      audio.crossOrigin = "anonymous";
+
+      const source = audioCtx.createMediaElementSource(audio);
+      const gainNode = audioCtx.createGain();
+
+      // Tăng volume lên 2.5 lần
+      gainNode.gain.value = 2.5;
+
+      source.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      audio.play().catch((e: unknown) => {
+        console.warn("AudioContext play failed, falling back", e);
+        new Audio(url).play();
+      });
+    } catch (error: unknown) {
+      console.error("Boost audio error:", error);
+      new Audio(url).play();
+    }
+  };
+
   const handleSpeak = (e: React.MouseEvent) => {
     e.stopPropagation();
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(item.text);
-    utterance.lang = "en-US";
-    window.speechSynthesis.speak(utterance);
+
+    // Tìm URL theo thứ tự ưu tiên
+    let audioUrl = "";
+
+    const usAudio = item.phonetics?.find(
+      (p) => p.audio && p.accent === AccentType.US
+    );
+
+    const otherAudio = item.phonetics?.find((p) => p.audio);
+
+    if (usAudio?.audio) audioUrl = usAudio.audio;
+    else if (otherAudio?.audio) audioUrl = otherAudio.audio;
+
+    if (audioUrl) {
+      playBoostedAudio(audioUrl);
+    } else {
+      // Fallback: Browser TTS
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(item.text);
+      utterance.lang = "en-US";
+      utterance.volume = 0.8; // Giảm volume TTS
+      window.speechSynthesis.speak(utterance);
+    }
   };
 
   const handleRemove = (e: React.MouseEvent) => {
@@ -101,6 +188,16 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
     } finally {
       setLoading(false);
     }
+  };
+
+  // Helper render POS strings ngắn gọn (n, v, adj...)
+  const renderPosShorts = () => {
+    if (!item.partOfSpeech || item.partOfSpeech.length === 0) return null;
+    return (
+      <div className="text-[9px] uppercase font-mono tracking-wider text-muted-foreground/70 select-none">
+        {item.partOfSpeech ? `[${item.partOfSpeech.join(", ")}]` : ""}
+      </div>
+    );
   };
 
   const renderTopic = () => {
@@ -143,7 +240,6 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
         {/* --- BACK SIDE (ÚP) --- */}
         {!isFlipped && (
           <div className="flex flex-col items-center justify-center relative w-full h-full animate-in fade-in zoom-in-95 duration-500">
-            {/* ... Giữ nguyên phần UI Back Side ... */}
             <div className="absolute inset-0 opacity-15 dark:opacity-25">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(255,255,255,0.15)_1px,transparent_1px)] bg-[length:16px_16px]"></div>
               <div className="absolute inset-0 bg-[conic-gradient(from_0deg_at_50%_50%,transparent_0deg,rgba(168,85,247,0.15)_60deg,transparent_120deg,rgba(99,102,241,0.15)_180deg,transparent_240deg,rgba(59,130,246,0.15)_300deg,transparent_360deg)]"></div>
@@ -235,7 +331,8 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
 
             <div className="flex-1 flex flex-col items-center justify-center px-3 py-8 min-h-0 overflow-hidden">
               {/* --- TEXT SECTION --- */}
-              <div className="h-[55px] min-h-[55px] mb-2 flex flex-col justify-end">
+              <div className="h-[60px] min-h-[60px] mb-1 flex flex-col justify-end">
+                {renderPosShorts()}
                 {item.example ? (
                   <Popover>
                     <PopoverTrigger asChild>
@@ -295,10 +392,8 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                   {item.meaning}
                 </p>
 
-                {/* Lớp Overlay chỉ hiện khi hover và đang bị ẩn (showMeaning = false) */}
                 {!showMeaning && item.meaning && (
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/meaning:opacity-100 transition-opacity duration-200 z-10">
-                    {/* Icon báo hiệu có thể click để xem */}
                     <Eye
                       size={18}
                       className="text-primary/70 bg-background/80 rounded-full p-0.5 shadow-sm"
@@ -309,15 +404,20 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
             </div>
 
             <div className="absolute bottom-0 left-0 w-full flex items-center justify-between gap-2 z-20">
-              <div
-                className="p-1.5 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors cursor-pointer"
-                onClick={handleSpeak}
-                title="Pronounce"
-              >
-                <Volume2 size={14} />
-              </div>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div
+                      className={`p-1.5 rounded-full transition-colors cursor-pointer ${speakerStyle}`}
+                      onClick={handleSpeak}
+                    >
+                      <Volume2 size={14} />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="top">{speakerTooltip}</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
 
-              {/* --- NÚT CON MẮT CŨ -> GIỜ LÀ NÚT XEM FULL DETAIL --- */}
               <Popover>
                 <TooltipProvider>
                   <Tooltip>
@@ -325,9 +425,8 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                       <PopoverTrigger asChild>
                         <div
                           className="p-1.5 rounded-full hover:bg-accent text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors cursor-pointer"
-                          onClick={(e) => e.stopPropagation()} // Chỉ mở popover, không flip card
+                          onClick={(e) => e.stopPropagation()}
                         >
-                          {/* Dùng icon Info hoặc Eye tùy sở thích để biểu thị "Xem chi tiết" */}
                           <Info size={14} />
                         </div>
                       </PopoverTrigger>

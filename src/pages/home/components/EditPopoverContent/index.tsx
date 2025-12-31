@@ -128,7 +128,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
 
   // 3. Màn hình EDIT CHÍNH
   return (
-    <div className="w-[350px] max-h-[400px] pr-1 flex flex-col">
+    <div className="w-[350px] min-h-[400px] max-h-[400px] pr-1 flex flex-col">
       {/* Header Compact */}
       <div className="flex items-center justify-between pb-1 border-b">
         <h4 className="font-semibold text-sm">Edit Vocabulary</h4>
