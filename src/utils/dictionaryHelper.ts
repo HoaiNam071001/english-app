@@ -30,11 +30,6 @@ export const normalizeWordData = (
   // 1. Xử lý Phonetics (Lọc trùng và detect accent)
   const processedPhonetics: PhoneticData[] = [];
 
-  // Đôi khi phonetic nằm ở root
-  // if (entry.phonetic) {
-  //   processedPhonetics.push({ text: entry.phonetic, accent: AccentType.US });
-  // }
-
   // Duyệt qua mảng phonetics
   if (entry.phonetics) {
     entry.phonetics.forEach((p: Phonetic) => {
@@ -52,6 +47,9 @@ export const normalizeWordData = (
         });
       }
     });
+  }
+  if (entry.phonetic && !processedPhonetics?.length) {
+    processedPhonetics.push({ text: entry.phonetic, accent: AccentType.US });
   }
 
   // 2. Xử lý Meanings
