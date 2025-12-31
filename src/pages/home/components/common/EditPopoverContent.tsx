@@ -124,7 +124,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
             id="example"
             value={form.example}
             onChange={(e) => setForm({ ...form, example: e.target.value })}
-            className="col-span-3 text-sm min-h-[60px] max-h-[250px]"
+            className="col-span-3 text-sm min-h-[60px] max-h-[200px]"
             placeholder="Example sentence..."
           />
         </div>

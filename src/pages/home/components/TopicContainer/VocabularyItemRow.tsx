@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/popover";
 import { VocabularyItem } from "@/types";
 
+import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
@@ -27,7 +28,6 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { EditPopoverContent } from "../common/EditPopoverContent";
 import { VocabularyDetailContent } from "../common/VocabularyDetailContent";
 
@@ -245,8 +245,8 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
           </TooltipProvider>
 
           <PopoverContent
-            align="start"
-            side="bottom"
+            align="center"
+            side="right"
             className="w-max p-4"
             onClick={(e) => e.stopPropagation()}
           >
