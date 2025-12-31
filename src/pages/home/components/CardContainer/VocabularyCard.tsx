@@ -1,3 +1,4 @@
+import { DisplayText } from "@/components/DisplayText";
 import { Card } from "@/components/ui/card";
 import {
   Popover,
@@ -23,10 +24,9 @@ import {
   X,
 } from "lucide-react";
 import React, { useMemo, useState } from "react";
-import { EditPopoverContent } from "../common/EditPopoverContent";
-import { FlashcardCommand } from "./FlashcardSection";
-import { DisplayText } from "@/components/DisplayText";
+import { EditPopoverContent } from "../EditPopoverContent";
 import { VocabularyDetailContent } from "../common/VocabularyDetailContent";
+import { FlashcardCommand } from "./FlashcardSection";
 
 interface VocabularyCardProps {
   item: VocabularyItem;
@@ -57,7 +57,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
   const [loading, setLoading] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   // State mới cho Popover chi tiết (nếu cần control open state, ở đây để tự động)
-  
+
   const currentTopic = useMemo(() => {
     if (!item.topicId) return null;
     return topics.find((t) => t.id === item.topicId);
@@ -216,7 +216,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                   </div>
                 </PopoverTrigger>
                 <PopoverContent
-                  className="w-max p-4"
+                  className="w-max"
                   align="end"
                   onClick={(e) => e.stopPropagation()}
                 >
@@ -255,9 +255,9 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                       <div className="font-semibold text-popover-foreground border-b border-border pb-1">
                         Note:
                       </div>
-                      <p className="text-popover-foreground/80 italic leading-relaxed">
-                        <DisplayText text={item.example}/>
-                      </p>
+                      <div className="text-popover-foreground/80 italic leading-relaxed">
+                        <DisplayText text={item.example} />
+                      </div>
                     </PopoverContent>
                   </Popover>
                 ) : (
@@ -298,8 +298,11 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                 {/* Lớp Overlay chỉ hiện khi hover và đang bị ẩn (showMeaning = false) */}
                 {!showMeaning && item.meaning && (
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/meaning:opacity-100 transition-opacity duration-200 z-10">
-                     {/* Icon báo hiệu có thể click để xem */}
-                     <Eye size={18} className="text-primary/70 bg-background/80 rounded-full p-0.5 shadow-sm" />
+                    {/* Icon báo hiệu có thể click để xem */}
+                    <Eye
+                      size={18}
+                      className="text-primary/70 bg-background/80 rounded-full p-0.5 shadow-sm"
+                    />
                   </div>
                 )}
               </div>
@@ -335,12 +338,15 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                   </Tooltip>
                 </TooltipProvider>
 
-                <PopoverContent 
-                    side="top" 
-                    className="w-80 p-4"
-                    onClick={(e) => e.stopPropagation()}
+                <PopoverContent
+                  side="top"
+                  className="w-max p-4"
+                  onClick={(e) => e.stopPropagation()}
                 >
-                   <VocabularyDetailContent item={item} topic={currentTopic || undefined} />
+                  <VocabularyDetailContent
+                    item={item}
+                    topic={currentTopic || undefined}
+                  />
                 </PopoverContent>
               </Popover>
 

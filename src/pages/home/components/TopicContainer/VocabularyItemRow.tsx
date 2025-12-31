@@ -28,8 +28,8 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { useMemo, useState } from "react";
-import { EditPopoverContent } from "../common/EditPopoverContent";
 import { VocabularyDetailContent } from "../common/VocabularyDetailContent";
+import { EditPopoverContent } from "../EditPopoverContent";
 
 interface VocabularyItemRowProps {
   word: VocabularyItem;
@@ -247,7 +247,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
           <PopoverContent
             align="center"
             side="right"
-            className="w-max p-4"
+            className="w-max"
             onClick={(e) => e.stopPropagation()}
           >
             <EditPopoverContent
@@ -284,7 +284,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
           <PopoverContent
             align="center"
             side="right"
-            className="w-80 p-4"
+            className="w-max p-4"
             onClick={(e) => e.stopPropagation()}
           >
             <VocabularyDetailContent

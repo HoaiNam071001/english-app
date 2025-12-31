@@ -1,3 +1,27 @@
+import { AccentType } from "./dictionary";
+
+export * from "./dictionary";
+export enum PartOfSpeech {
+  NOUN = "noun",
+  VERB = "verb",
+  ADJECTIVE = "adjective",
+  ADVERB = "adverb",
+  PRONOUN = "pronoun",
+  PREPOSITION = "preposition",
+  CONJUNCTION = "conjunction",
+  INTERJECTION = "interjection",
+  PHRASAL_VERB = "phrasal verb", // API hay trả về cái này
+  IDIOM = "idiom",
+  OTHER = "other",
+}
+
+// 2. Sub-type cho IPA
+export interface PhoneticItem {
+  text: string; // Ví dụ: /həˈləʊ/
+  audio?: string; // Link mp3 (Optional)
+  accent?: AccentType; // Field mới
+}
+
 export interface VocabularyItem {
   id?: string; // ID từ Firestore (optional vì lúc tạo chưa có)
   text: string; // Từ tiếng Anh (hiển thị)
@@ -8,6 +32,8 @@ export interface VocabularyItem {
   isLearned?: boolean;
   example?: string;
   topicId?: string | null;
+  phonetics?: PhoneticItem[];
+  partOfSpeech?: PartOfSpeech[];
   userId: string;
 }
 
