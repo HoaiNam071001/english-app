@@ -122,7 +122,7 @@ export const LookupRow: React.FC<LookupRowProps> = ({
                   <span className="text-[10px] text-muted-foreground mr-1 uppercase">
                     {p.accent || "-"}
                   </span>
-                  /{p.text}/
+                  {p.text}
                 </div>
               ))}
             </label>

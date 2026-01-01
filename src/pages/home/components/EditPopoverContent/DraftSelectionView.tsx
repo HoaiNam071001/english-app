@@ -26,7 +26,7 @@ export const DraftSelectionView = ({
   // --- STATE ---
   const [selPhonetics, setSelPhonetics] = useState<boolean>(!origin.phonetics);
   const [selPos, setSelPos] = useState<PartOfSpeech[]>(
-    origin.partOfSpeech ? [] : draft.partOfSpeech || []
+    origin.partOfSpeech?.length ? [] : draft.partOfSpeech || []
   );
   const [selNoteIndices, setSelNoteIndices] = useState<number[]>([]);
 
@@ -104,7 +104,7 @@ export const DraftSelectionView = ({
                     <span className="text-[10px] mr-1 uppercase bg-muted px-1 rounded">
                       {p.accent || "-"}
                     </span>
-                    /{p.text}/
+                    {p.text}
                   </div>
                 ))}
               </div>
