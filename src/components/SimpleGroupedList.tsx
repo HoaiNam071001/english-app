@@ -33,14 +33,11 @@ export const SimpleGroupedList: React.FC<SimpleGroupedListProps> = ({
   const [scrollTop, setScrollTop] = useState<number>(0);
   const heightCache = useRef<Record<number, number>>({});
 
-  // 1. Làm phẳng danh sách (Flatten) để tính toán tọa độ
   const flatData = useMemo<FlatItem[]>(() => {
     const data: FlatItem[] = [];
     let counter = 0;
     groupCounts.forEach((count, gIdx) => {
-      // Thêm Header
       data.push({ type: "group", groupIndex: gIdx, originalIndex: counter++ });
-      // Thêm Items
       for (let i = 0; i < count; i++) {
         data.push({
           type: "item",
@@ -57,17 +54,14 @@ export const SimpleGroupedList: React.FC<SimpleGroupedListProps> = ({
     return heightCache.current[index] || estimateRowHeight;
   };
 
-  // 2. Tính tổng chiều cao
   const totalHeight = flatData.reduce(
     (sum, _, idx) => sum + getItemHeight(idx),
     0
   );
 
-  // 3. Tìm khoảng hiển thị
+  // Tìm startIndex dựa trên scrollTop
   let currentOffset = 0;
   let startIndex = 0;
-
-  // Tìm item bắt đầu hiển thị
   for (let i = 0; i < flatData.length; i++) {
     const h = getItemHeight(i);
     if (currentOffset + h > scrollTop) {
@@ -77,34 +71,31 @@ export const SimpleGroupedList: React.FC<SimpleGroupedListProps> = ({
     currentOffset += h;
   }
 
-  // Tìm item kết thúc (Render dư ra 3 item để scroll mượt)
   const containerHeight = containerRef.current?.clientHeight || 800;
   let endIndex = startIndex;
   let visibleHeight = 0;
-
   while (endIndex < flatData.length && visibleHeight < containerHeight + 200) {
     visibleHeight += getItemHeight(endIndex);
     endIndex++;
   }
 
-  // LOGIC STICKY HEADER:
-  // Luôn đảm bảo Header của group hiện tại được render để CSS sticky hoạt động
+  // LOGIC STICKY: Đảm bảo header của group hiện tại luôn được render
   const startItem = flatData[startIndex];
   let renderStartIndex = startIndex;
-
   if (startItem && startItem.type === "item") {
-    // Quay lui tìm header của group này
     for (let i = startIndex - 1; i >= 0; i--) {
-      const item = flatData[i];
-      if (item.type === "group" && item.groupIndex === startItem.groupIndex) {
+      if (
+        flatData[i].type === "group" &&
+        flatData[i].groupIndex === startItem.groupIndex
+      ) {
         renderStartIndex = i;
         break;
       }
     }
   }
 
-  // Tính padding để đẩy nội dung xuống đúng vị trí
-  const paddingTop = useMemo<number>(() => {
+  // Tính paddingTop bằng cách cộng dồn chiều cao các item phía trên renderStartIndex
+  const paddingTop = useMemo(() => {
     let padding = 0;
     for (let i = 0; i < renderStartIndex; i++) {
       padding += getItemHeight(i);
@@ -125,29 +116,37 @@ export const SimpleGroupedList: React.FC<SimpleGroupedListProps> = ({
       className={`overflow-y-auto h-full w-full relative ${className || ""}`}
     >
       <div style={{ height: totalHeight, position: "relative" }}>
-        <div style={{ transform: `translateY(${paddingTop}px)` }}>
-          {itemsToRender.map((item) => (
-            <div
-              key={item.originalIndex}
-              ref={(el) => {
-                if (el) {
-                  const h = el.getBoundingClientRect().height;
-                  // Cache chiều cao thật để tính toán chính xác lần sau
-                  if (heightCache.current[item.originalIndex] !== h) {
-                    heightCache.current[item.originalIndex] = h;
+        {/* THAY ĐỔI: Sử dụng padding thay vì transform để không làm hỏng sticky */}
+        <div style={{ paddingTop: `${paddingTop}px` }}>
+          {itemsToRender.map((item) => {
+            const isGroup = item.type === "group";
+            return (
+              <div
+                key={item.originalIndex}
+                className={isGroup ? "sticky top-0 z-10" : "relative"}
+                style={isGroup ? { backgroundColor: "var(--background)" } : {}}
+                ref={(el) => {
+                  if (el) {
+                    const h = el.getBoundingClientRect().height;
+                    if (
+                      heightCache.current[item.originalIndex] !== h &&
+                      h > 0
+                    ) {
+                      heightCache.current[item.originalIndex] = h;
+                    }
                   }
-                }
-              }}
-            >
-              {item.type === "group"
-                ? groupContent(item.groupIndex)
-                : itemContent(
-                    item.originalIndex,
-                    item.groupIndex,
-                    item.itemIndex
-                  )}
-            </div>
-          ))}
+                }}
+              >
+                {isGroup
+                  ? groupContent(item.groupIndex)
+                  : itemContent(
+                      item.originalIndex,
+                      item.groupIndex,
+                      item.itemIndex
+                    )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
