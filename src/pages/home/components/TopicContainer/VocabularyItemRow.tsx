@@ -28,8 +28,8 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { EditVocabularyModal } from "../common/EditVocabularyModal";
 import { VocabularyDetailContent } from "../common/VocabularyDetailContent";
-import { EditPopoverContent } from "../EditPopoverContent";
 
 interface VocabularyItemRowProps {
   word: VocabularyItem;
@@ -59,7 +59,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
   onRemoveFromPractice,
 }) => {
   const { topics } = useTopics();
-  const [isEditPopoverOpen, setIsEditPopoverOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   // Tìm Topic hiện tại của từ
   const currentTopic = useMemo(() => {
@@ -108,7 +108,6 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
         />
       </div>
 
-      {/* Main Content Area - KHÔNG CÒN Click để Edit */}
       <div className="flex-1 min-w-0 pb-1 cursor-default">
         <div className="flex items-center gap-2">
           {/* Learned Status Icon */}
@@ -223,41 +222,16 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
         </TooltipProvider>
 
         {/* 3. [NEW] Edit Button (Moved here) */}
-        <Popover open={isEditPopoverOpen} onOpenChange={setIsEditPopoverOpen}>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 rounded-full text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <PenLine size={14} />
-                  </Button>
-                </PopoverTrigger>
-              </TooltipTrigger>
-              <TooltipContent side="top">
-                <p className="text-xs">Edit word</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          <PopoverContent
-            align="center"
-            side="right"
-            className="w-max"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <EditPopoverContent
-              word={word}
-              onSave={onUpdate}
-              onDelete={onDelete}
-              onClose={() => setIsEditPopoverOpen(false)}
-            />
-          </PopoverContent>
-        </Popover>
+        <div
+          className="p-1.5 rounded-full hover:bg-accent text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsEditOpen(true);
+          }}
+          title="Edit word"
+        >
+          <PenLine size={14} />
+        </div>
 
         {/* 4. Detail Info Button */}
         <Popover>
@@ -339,6 +313,17 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
           </TooltipProvider>
         )}
       </div>
+
+      {/* 1. COMPONENT EDIT MODAL RIÊNG BIỆT */}
+      {isEditOpen && (
+        <EditVocabularyModal
+          open={isEditOpen}
+          onOpenChange={setIsEditOpen}
+          word={word}
+          onSave={onUpdate}
+          onDelete={onDelete}
+        />
+      )}
     </div>
   );
 };

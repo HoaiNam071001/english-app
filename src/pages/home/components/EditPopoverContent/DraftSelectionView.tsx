@@ -40,7 +40,7 @@ export const DraftSelectionView = ({
   };
 
   return (
-    <div className="w-[350px] min-h-[400px] max-h-[400px] overflow-auto flex flex-col h-full animate-in slide-in-from-right-4 duration-200">
+    <div className="w-[500px] min-h-[500px] max-h-[500px] overflow-auto flex flex-col h-full animate-in slide-in-from-right-4 duration-200">
       <div className="flex items-center gap-2 pb-2 border-b mb-2">
         <Button
           variant="ghost"
@@ -122,7 +122,7 @@ export const DraftSelectionView = ({
         )}
       </div>
 
-      <div className="pt-2 border-t mt-2 flex justify-end gap-2">
+      <div className="pt-4 border-t mt-2 flex justify-end gap-2">
         <Button
           variant="ghost"
           size="sm"

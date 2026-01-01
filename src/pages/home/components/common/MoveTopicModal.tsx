@@ -1,11 +1,4 @@
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { CommonModal } from "@/components/CommonModal";
 import { FolderInput } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import TopicSelector from "./TopicSelector";
@@ -14,7 +7,7 @@ interface MoveTopicModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   selectedCount: number;
-  onConfirm: (topicId: string | undefined) => void;
+  onConfirm: (topicId: string | null) => void; // Sửa lại type null cho khớp state
 }
 
 const MoveTopicModal: React.FC<MoveTopicModalProps> = ({
@@ -23,7 +16,8 @@ const MoveTopicModal: React.FC<MoveTopicModalProps> = ({
   selectedCount,
   onConfirm,
 }) => {
-  const [targetTopicId, setTargetTopicId] = useState<string>(null);
+  // Dùng null thay vì string | null để rõ ràng trạng thái ban đầu
+  const [targetTopicId, setTargetTopicId] = useState<string | null>(null);
 
   // Reset state khi mở modal
   useEffect(() => {
@@ -33,40 +27,31 @@ const MoveTopicModal: React.FC<MoveTopicModalProps> = ({
   }, [open]);
 
   const handleConfirm = () => {
-    const finalTopicId = targetTopicId;
-    onConfirm(finalTopicId);
+    onConfirm(targetTopicId);
     onOpenChange(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[400px]">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <FolderInput size={20} className="text-blue-600" />
-            Assign Topic to {selectedCount} words
-          </DialogTitle>
-        </DialogHeader>
-
-        <div className="py-4 space-y-3">
-          <p className="text-sm text-muted-foreground">
-            Select the topic you want to assign to the selected words:
-          </p>
-          <TopicSelector
-            value={targetTopicId}
-            onChange={setTargetTopicId}
-            placeholder="-- Uncategorized --"
-          />
-        </div>
-
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleConfirm}>Confirm</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <CommonModal
+      open={open}
+      onOpenChange={onOpenChange}
+      title={`Assign Topic to ${selectedCount} words`}
+      icon={<FolderInput size={20} className="text-blue-600" />}
+      onConfirm={handleConfirm}
+      confirmText="Assign"
+      // disableConfirm={!targetTopicId} // Bật dòng này nếu bắt buộc phải chọn mới được bấm
+    >
+      <div className="space-y-3 py-2">
+        <p className="text-sm text-muted-foreground">
+          Select the topic you want to assign to the selected words:
+        </p>
+        <TopicSelector
+          value={targetTopicId}
+          onChange={setTargetTopicId}
+          placeholder="-- Uncategorized --"
+        />
+      </div>
+    </CommonModal>
   );
 };
 

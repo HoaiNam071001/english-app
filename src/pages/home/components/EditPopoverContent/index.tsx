@@ -128,21 +128,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
 
   // 3. Màn hình EDIT CHÍNH
   return (
-    <div className="w-[350px] min-h-[400px] max-h-[400px] pr-1 flex flex-col">
-      {/* Header Compact */}
-      <div className="flex items-center justify-between pb-1 border-b">
-        <h4 className="font-semibold text-sm">Edit Vocabulary</h4>
-        {/* Nút delete nhỏ ở header */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="h-6 w-6 text-muted-foreground hover:text-destructive"
-          onClick={() => setShowDeleteConfirm(true)}
-        >
-          <Trash2 size={14} />
-        </Button>
-      </div>
-
+    <div className="w-[500px] min-h-[500px] max-h-[500px] pr-1 flex flex-col">
       <div className="flex-1 overflow-auto gap-2 flex flex-col my-2">
         {/* 1. WORD & FIND */}
         <div className="space-y-1">
@@ -304,11 +290,19 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
       </div>
 
       {/* FOOTER ACTIONS */}
-      <div className="flex justify-end gap-2 pt-2 mt-1 border-t">
+      <div className="flex justify-end gap-2 pt-4 mt-1 border-t">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-6 w-6 text-muted-foreground hover:text-destructive"
+          onClick={() => setShowDeleteConfirm(true)}
+        >
+          <Trash2 size={14} />
+        </Button>
         <Button
           variant="outline"
           size="sm"
-          className="h-7 text-xs"
+          className="h-7 text-xs ml-auto"
           onClick={onClose}
         >
           Cancel
