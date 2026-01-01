@@ -4,7 +4,7 @@ import { PartOfSpeech, VocabularyItem, WordData } from "@/types";
 import { formatNoteForSave, transformApiData } from "@/utils/vocabularyUtils";
 import { ArrowLeft, Check } from "lucide-react";
 import { useMemo, useState } from "react";
-import { EnMeaningSelector } from "../common/EnMeaningSelector";
+import { EnMeaningSelector } from "../Lookup/EnMeaningSelector";
 
 interface DraftSelectionViewProps {
   // Nhận vào Raw Data từ API

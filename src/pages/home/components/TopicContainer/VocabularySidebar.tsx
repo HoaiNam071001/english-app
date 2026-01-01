@@ -40,7 +40,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { VocabularyItem } from "@/types";
-import { BulkLookupModal } from "../common/BulkLookupModal";
+import { BulkLookupModal } from "../Lookup/BulkLookupModal";
 import MoveTopicModal from "../common/MoveTopicModal"; // <--- Import Component Mới
 import { VocabularyItemRow } from "./VocabularyItemRow";
 
