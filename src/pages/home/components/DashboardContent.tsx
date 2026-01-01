@@ -7,7 +7,7 @@ import TopicList from "@/pages/home/components/TopicContainer/TopicList";
 import VocabularySidebar from "@/pages/home/components/TopicContainer/VocabularySidebar";
 import { UserProfile, VocabularyItem } from "@/types";
 import { ChevronLeft, PanelLeftClose, PanelLeftOpen } from "lucide-react";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import CardContainer, { CardContainerRef } from "./CardContainer";
 
 interface DashboardContentProps {
@@ -32,10 +32,17 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
     markAsLearned,
     addVocabulary,
     bulkUpdateWords,
+    batchUpdateWords,
   } = useVocabulary();
   const [mappingActiveWords, setMappingActiveWords] = useState<Set<string>>(
     new Set()
   );
+
+  useEffect(() => {
+    console.log("Fetching all words...");
+    fetchAllWords();
+  }, [user]);
+
   const { topics, addTopic, deleteTopic, updateTopic } = useTopics();
 
   // Handle: Sidebar -> CardContainer
@@ -160,6 +167,7 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
                   onDelete={deleteWord}
                   onToggleLearned={toggleLearnedStatus}
                   onBulkMarkLearned={bulkMarkLearned}
+                  batchUpdateWords={batchUpdateWords}
                   onRemoveFromPractice={(value) =>
                     handleRemoveWordsToPractice([value])
                   }

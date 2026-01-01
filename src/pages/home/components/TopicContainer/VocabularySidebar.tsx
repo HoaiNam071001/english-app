@@ -39,7 +39,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { VocabularyItem } from "@/types";
+import { BatchUpdateVocabularyItem, VocabularyItem } from "@/types";
 import { BulkLookupModal } from "../Lookup/BulkLookupModal";
 import MoveTopicModal from "../common/MoveTopicModal"; // <--- Import Component Mới
 import { VocabularyItemRow } from "./VocabularyItemRow";
@@ -58,6 +58,7 @@ interface VocabularySidebarProps {
   onToggleLearned: (id: string, currentStatus: boolean) => void;
   onBulkMarkLearned?: (ids: string[], status: boolean) => void;
   onBulkUpdate?: (ids: string[], updates: Partial<VocabularyItem>) => void;
+  batchUpdateWords?: (updates: BatchUpdateVocabularyItem[]) => void;
 }
 
 const formatDateGroup = (dateString: string) => {
@@ -82,6 +83,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
   onRemoveFromPractice,
   onBulkMarkLearned,
   onBulkUpdate,
+  batchUpdateWords,
 }) => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [revealedIds, setRevealedIds] = useState<Set<string>>(new Set());
@@ -251,15 +253,6 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
     setLastSelectedId(null); // Reset last click để tránh lỗi shift-click
   };
 
-  const handleBulkLookupApply = (
-    id: string,
-    updates: Partial<VocabularyItem>
-  ) => {
-    if (onUpdateWord) {
-      onUpdateWord(id, updates);
-    }
-  };
-
   return (
     <div className="flex flex-col bg-card border-r pr-4 h-full overflow-y-hidden">
       {/* 1. COMPONENT MODAL (Đặt ở ngoài cùng để không bị lỗi z-index) */}
@@ -274,7 +267,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
         open={isBulkLookupOpen}
         onOpenChange={setIsBulkLookupOpen}
         selectedWords={selectedWords} // List các từ đang được chọn
-        onApplyUpdates={handleBulkLookupApply}
+        onApplyUpdates={batchUpdateWords}
       />
 
       {/* SEARCH BAR */}

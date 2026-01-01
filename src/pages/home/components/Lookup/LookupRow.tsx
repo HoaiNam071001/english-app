@@ -11,7 +11,6 @@ interface LookupRowProps {
   selection: ItemSelection | undefined;
   onUpdateSelection: (sel: ItemSelection) => void;
   onToggleRow: (checked: boolean) => void;
-  onApply: () => void;
   onIgnore: () => void;
 }
 
@@ -41,20 +40,20 @@ export const LookupRow: React.FC<LookupRowProps> = ({
     return (
       <tr className="bg-red-50/30 dark:bg-red-900/10">
         <td className="p-3 font-bold text-destructive border-r flex items-center gap-2">
-          <X size={14} /> {original.text}
+          {original.text}
         </td>
         <td colSpan={3} className="p-3 text-xs text-muted-foreground italic">
-          No data found.
-        </td>
-        <td className="p-3 text-center sticky right-0 bg-background/50">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6"
-            onClick={onIgnore}
-          >
-            <X size={14} />
-          </Button>
+          <div className="flex items-center">
+            No data found.
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 ml-auto"
+              onClick={onIgnore}
+            >
+              <X size={14} />
+            </Button>
+          </div>
         </td>
       </tr>
     );

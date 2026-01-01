@@ -2,7 +2,11 @@ import { CommonModal } from "@/components/CommonModal";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useDictionary } from "@/hooks/useDictionary";
-import { PartOfSpeech, VocabularyItem } from "@/types";
+import {
+  BatchUpdateVocabularyItem,
+  PartOfSpeech,
+  VocabularyItem,
+} from "@/types";
 import {
   formatNoteForSave,
   ProcessedDraft,
@@ -36,7 +40,7 @@ interface BulkLookupModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   selectedWords: VocabularyItem[];
-  onApplyUpdates: (id: string, updates: Partial<VocabularyItem>) => void;
+  onApplyUpdates: (updates: BatchUpdateVocabularyItem[]) => void;
 }
 
 // --- MAIN COMPONENT ---
@@ -111,7 +115,7 @@ export const BulkLookupModal: React.FC<BulkLookupModalProps> = ({
 
   // --- ACTIONS ---
 
-  const handleApplyRow = (id: string) => {
+  const getUpdates = (id: string) => {
     const res = results.find((r) => r.original.id === id);
     const sel = selections[id];
     if (!res || !res.draft || !sel) return;
@@ -133,15 +137,7 @@ export const BulkLookupModal: React.FC<BulkLookupModalProps> = ({
       );
       updates.example = formatNoteForSave(selectedMeanings);
     }
-
-    onApplyUpdates(id, updates);
-
-    setResults((prev) => prev.filter((r) => r.original.id !== id));
-    setSelections((prev) => {
-      const next = { ...prev };
-      delete next[id];
-      return next;
-    });
+    return updates;
   };
 
   const handleIgnoreRow = (id: string) => {
@@ -154,13 +150,15 @@ export const BulkLookupModal: React.FC<BulkLookupModalProps> = ({
   };
 
   const handleApplySelectedAll = () => {
-    const idsToProcess = results
+    const updates = results
       .filter(
         (r) => r.status === "found" && selections[r.original.id]?.rowSelected
       )
-      .map((r) => r.original.id);
-
-    idsToProcess.forEach((id) => handleApplyRow(id));
+      .map((r) => ({
+        id: r.original.id,
+        updates: getUpdates(r.original.id),
+      }));
+    onApplyUpdates(updates);
     onOpenChange(false);
   };
   // --- TOGGLE LOGIC ---
@@ -366,7 +364,6 @@ export const BulkLookupModal: React.FC<BulkLookupModalProps> = ({
                     }))
                   }
                   onToggleRow={(c) => toggleRow(item.original.id, c)}
-                  onApply={() => handleApplyRow(item.original.id)}
                   onIgnore={() => handleIgnoreRow(item.original.id)}
                 />
               ))}

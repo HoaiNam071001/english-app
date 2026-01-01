@@ -1,8 +1,8 @@
 import { FirebaseVocabularyService } from "@/services/vocabulary/firebase.adapter";
 import { GuestVocabularyService } from "@/services/vocabulary/guest.adapter";
 import { IVocabularyService } from "@/services/vocabulary/types";
-import { AddReport, VocabularyItem } from "@/types";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { AddReport, BatchUpdateVocabularyItem, VocabularyItem } from "@/types";
+import { useCallback, useMemo, useState } from "react";
 import { useAuth } from "./useAuth";
 import { useToast } from "./useToast";
 
@@ -31,10 +31,6 @@ export const useVocabulary = () => {
       setLoading(false);
     }
   }, [service]);
-
-  useEffect(() => {
-    fetchAllWords();
-  }, [fetchAllWords]);
 
   const addVocabulary = async (
     newEntries: Partial<VocabularyItem>[]
@@ -153,6 +149,65 @@ export const useVocabulary = () => {
     }
   };
 
+  const batchUpdateWords = async (items: BatchUpdateVocabularyItem[]) => {
+    setAllWords((prev) => {
+      const updatesMap = new Map(items.map((item) => [item.id, item.updates]));
+      const newVal = prev.map((w) => {
+        const specificUpdate = updatesMap.get(w.id);
+        return specificUpdate ? { ...w, ...specificUpdate } : w;
+      });
+      return newVal;
+    });
+
+    try {
+      const results = await Promise.allSettled(
+        items.map((item) => service.update(item.id, item.updates))
+      );
+
+      let successCount = 0;
+      const failedItems: { id: string; reason: unknown }[] = [];
+
+      // 3. Phân tích kết quả
+      results.forEach((result, index) => {
+        if (result.status === "fulfilled") {
+          successCount++;
+        } else {
+          // Lấy ID của item bị lỗi dựa vào index (vì Promise.allSettled giữ đúng thứ tự)
+          const itemId = items[index].id;
+          failedItems.push({ id: itemId, reason: result.reason });
+
+          // Log lỗi chi tiết ra console
+          console.error(`Batch update failed for ID ${itemId}:`, result.reason);
+        }
+      });
+
+      // 4. Hiển thị thông báo (Toast)
+      const total = items.length;
+
+      if (failedItems.length === 0) {
+        // Case 1: Thành công toàn bộ
+        toast.success(`Updated all ${total} words successfully!`);
+      } else if (successCount === 0) {
+        // Case 2: Thất bại toàn bộ
+        toast.error(`Failed to update all ${total} words. Please try again.`);
+        // Reload lại dữ liệu thật từ server để revert optimistic update
+        void fetchAllWords();
+      } else {
+        // Case 3: Thành công 1 phần (Warning)
+        toast.warning(
+          `Updated ${successCount}/${total} words. ${failedItems.length} failed.`
+        );
+        // Reload lại dữ liệu để những item bị fail hiển thị lại đúng trạng thái cũ
+        void fetchAllWords();
+      }
+    } catch (error) {
+      // Lỗi hệ thống nghiêm trọng (rất hiếm khi xảy ra với allSettled trừ khi code crash)
+      console.error("Critical batch update error:", error);
+      toast.error("Batch update encountered a critical error.");
+      void fetchAllWords();
+    }
+  };
+
   return {
     allWords,
     loading,
@@ -165,5 +220,6 @@ export const useVocabulary = () => {
     bulkMarkLearned,
     markAsLearned,
     bulkUpdateWords,
+    batchUpdateWords,
   };
 };

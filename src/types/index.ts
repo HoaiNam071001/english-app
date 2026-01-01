@@ -37,6 +37,11 @@ export interface VocabularyItem {
   userId: string;
 }
 
+export interface BatchUpdateVocabularyItem {
+  id: string;
+  updates: Partial<VocabularyItem>;
+}
+
 // Kiểu dữ liệu cho báo cáo sau khi thêm
 export interface AddReport {
   added: string[];
