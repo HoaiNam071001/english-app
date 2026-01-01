@@ -104,7 +104,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
         <Checkbox
           checked={isSelected}
           onCheckedChange={() => {}}
-          className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 pointer-events-none"
+          className="pointer-events-none"
         />
       </div>
 

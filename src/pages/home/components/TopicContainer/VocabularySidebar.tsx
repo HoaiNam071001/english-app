@@ -11,6 +11,7 @@ import {
   MoreHorizontal,
   RotateCcw,
   Search,
+  Sparkles,
   Trash2,
   X,
 } from "lucide-react";
@@ -39,6 +40,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { VocabularyItem } from "@/types";
+import { BulkLookupModal } from "../common/BulkLookupModal";
 import MoveTopicModal from "../common/MoveTopicModal"; // <--- Import Component Mới
 import { VocabularyItemRow } from "./VocabularyItemRow";
 
@@ -87,6 +89,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedTerm, setDebouncedTerm] = useState("");
   const [lastSelectedId, setLastSelectedId] = useState<string | null>(null);
+  const [isBulkLookupOpen, setIsBulkLookupOpen] = useState(false);
 
   // State điều khiển Modal Move Topic
   const [isMoveTopicModalOpen, setIsMoveTopicModalOpen] = useState(false);
@@ -223,7 +226,6 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
     const newSet = new Set(revealedIds);
     newSet.has(id) ? newSet.delete(id) : newSet.add(id);
     setRevealedIds(newSet);
-
   };
 
   const handleSelectDate = (dateKey: string) => {
@@ -249,6 +251,15 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
     setLastSelectedId(null); // Reset last click để tránh lỗi shift-click
   };
 
+  const handleBulkLookupApply = (
+    id: string,
+    updates: Partial<VocabularyItem>
+  ) => {
+    if (onUpdateWord) {
+      onUpdateWord(id, updates);
+    }
+  };
+
   return (
     <div className="flex flex-col bg-card border-r pr-4 h-full overflow-y-hidden">
       {/* 1. COMPONENT MODAL (Đặt ở ngoài cùng để không bị lỗi z-index) */}
@@ -257,6 +268,13 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
         onOpenChange={setIsMoveTopicModalOpen}
         selectedCount={selectedIds.size}
         onConfirm={confirmBulkMove}
+      />
+
+      <BulkLookupModal
+        open={isBulkLookupOpen}
+        onOpenChange={setIsBulkLookupOpen}
+        selectedWords={selectedWords} // List các từ đang được chọn
+        onApplyUpdates={handleBulkLookupApply}
       />
 
       {/* SEARCH BAR */}
@@ -292,7 +310,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
           />
           <span className="text-sm font-semibold text-card-foreground">
             {selectedIds.size > 0
-              ? `${selectedIds.size} selected`
+              ? `(${selectedIds.size})`
               : `List (${filteredWords.length})`}
           </span>
         </div>
@@ -314,6 +332,22 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>Deselect all</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setIsBulkLookupOpen(true)}
+                      className="h-8 w-8 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950"
+                    >
+                      <Sparkles size={16} />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Find & fill missing fields</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
 

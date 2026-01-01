@@ -12,8 +12,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { useDictionary } from "@/hooks/useDictionary";
 import { useToast } from "@/hooks/useToast";
-import { AccentType, PartOfSpeech, VocabularyItem } from "@/types";
-import { mapApiToVocabularyItem } from "@/utils/vocabularyHelper";
+import { AccentType, PartOfSpeech, VocabularyItem, WordData } from "@/types"; // Import WordData
 import { ChevronDown, Loader2, Plus, Save, Search, Trash2 } from "lucide-react";
 import React, { useState } from "react";
 import TopicSelector from "../common/TopicSelector";
@@ -36,7 +35,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
   const { lookupWords, loading: apiLoading } = useDictionary();
   const toast = useToast();
 
-  // State chính
+  // State Form
   const [form, setForm] = useState<Partial<VocabularyItem>>({
     text: word.text,
     meaning: word.meaning,
@@ -46,23 +45,18 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
     partOfSpeech: word.partOfSpeech || [],
   });
 
-  // State Draft: Nếu có data -> Hiện màn hình chọn field
-  const [draft, setDraft] = useState<Partial<VocabularyItem> | null>(null);
+  // State Draft: Lưu WordData thô từ API
+  const [draft, setDraft] = useState<WordData | null>(null);
+
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // --- HANDLERS ---
-  const handleSave = () => {
-    if (!word.id) return;
-    onSave(word.id, form);
-    onClose();
-  };
-
   const handleFind = async () => {
     if (!form.text) return;
     const results = await lookupWords([form.text]);
+
     if (results && results.length > 0) {
-      const newDraft = mapApiToVocabularyItem({}, results[0]);
-      setDraft(newDraft); // Trigger chuyển màn hình sang Draft Selection
+      setDraft(results[0]);
     } else {
       toast.error("Word not found");
     }
@@ -77,9 +71,14 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
     }
   };
 
+  const handleSave = () => {
+    if (!word.id) return;
+    onSave(word.id, form);
+    onClose();
+  };
+
   // --- RENDERS ---
 
-  // 1. Màn hình DELETE CONFIRM
   if (showDeleteConfirm) {
     return (
       <div className="space-y-3 w-72">
@@ -111,12 +110,12 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
     );
   }
 
-  // 2. Màn hình DRAFT SELECTION (Overlay)
+  // Màn hình DRAFT SELECTION
   if (draft) {
     return (
       <DraftSelectionView
-        draft={draft}
-        currentForm={form}
+        data={draft} // Truyền raw WordData vào đây
+        origin={form}
         onApply={(selectedData) => {
           setForm((prev) => ({ ...prev, ...selectedData }));
           setDraft(null);
@@ -126,11 +125,11 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
     );
   }
 
-  // 3. Màn hình EDIT CHÍNH
+  // Màn hình EDIT CHÍNH
   return (
-    <div className="w-[500px] min-h-[500px] max-h-[500px] pr-1 flex flex-col">
+    <div className="w-[500px] min-h-[500px] max-h-[600px] pr-1 flex flex-col">
       <div className="flex-1 overflow-auto gap-2 flex flex-col my-2">
-        {/* 1. WORD & FIND */}
+        {/* WORD & FIND */}
         <div className="space-y-1">
           <Label htmlFor="text" className="text-xs text-muted-foreground">
             Word
@@ -160,7 +159,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
           </div>
         </div>
 
-        {/* 2. PART OF SPEECH */}
+        {/* PART OF SPEECH */}
         <div className="space-y-1">
           <Label className="text-xs text-muted-foreground">
             Part of Speech
@@ -206,7 +205,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
           </DropdownMenu>
         </div>
 
-        {/* 3. PHONETICS (List Rows) */}
+        {/* PHONETICS */}
         <div className="space-y-1">
           <div className="flex items-center justify-between">
             <Label className="text-xs text-muted-foreground">Phonetics</Label>
@@ -227,7 +226,6 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
               <Plus size={14} />
             </Button>
           </div>
-
           <div className="space-y-1">
             {form.phonetics?.map((pho, index) => (
               <PhoneticRow
@@ -252,7 +250,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
           </div>
         </div>
 
-        {/* 4. MEANING */}
+        {/* MEANING */}
         <div className="space-y-1">
           <Label htmlFor="meaning" className="text-xs text-muted-foreground">
             Meaning (VN)
@@ -265,7 +263,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
           />
         </div>
 
-        {/* 5. TOPIC */}
+        {/* TOPIC */}
         <div className="space-y-1">
           <Label className="text-xs text-muted-foreground">Topic</Label>
           <TopicSelector
@@ -274,13 +272,13 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
           />
         </div>
 
-        {/* 6. EXAMPLE */}
+        {/* NOTE */}
         <div className="space-y-1">
-          <Label htmlFor="example" className="text-xs text-muted-foreground">
-            Example
+          <Label htmlFor="note" className="text-xs text-muted-foreground">
+            Note
           </Label>
           <Textarea
-            id="example"
+            id="note"
             value={form.example}
             onChange={(e) => setForm({ ...form, example: e.target.value })}
             className="text-xs min-h-[50px] leading-snug"
@@ -289,7 +287,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
         </div>
       </div>
 
-      {/* FOOTER ACTIONS */}
+      {/* FOOTER */}
       <div className="flex justify-end gap-2 pt-4 mt-1 border-t">
         <Button
           variant="ghost"

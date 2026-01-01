@@ -1,46 +1,69 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { VocabularyItem } from "@/types";
+import { PartOfSpeech, VocabularyItem, WordData } from "@/types";
+import { formatNoteForSave, transformApiData } from "@/utils/vocabularyUtils";
 import { ArrowLeft, Check } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { EnMeaningSelector } from "../common/EnMeaningSelector";
 
-export const DraftSelectionView = ({
-  draft,
-  currentForm,
-  onApply,
-  onCancel,
-}: {
-  draft: Partial<VocabularyItem>;
-  currentForm: Partial<VocabularyItem>;
+interface DraftSelectionViewProps {
+  // Nhận vào Raw Data từ API
+  data: WordData;
+  origin: Partial<VocabularyItem>;
   onApply: (selected: Partial<VocabularyItem>) => void;
   onCancel: () => void;
-}) => {
-  // State lưu các field được chọn (Mặc định chọn hết các field có data từ API)
-  const [selection, setSelection] = useState<Record<string, boolean>>({
-    partOfSpeech: true,
-    phonetics: true,
-    meaning: !!draft.meaning, // Chỉ auto-check nếu có data
-    example: !!draft.example && !currentForm.example,
-  });
+}
 
-  const toggleSelect = (key: string) => {
-    setSelection((prev) => ({ ...prev, [key]: !prev[key] }));
+export const DraftSelectionView = ({
+  data,
+  origin,
+  onApply,
+  onCancel,
+}: DraftSelectionViewProps) => {
+  // 1. Transform raw data thành cấu trúc để hiển thị
+  const draft = useMemo(() => transformApiData(data), [data]);
+
+  // --- STATE ---
+  const [selPhonetics, setSelPhonetics] = useState<boolean>(!origin.phonetics);
+  const [selPos, setSelPos] = useState<PartOfSpeech[]>(
+    origin.partOfSpeech ? [] : draft.partOfSpeech || []
+  );
+  const [selNoteIndices, setSelNoteIndices] = useState<number[]>([]);
+
+  // --- HANDLERS ---
+  const togglePos = (pos: PartOfSpeech) => {
+    setSelPos((prev) =>
+      prev.includes(pos) ? prev.filter((p) => p !== pos) : [...prev, pos]
+    );
   };
 
   const handleApply = () => {
     const finalData: Partial<VocabularyItem> = {};
-    if (selection.partOfSpeech && draft.partOfSpeech?.length)
-      finalData.partOfSpeech = draft.partOfSpeech;
-    if (selection.phonetics && draft.phonetics?.length)
+
+    // Apply Phonetics
+    if (selPhonetics && draft.phonetics?.length) {
       finalData.phonetics = draft.phonetics;
-    if (selection.meaning && draft.meaning) finalData.meaning = draft.meaning;
-    if (selection.example && draft.example) finalData.example = draft.example;
+    }
+
+    // Apply POS
+    if (selPos.length > 0) {
+      finalData.partOfSpeech = selPos;
+    }
+
+    // Logic Note
+    if (draft.enMeanings && selNoteIndices.length > 0) {
+      const selectedMeanings = draft.enMeanings.filter((_, i) =>
+        selNoteIndices.includes(i)
+      );
+      finalData.example = formatNoteForSave(selectedMeanings);
+    }
 
     onApply(finalData);
   };
 
   return (
-    <div className="w-[500px] min-h-[500px] max-h-[500px] overflow-auto flex flex-col h-full animate-in slide-in-from-right-4 duration-200">
+    <div className="w-[500px] min-h-[500px] max-h-[600px] flex flex-col h-full animate-in slide-in-from-right-4 duration-200 bg-background">
+      {/* HEADER */}
       <div className="flex items-center gap-2 pb-2 border-b mb-2">
         <Button
           variant="ghost"
@@ -53,75 +76,93 @@ export const DraftSelectionView = ({
         <h4 className="font-semibold text-sm">Select Data to Apply</h4>
       </div>
 
-      <div className="flex-1 overflow-y-auto space-y-3 pr-1">
-        <p className="text-[10px] text-muted-foreground mb-2">
-          Check the fields you want to override from Search Result.
+      {/* BODY */}
+      <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+        <p className="text-[10px] text-muted-foreground">
+          Select individual fields to override your current data.
         </p>
 
-        {/* --- Field Items --- */}
-
-        {/* Part Of Speech */}
-        {!!draft.partOfSpeech?.length && (
-          <SelectionItem
-            label="Part of Speech"
-            checked={selection.partOfSpeech}
-            onToggle={() => toggleSelect("partOfSpeech")}
-            content={
-              <div className="text-xs">
-                {draft.partOfSpeech?.join(", ") || "None"}
-              </div>
-            }
-          />
-        )}
-
-        {/* Phonetics */}
-        {!!draft.phonetics?.length && (
-          <SelectionItem
-            label="Phonetics"
-            checked={selection.phonetics}
-            onToggle={() => toggleSelect("phonetics")}
-            content={
+        {/* 1. PHONETICS */}
+        {draft.phonetics.length > 0 && (
+          <div
+            className={`flex items-start gap-3 p-2 rounded-md border cursor-pointer transition-colors ${
+              selPhonetics
+                ? "bg-background border-primary/30"
+                : "hover:bg-accent border-transparent"
+            }`}
+            onClick={() => setSelPhonetics(!selPhonetics)}
+          >
+            <Checkbox checked={selPhonetics} className="mt-1" />
+            <div className="flex-1 space-y-1">
+              <span className="text-xs font-semibold block">Phonetics</span>
               <div className="flex flex-col gap-1">
-                {draft.phonetics?.map((p, i) => (
-                  <div key={i} className="text-xs font-mono">
-                    <span className="text-muted-foreground text-[10px] mr-1 uppercase">
-                      {p.accent}
+                {draft.phonetics.map((p, i) => (
+                  <div
+                    key={i}
+                    className="text-xs font-mono text-muted-foreground"
+                  >
+                    <span className="text-[10px] mr-1 uppercase bg-muted px-1 rounded">
+                      {p.accent || "-"}
                     </span>
                     /{p.text}/
                   </div>
-                )) || <span className="italic">None</span>}
+                ))}
               </div>
-            }
-          />
+            </div>
+          </div>
         )}
 
-        {/* Meaning */}
-        {draft.meaning && (
-          <SelectionItem
-            label="Meaning (API)"
-            checked={selection.meaning}
-            onToggle={() => toggleSelect("meaning")}
-            content={
-              <div className="text-xs line-clamp-2">{draft.meaning}</div>
-            }
-          />
+        {/* 2. PART OF SPEECH */}
+        {draft.partOfSpeech.length > 0 && (
+          <div className="p-2 rounded-md border border-muted bg-muted/10">
+            <span className="text-xs font-semibold block mb-2">
+              Part of Speech
+            </span>
+            <div className="flex flex-col gap-2">
+              {draft.partOfSpeech.map((pos) => {
+                const isSelected = selPos.includes(pos);
+                return (
+                  <div
+                    key={pos}
+                    className="flex items-center gap-2 cursor-pointer"
+                    onClick={() => togglePos(pos)}
+                  >
+                    <Checkbox checked={isSelected} className="w-4 h-4" />
+                    <span
+                      className={`text-xs ${
+                        isSelected
+                          ? "text-blue-700 font-medium"
+                          : "text-muted-foreground"
+                      }`}
+                    >
+                      {pos}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         )}
 
-        {/* Example */}
-        {draft.example && (
-          <SelectionItem
-            label="Example"
-            checked={selection.example}
-            onToggle={() => toggleSelect("example")}
-            content={
-              <div className="text-xs italic line-clamp-3">
-                "{draft.example}"
-              </div>
-            }
-          />
+        {/* 3. NOTE / EXAMPLE */}
+        {draft.enMeanings && draft.enMeanings.length > 0 && (
+          <div className="p-2 rounded-md border border-muted bg-muted/10">
+            <div className="mb-2">
+              <span className="text-xs font-semibold">
+                Note (English Details)
+              </span>
+            </div>
+            <EnMeaningSelector
+              meanings={draft.enMeanings}
+              selectedIndices={selNoteIndices}
+              onSelectionChange={setSelNoteIndices}
+              idPrefix="draft-view"
+            />
+          </div>
         )}
       </div>
 
+      {/* FOOTER */}
       <div className="pt-4 border-t mt-2 flex justify-end gap-2">
         <Button
           variant="ghost"
@@ -138,18 +179,3 @@ export const DraftSelectionView = ({
     </div>
   );
 };
-
-const SelectionItem = ({ label, checked, onToggle, content }) => (
-  <div
-    className={`flex items-start gap-3 p-2 rounded-md border cursor-pointer transition-colors ${
-      checked ? "bg-background" : "hover:bg-accent"
-    }`}
-    onClick={onToggle}
-  >
-    <Checkbox checked={checked} className="mt-1" />
-    <div className="flex-1 space-y-1">
-      <span className="text-xs font-semibold block">{label}</span>
-      <div className="text-muted-foreground">{content}</div>
-    </div>
-  </div>
-);
