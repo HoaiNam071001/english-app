@@ -32,7 +32,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ScrollArea } from "@/components/ui/scroll-area";
+// Đã xóa ScrollArea import
+import { SimpleGroupedList } from "@/components/SimpleGroupedList";
 import {
   Tooltip,
   TooltipContent,
@@ -41,8 +42,9 @@ import {
 } from "@/components/ui/tooltip";
 import { BatchUpdateVocabularyItem, VocabularyItem } from "@/types";
 import { BulkLookupModal } from "../Lookup/BulkLookupModal";
-import MoveTopicModal from "../common/MoveTopicModal"; // <--- Import Component Mới
+import MoveTopicModal from "../common/MoveTopicModal";
 import { VocabularyItemRow } from "./VocabularyItemRow";
+// Import component ảo hóa vừa tạo
 
 moment.locale("vi");
 
@@ -71,6 +73,55 @@ const formatDateGroup = (dateString: string) => {
   return formatted.charAt(0).toUpperCase() + formatted.slice(1);
 };
 
+// --- Component Header Ngày (Tách ra để dùng trong List ảo) ---
+interface DateGroupHeaderProps {
+  dateKey: string;
+  count: number;
+  allSelected: boolean;
+  onSelect: () => void;
+}
+
+const DateGroupHeader = React.memo<DateGroupHeaderProps>(
+  ({ dateKey, count, allSelected, onSelect }) => {
+    return (
+      <div
+        onClick={onSelect}
+        title="Click to select all items in this date"
+        className={`
+        sticky top-0 z-20 px-2 py-2 mb-2
+        text-xs font-bold uppercase tracking-wider border-b border-border
+        flex items-center justify-between cursor-pointer transition-colors
+        bg-card/95 backdrop-blur-sm shadow-sm
+        ${
+          allSelected
+            ? "text-blue-700 dark:text-blue-400 bg-blue-50/90 dark:bg-blue-950/30"
+            : "text-blue-600 dark:text-blue-400"
+        }
+      `}
+      >
+        <div className="flex items-center gap-2">
+          <Checkbox
+            checked={allSelected}
+            className="h-4 w-4 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+          />
+          <span>{formatDateGroup(dateKey)}</span>
+        </div>
+        <span
+          className={`px-1.5 rounded-full text-[10px] ${
+            allSelected
+              ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+              : "bg-muted text-muted-foreground"
+          }`}
+        >
+          {count}
+        </span>
+      </div>
+    );
+  }
+);
+
+DateGroupHeader.displayName = "DateGroupHeader";
+
 const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
   allWords,
   activeWordIds,
@@ -92,9 +143,9 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
   const [debouncedTerm, setDebouncedTerm] = useState("");
   const [lastSelectedId, setLastSelectedId] = useState<string | null>(null);
   const [isBulkLookupOpen, setIsBulkLookupOpen] = useState(false);
-
-  // State điều khiển Modal Move Topic
   const [isMoveTopicModalOpen, setIsMoveTopicModalOpen] = useState(false);
+
+  const HEIGHT_ITEM = 65;
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -129,6 +180,11 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
     () => Object.keys(groupedWords).sort((a, b) => b.localeCompare(a)),
     [groupedWords]
   );
+
+  // Chuẩn bị dữ liệu đếm cho Virtual List
+  const groupCounts = useMemo(() => {
+    return sortedDateKeys.map((key) => groupedWords[key].length);
+  }, [sortedDateKeys, groupedWords]);
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -178,7 +234,6 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
   }, [selectedWords]);
 
   // --- ACTIONS HANDLERS ---
-
   const handleBulkMark = () => {
     if (onBulkMarkLearned) {
       const targetStatus = !isAllSelectedLearned;
@@ -196,7 +251,6 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
     setLastSelectedId(null);
   };
 
-  // Hàm xử lý xác nhận từ MoveTopicModal
   const confirmBulkMove = (topicId: string | undefined) => {
     if (!onBulkUpdate) return;
     onBulkUpdate(Array.from(selectedIds), { topicId: topicId });
@@ -231,31 +285,23 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
   };
 
   const handleSelectDate = (dateKey: string) => {
-    // 1. Lấy danh sách ID của các từ trong ngày đó
     const wordsInDate = groupedWords[dateKey] || [];
     const idsInDate = wordsInDate.map((w) => w.id);
-
-    // 2. Kiểm tra xem tất cả đã được chọn chưa
-    // (Nếu tất cả đã nằm trong selectedIds -> Tức là đang chọn full -> Cần bỏ chọn)
     const isAllSelected = idsInDate.every((id) => selectedIds.has(id));
-
     const newSet = new Set(selectedIds);
 
     if (isAllSelected) {
-      // Bỏ chọn tất cả item trong ngày này
       idsInDate.forEach((id) => newSet.delete(id));
     } else {
-      // Chọn tất cả item trong ngày này (Additive)
       idsInDate.forEach((id) => newSet.add(id));
     }
 
     setSelectedIds(newSet);
-    setLastSelectedId(null); // Reset last click để tránh lỗi shift-click
+    setLastSelectedId(null);
   };
 
   return (
-    <div className="flex flex-col bg-card border-r pr-4 h-full overflow-y-hidden">
-      {/* 1. COMPONENT MODAL (Đặt ở ngoài cùng để không bị lỗi z-index) */}
+    <div className="flex flex-col bg-card border-r pr-4 h-full overflow-hidden">
       <MoveTopicModal
         open={isMoveTopicModalOpen}
         onOpenChange={setIsMoveTopicModalOpen}
@@ -266,7 +312,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
       <BulkLookupModal
         open={isBulkLookupOpen}
         onOpenChange={setIsBulkLookupOpen}
-        selectedWords={selectedWords} // List các từ đang được chọn
+        selectedWords={selectedWords}
         onApplyUpdates={batchUpdateWords}
       />
 
@@ -311,7 +357,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
         <div className="flex gap-1 items-center">
           {selectedIds.size > 0 ? (
             <>
-              {/* Nút Deselect */}
+              {/* Deselect */}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -344,7 +390,6 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                 </Tooltip>
               </TooltipProvider>
 
-              {/* Nút Add to Practice */}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -361,7 +406,6 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                 </Tooltip>
               </TooltipProvider>
 
-              {/* Popup Delete Confirm */}
               <Popover
                 open={isBulkDeleteOpen}
                 onOpenChange={setIsBulkDeleteOpen}
@@ -400,7 +444,6 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                 </PopoverContent>
               </Popover>
 
-              {/* MENU ACTIONS GỘP */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -416,8 +459,6 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                     Actions ({selectedIds.size})
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-
-                  {/* Mark Learned/Unlearned */}
                   <DropdownMenuItem onClick={handleBulkMark}>
                     {isAllSelectedLearned ? (
                       <>
@@ -429,21 +470,17 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                       </>
                     )}
                   </DropdownMenuItem>
-
-                  {/* 2. GỌI MODAL MOVE TOPIC TỪ ĐÂY */}
                   <DropdownMenuItem
                     onClick={() => setIsMoveTopicModalOpen(true)}
                   >
                     <FolderInput className="mr-2 h-4 w-4" />
                     Assign Topic
                   </DropdownMenuItem>
-
                   <DropdownMenuSeparator />
                 </DropdownMenuContent>
               </DropdownMenu>
             </>
           ) : (
-            // State: Chưa chọn gì
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -465,84 +502,63 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
         </div>
       </div>
 
-      {/* LIST CONTENT */}
-      <ScrollArea className="flex-1 mt-0 overflow-y-auto pr-2 overflow-x-hidden">
-        <div className="pb-10 overflow-x-hidden">
-          {sortedDateKeys.length === 0 ? (
-            <div className="flex flex-col items-center justify-center mt-10 text-muted-foreground gap-2">
-              <Search size={32} className="opacity-20" />
-              <span className="text-sm">No results found.</span>
-            </div>
-          ) : (
-            sortedDateKeys.map((dateKey) => {
-              // Tính toán trạng thái checkbox của ngày này (để hiển thị UI nếu muốn)
+      {/* --- LIST CONTENT VIRTUALIZED --- */}
+      <div className="flex-1 mt-0 w-full overflow-hidden pl-1">
+        {sortedDateKeys.length === 0 ? (
+          <div className="flex flex-col items-center justify-center mt-10 text-muted-foreground gap-2">
+            <Search size={32} className="opacity-20" />
+            <span className="text-sm">No results found.</span>
+          </div>
+        ) : (
+          <SimpleGroupedList
+            groupCounts={groupCounts}
+            estimateRowHeight={HEIGHT_ITEM}
+            // Render Header Ngày
+            groupContent={(index) => {
+              const dateKey = sortedDateKeys[index];
               const wordsInGroup = groupedWords[dateKey];
               const allSelected = wordsInGroup.every((w) =>
                 selectedIds.has(w.id)
               );
-
               return (
-                <div key={dateKey} className="mb-6 last:mb-0">
-                  {/* HEADER NGÀY: Thêm onClick và cursor-pointer */}
-                  <div
-                    onClick={() => handleSelectDate(dateKey)}
-                    className={`
-                        sticky top-0 bg-card/95 backdrop-blur-sm z-10 px-2 py-2 mb-2
-                        text-xs font-bold uppercase tracking-wider border-b border-border
-                        flex items-center justify-between cursor-pointer transition-colors hover:bg-accent
-                        ${
-                          allSelected
-                            ? "text-blue-700 dark:text-blue-400 bg-blue-50/50 dark:bg-blue-950/30"
-                            : "text-blue-600 dark:text-blue-400"
-                        }
-                      `}
-                    title="Click to select all items in this date"
-                  >
-                    <div className="flex items-center gap-2">
-                      {/* (Optional) Thêm checkbox nhỏ ở đây nếu muốn rõ ràng hơn */}
-                      <Checkbox
-                        checked={allSelected}
-                        // Checkbox này chỉ để hiển thị, sự kiện click đã được div cha xử lý
-                        className="h-4 w-4 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
-                      />
-                      <span>{formatDateGroup(dateKey)}</span>
-                    </div>
-
-                    <span
-                      className={`px-1.5 rounded-full text-[10px] ${
-                        allSelected
-                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
-                          : "bg-muted text-muted-foreground"
-                      }`}
-                    >
-                      {wordsInGroup.length}
-                    </span>
-                  </div>
-
-                  <div className="space-y-1">
-                    {wordsInGroup.map((word) => (
-                      <VocabularyItemRow
-                        key={word.id}
-                        word={word}
-                        isActive={activeWordIds.has(word.id)}
-                        isSelected={selectedIds.has(word.id)}
-                        isMeaningRevealed={revealedIds.has(word.id)}
-                        onToggleSelection={toggleSelection}
-                        onToggleReveal={toggleRevealItem}
-                        onAddToPractice={onAddToPractice}
-                        onUpdate={onUpdateWord || (() => {})}
-                        onDelete={onDelete}
-                        onToggleLearned={onToggleLearned}
-                        onRemoveFromPractice={onRemoveFromPractice}
-                      />
-                    ))}
-                  </div>
+                <DateGroupHeader
+                  key={dateKey}
+                  dateKey={dateKey}
+                  count={wordsInGroup.length}
+                  allSelected={allSelected}
+                  onSelect={() => handleSelectDate(dateKey)}
+                />
+              );
+            }}
+            // Render Từ vựng
+            itemContent={(index, groupIndex, itemIndex) => {
+              const dateKey = sortedDateKeys[groupIndex];
+              const word = groupedWords[dateKey][itemIndex];
+              return (
+                <div
+                  className="pb-1"
+                  style={{ height: HEIGHT_ITEM }}
+                  key={word.id}
+                >
+                  <VocabularyItemRow
+                    word={word}
+                    isActive={activeWordIds.has(word.id)}
+                    isSelected={selectedIds.has(word.id)}
+                    isMeaningRevealed={revealedIds.has(word.id)}
+                    onToggleSelection={toggleSelection}
+                    onToggleReveal={toggleRevealItem}
+                    onAddToPractice={onAddToPractice}
+                    onUpdate={onUpdateWord || (() => {})}
+                    onDelete={onDelete}
+                    onToggleLearned={onToggleLearned}
+                    onRemoveFromPractice={onRemoveFromPractice}
+                  />
                 </div>
               );
-            })
-          )}
-        </div>
-      </ScrollArea>
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 };

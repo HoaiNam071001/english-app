@@ -103,34 +103,34 @@ h1 {
 .dark {
   --background: oklch(0.25 0.015 240);
   --foreground: oklch(0.96 0.005 240);
-  --card: oklch(0.30 0.018 240);
+  --card: oklch(0.3 0.018 240);
   --card-foreground: oklch(0.96 0.005 240);
-  --popover: oklch(0.30 0.018 240);
+  --popover: oklch(0.3 0.018 240);
   --popover-foreground: oklch(0.96 0.005 240);
-  --primary: oklch(0.70 0.12 240);
+  --primary: oklch(0.7 0.12 240);
   --primary-foreground: oklch(0.25 0.015 240);
   --secondary: oklch(0.35 0.02 240);
   --secondary-foreground: oklch(0.96 0.005 240);
   --muted: oklch(0.35 0.02 240);
-  --muted-foreground: oklch(0.70 0.01 240);
+  --muted-foreground: oklch(0.7 0.01 240);
   --accent: oklch(0.35 0.02 240);
   --accent-foreground: oklch(0.96 0.005 240);
   --destructive: oklch(0.65 0.2 25);
-  --border: oklch(0.40 0.02 240 / 0.4);
-  --input: oklch(0.40 0.02 240 / 0.5);
+  --border: oklch(0.4 0.02 240 / 0.4);
+  --input: oklch(0.4 0.02 240 / 0.5);
   --ring: oklch(0.55 0.05 240);
-  --chart-1: oklch(0.60 0.15 240);
+  --chart-1: oklch(0.6 0.15 240);
   --chart-2: oklch(0.65 0.12 200);
-  --chart-3: oklch(0.70 0.15 60);
-  --chart-4: oklch(0.65 0.20 300);
+  --chart-3: oklch(0.7 0.15 60);
+  --chart-4: oklch(0.65 0.2 300);
   --chart-5: oklch(0.68 0.18 20);
-  --sidebar: oklch(0.30 0.018 240);
+  --sidebar: oklch(0.3 0.018 240);
   --sidebar-foreground: oklch(0.96 0.005 240);
-  --sidebar-primary: oklch(0.60 0.15 240);
+  --sidebar-primary: oklch(0.6 0.15 240);
   --sidebar-primary-foreground: oklch(0.96 0.005 240);
   --sidebar-accent: oklch(0.35 0.02 240);
   --sidebar-accent-foreground: oklch(0.96 0.005 240);
-  --sidebar-border: oklch(0.40 0.02 240 / 0.4);
+  --sidebar-border: oklch(0.4 0.02 240 / 0.4);
   --sidebar-ring: oklch(0.55 0.05 240);
 }
 
@@ -140,5 +140,33 @@ h1 {
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+@layer base {
+  /* Hỗ trợ Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--muted-foreground) var(--muted);
+  }
+
+  /* Hỗ trợ Chrome, Edge, Safari (Webkit) */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--muted); /* Sử dụng màu nền nhạt của theme */
+    border-radius: var(--radius);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--muted-foreground); /* Màu nút kéo */
+    border-radius: var(--radius);
+    border: 2px solid var(--muted); /* Tạo khoảng trống giúp thumb trông nhỏ gọn hơn */
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--foreground); /* Nổi bật hơn khi hover */
   }
 }
