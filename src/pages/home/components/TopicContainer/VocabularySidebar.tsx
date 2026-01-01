@@ -340,7 +340,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                       <Sparkles size={16} />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>Find & fill missing fields</TooltipContent>
+                  <TooltipContent>Enrich Vocabulary</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
 
