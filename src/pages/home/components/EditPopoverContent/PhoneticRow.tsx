@@ -34,7 +34,7 @@ export const PhoneticRow = ({
     playAudio(item.audio, wordText, item.accent);
   };
 
-  const hasAudio = (item.audio && item.audio.trim() !== "") || item.text;
+  const hasAudio = item.audio && item.audio.trim() !== "";
 
   // const handleAutoFillAudio = (type: AccentType) => {
   //   // Dùng hàm get link từ file utils
