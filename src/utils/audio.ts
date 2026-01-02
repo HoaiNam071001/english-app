@@ -20,7 +20,6 @@ export const playAudio = async (
 ) => {
   // 1. Ưu tiên chạy file MP3 từ URL
   if (url && url.trim()) {
-    console.log("Playing audio from URL:", url);
     try {
       const audio = new Audio(url);
 
@@ -39,7 +38,6 @@ export const playAudio = async (
       console.warn("Audio URL failed, falling back to native TTS...", error);
     }
   }
-  console.log("Audio played successfully");
 
   if (textToSpeak) {
     window.speechSynthesis.cancel();
