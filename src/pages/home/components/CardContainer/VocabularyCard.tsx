@@ -263,14 +263,14 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                         </div>
                       </PopoverTrigger>
                       <PopoverContent
-                        className="w-64 p-3 bg-popover/95 backdrop-blur shadow-xl text-sm"
+                        className="w-100 p-3 bg-popover/95 backdrop-blur shadow-xl text-sm"
                         side="top"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <div className="font-semibold text-popover-foreground border-b border-border pb-1">
                           Note:
                         </div>
-                        <div className="text-popover-foreground/80 italic leading-relaxed">
+                        <div className="text-popover-foreground/80 italic leading-relaxed max-h-[300px] overflow-auto">
                           <DisplayText text={item.example} />
                         </div>
                       </PopoverContent>
