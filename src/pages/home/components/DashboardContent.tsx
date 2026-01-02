@@ -20,6 +20,7 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
   const cardContainerRef = useRef<CardContainerRef>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   const {
     allWords,
@@ -38,9 +39,14 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
     new Set()
   );
 
+  const onFetch = async () => {
+    setIsLoaded(false);
+    await fetchAllWords();
+    setIsLoaded(true);
+  };
+
   useEffect(() => {
-    console.log("Fetching all words...");
-    fetchAllWords();
+    onFetch();
   }, [user]);
 
   const { topics, addTopic, deleteTopic, updateTopic } = useTopics();
@@ -182,6 +188,7 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
           <CardContainer
             ref={cardContainerRef}
             allWords={allWords}
+            isLoaded={isLoaded}
             topics={topics}
             onActiveChanged={setMappingActiveWords}
             onMarkLearned={markAsLearned}

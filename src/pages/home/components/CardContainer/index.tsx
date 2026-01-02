@@ -24,6 +24,7 @@ export interface CardContainerRef {
 interface CardContainerProps {
   allWords: VocabularyItem[];
   topics: TopicItem[];
+  isLoaded: boolean;
   onActiveChanged: (mapping: Set<string>) => void;
   onMarkLearned: (id: string, isLearned: boolean) => void;
   onUpdateWord: (id: string, updates: Partial<VocabularyItem>) => void;
@@ -35,6 +36,7 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
     {
       allWords,
       topics,
+      isLoaded: allWordLoaded,
       onMarkLearned,
       onUpdateWord,
       onDeleteWord,
@@ -83,9 +85,10 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
     // 1. INITIALIZATION
     useEffect(() => {
       const checkAndInit = async () => {
-        console.log("checkAndInit", isLoaded, allWords);
-        // Chờ Load cache xong & Có dữ liệu từ vựng
-        if (!isLoaded || allWords.length === 0) return;
+        if (!isLoaded || !allWordLoaded) {
+          hasInitialized.current = false;
+          return;
+        }
 
         // Nếu đã init rồi thì thôi
         if (hasInitialized.current) return;
@@ -101,7 +104,7 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
 
       checkAndInit();
       // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isLoaded, allWords.length]);
+    }, [isLoaded, allWords, allWordLoaded]);
 
     // 2. EXPOSE METHODS
     useImperativeHandle(ref, () => ({
@@ -237,7 +240,6 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
         .filter((w): w is VocabularyItem => !!w);
     }, [activeTab?.wordIds, wordMap]);
 
-    console.log("activeTab", activeTab, isLoaded);
     // Loading State
     if (!isLoaded || !activeTab)
       return (
