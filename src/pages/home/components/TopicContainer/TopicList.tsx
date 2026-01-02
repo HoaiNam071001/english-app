@@ -101,7 +101,7 @@ const TopicList: React.FC<TopicListProps> = ({
 
   return (
     <div className="flex flex-col h-full bg-muted/30">
-      <div className="px-4 pb-2 border-b flex justify-between items-center bg-card">
+      <div className="px-4 pt-2 pb-2 border-b flex justify-between items-center bg-card">
         <h3 className="font-semibold text-card-foreground">Topics</h3>
         <Button
           size="sm"
