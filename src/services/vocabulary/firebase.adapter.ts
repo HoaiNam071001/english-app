@@ -93,6 +93,9 @@ export class FirebaseVocabularyService implements IVocabularyService {
   }
 
   async update(id: string, updates: Partial<VocabularyItem>): Promise<void> {
+    if (updates.text) {
+      updates.normalized = updates.text.toLowerCase();
+    }
     await updateDoc(doc(db, DataTable.Vocabulary, id), {
       ...updates,
       updatedAt: serverTimestamp(),

@@ -67,6 +67,9 @@ export class GuestVocabularyService implements IVocabularyService {
 
   async update(id: string, updates: Partial<VocabularyItem>): Promise<void> {
     const currentData = this.getFromLocal();
+    if (updates.text) {
+      updates.normalized = updates.text.toLowerCase();
+    }
     const newData = currentData.map((w) =>
       w.id === id ? { ...w, ...updates } : w
     );
