@@ -83,6 +83,7 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
     // 1. INITIALIZATION
     useEffect(() => {
       const checkAndInit = async () => {
+        console.log("checkAndInit", isLoaded, allWords);
         // Chờ Load cache xong & Có dữ liệu từ vựng
         if (!isLoaded || allWords.length === 0) return;
 
