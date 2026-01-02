@@ -191,6 +191,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setUserProfile(null);
   };
 
+  // --- HEARTBEAT: Cập nhật lastLoginAt mỗi 1 phút ---
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout;
+
+    // Chỉ thiết lập interval khi có user, không phải guest và có email
+    if (user && user.email) {
+      intervalId = setInterval(async () => {
+        try {
+          const userRef = doc(db, DataTable.USER, user.email);
+          await setDoc(userRef, { lastLoginAt: Date.now() }, { merge: true });
+          console.log("Heartbeat: Updated lastLoginAt for", user.email);
+        } catch (err) {
+          console.error("Heartbeat failed:", err);
+        }
+      }, 60000);
+    }
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [user]);
+
   const value = {
     user,
     userProfile,
