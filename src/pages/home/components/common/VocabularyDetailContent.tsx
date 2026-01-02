@@ -1,5 +1,4 @@
 import { DisplayText } from "@/components/DisplayText";
-import { Button } from "@/components/ui/button"; // Giả sử bạn có component Button
 import { Separator } from "@/components/ui/separator";
 import {
   Tooltip,
@@ -83,18 +82,12 @@ export const VocabularyDetailContent: React.FC<
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className={`h-6 w-6 rounded-full ${
-                            pho.audio
-                              ? "text-blue-600 hover:text-blue-700 hover:bg-blue-100"
-                              : "text-muted-foreground hover:text-foreground"
-                          }`}
+                        <div
+                          className={`p-1 rounded-full transition-colors cursor-pointer bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-800`}
                           onClick={() => handlePlayAudio(pho)}
                         >
                           <Volume2 size={14} />
-                        </Button>
+                        </div>
                       </TooltipTrigger>
                       <TooltipContent side="top">
                         <p className="text-xs">
