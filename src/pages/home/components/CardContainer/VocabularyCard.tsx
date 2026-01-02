@@ -410,9 +410,9 @@ const Speaker = ({ item }: { item: VocabularyItem }) => {
     );
     const otherAudio = item.phonetics?.find((p) => p.audio);
     playAudio(
-      usAudio.audio || otherAudio.audio,
+      usAudio?.audio || otherAudio?.audio,
       item.text,
-      usAudio.accent || otherAudio.accent
+      usAudio?.accent || otherAudio?.accent
     );
   };
   return (
