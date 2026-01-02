@@ -127,15 +127,25 @@ export const PhoneticRow = ({
         {/* Actions Row */}
         <div className="flex justify-end gap-2 pt-1">
           <Button
+            variant="destructive"
+            size="sm"
+            className="h-6 px-2 text-[10px] hover:bg-destructive hover:text-white"
+            onClick={() => {
+              onDelete();
+              setIsEditing(false);
+            }}
+          >
+            {"Delete"}
+          </Button>
+          <Button
             variant="ghost"
             size="sm"
             className="h-6 px-2 text-[10px] hover:bg-destructive hover:text-white"
             onClick={() => {
-              if (!item.text) onDelete();
-              else setIsEditing(false);
+              setIsEditing(false);
             }}
           >
-            {item.text ? "Cancel" : "Discard"}
+            Cancel
           </Button>
           <Button
             size="sm"
