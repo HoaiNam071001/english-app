@@ -24,14 +24,24 @@ export interface CardContainerRef {
 interface CardContainerProps {
   allWords: VocabularyItem[];
   topics: TopicItem[];
-  onActiveChanged:(mapping: Set<string>) => void;
+  onActiveChanged: (mapping: Set<string>) => void;
   onMarkLearned: (id: string, isLearned: boolean) => void;
   onUpdateWord: (id: string, updates: Partial<VocabularyItem>) => void;
   onDeleteWord: (id: string) => void;
 }
 
 const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
-  ({ allWords, topics, onMarkLearned, onUpdateWord, onDeleteWord, onActiveChanged }, ref) => {
+  (
+    {
+      allWords,
+      topics,
+      onMarkLearned,
+      onUpdateWord,
+      onDeleteWord,
+      onActiveChanged,
+    },
+    ref
+  ) => {
     const {
       tabs,
       setTabs,
@@ -113,27 +123,29 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
       removeWordsToSession: (idsToRemove: string[]) => {
         if (!idsToRemove.length) return;
 
-      setTabs((prevTabs) => {
-        return prevTabs.map((tab) => {
-          if (tab.id === activeTabId) {
-            const idsSet = new Set(idsToRemove);
+        setTabs((prevTabs) => {
+          return prevTabs.map((tab) => {
+            if (tab.id === activeTabId) {
+              const idsSet = new Set(idsToRemove);
 
-            const newWordIds = tab.wordIds.filter((id) => !idsSet.has(id));
+              const newWordIds = tab.wordIds.filter((id) => !idsSet.has(id));
 
-            if (newWordIds.length === tab.wordIds.length) return tab;
-            const newFlippedIds = tab.flippedIds?.values()?.filter(id => !idsSet.has(id)) || [];
-            const newMeaningIds = tab.meaningIds?.values()?.filter(id => !idsSet.has(id)) || [];
+              if (newWordIds.length === tab.wordIds.length) return tab;
+              const newFlippedIds =
+                tab.flippedIds?.values()?.filter((id) => !idsSet.has(id)) || [];
+              const newMeaningIds =
+                tab.meaningIds?.values()?.filter((id) => !idsSet.has(id)) || [];
 
-            return {
-              ...tab,
-              wordIds: newWordIds,
-              flippedIds: new Set(newFlippedIds),
-              meaningIds: new Set(newMeaningIds)
-            };
-          }
-          return tab;
+              return {
+                ...tab,
+                wordIds: newWordIds,
+                flippedIds: new Set(newFlippedIds),
+                meaningIds: new Set(newMeaningIds),
+              };
+            }
+            return tab;
+          });
         });
-      });
       },
     }));
 
@@ -217,13 +229,14 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
     useEffect(() => {
       onActiveChanged(new Set(activeTab?.wordIds || []));
     }, [activeTab]);
-    
-    const activeDisplayCards = useMemo(()=> {
-      return activeTab?.wordIds
-      .map((id) => wordMap[id])
-      .filter((w): w is VocabularyItem => !!w);
-    }, [activeTab?.wordIds, wordMap]) ;
 
+    const activeDisplayCards = useMemo(() => {
+      return activeTab?.wordIds
+        .map((id) => wordMap[id])
+        .filter((w): w is VocabularyItem => !!w);
+    }, [activeTab?.wordIds, wordMap]);
+
+    console.log("activeTab", activeTab, isLoaded);
     // Loading State
     if (!isLoaded || !activeTab)
       return (
@@ -231,8 +244,6 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
           Loading Session...
         </div>
       );
-
-
 
     return (
       <div className="flex flex-col h-full gap-2">

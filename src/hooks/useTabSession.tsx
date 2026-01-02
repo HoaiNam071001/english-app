@@ -47,12 +47,14 @@ export const useTabSession = () => {
     setIsLoaded(false);
     isHydrated.current = false;
     // Nếu chưa xác định được user (lúc mới mount), chưa load
-    if (!storageKey || (!userId && !isGuest)) return;
+    if (!storageKey || !userId) return;
+    console.error("fetch 1");
 
     const timer = setTimeout(() => {
       try {
         // [CHANGE] Dùng sessionStorage
         const rawData = sessionStorage.getItem(storageKey);
+        console.error("fetch 2", rawData);
 
         if (rawData) {
           const parsed: StoredData = JSON.parse(rawData);
