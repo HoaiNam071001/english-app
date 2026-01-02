@@ -8,6 +8,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { PhoneticItem, TopicItem, VocabularyItem } from "@/types";
+import { playAudio } from "@/utils/audio";
 import { BookOpen, Calendar, Check, Volume2, X } from "lucide-react";
 import moment from "moment";
 import React from "react";
@@ -29,15 +30,7 @@ export const VocabularyDetailContent: React.FC<
 
   // --- AUDIO HANDLER (Tái sử dụng logic từ Edit form) ---
   const handlePlayAudio = (p: PhoneticItem) => {
-    if (p.audio) {
-      new Audio(p.audio).play();
-    } else {
-      // Fallback TTS trình duyệt
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(item.text || "");
-      utterance.lang = "en-US"; // Default
-      window.speechSynthesis.speak(utterance);
-    }
+    playAudio(p.audio, item.text, p.accent);
   };
 
   return (

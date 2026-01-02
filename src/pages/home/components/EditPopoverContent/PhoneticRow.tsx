@@ -1,31 +1,19 @@
-// ----------------------------------------------------------------------
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AccentType, PhoneticItem } from "@/types";
-// Lưu ý: Nếu dự án dùng Shadcn UI chuẩn thì nên import từ "@/components/ui/dropdown-menu"
-// Nhưng mình giữ nguyên import từ radix theo code cũ của bạn
+import { playAudio } from "@/utils/audio"; // Import hàm vừa viết
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@radix-ui/react-dropdown-menu";
-import { Edit2, LinkIcon, Volume2, Wand2 } from "lucide-react";
+import { Edit2, LinkIcon, Volume2 } from "lucide-react";
 import { useState } from "react";
 
 const VALID_ACCENTS = [AccentType.US, AccentType.UK, AccentType.AU];
 
-// Helper tạo link audio
-const getGoogleAudioLink = (text: string, type: AccentType) => {
-  if (!text || !text.trim()) return "";
-  const lang = type === AccentType.UK ? "en-GB" : "en-US";
-  return `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=${lang}&q=${encodeURIComponent(
-    text.trim()
-  )}`;
-};
-
-// ----------------------------------------------------------------------
 export const PhoneticRow = ({
   item,
   wordText,
@@ -37,30 +25,30 @@ export const PhoneticRow = ({
   onUpdate: (item: PhoneticItem) => void;
   onDelete: () => void;
 }) => {
-  // Tự động vào chế độ edit nếu mới tạo (text rỗng)
   const [isEditing, setIsEditing] = useState(!item.text);
   const [editForm, setEditForm] = useState(item);
 
-  // Play audio logic
+  // --- HÀM CALL AUDIO ---
   const handlePlay = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (item.audio) new Audio(item.audio).play();
+    playAudio(item.audio, wordText, item.accent);
   };
 
-  const hasAudio = item.audio && item.audio.trim() !== "";
+  const hasAudio = (item.audio && item.audio.trim() !== "") || item.text;
 
-  const handleAutoFillAudio = (type: AccentType) => {
-    const link = getGoogleAudioLink(wordText || "", type);
-    if (link) {
-      setEditForm({
-        ...editForm,
-        accent: type,
-        audio: link,
-      });
-    }
-  };
+  // const handleAutoFillAudio = (type: AccentType) => {
+  //   // Dùng hàm get link từ file utils
+  //   const link = getGoogleAudioLink(wordText || "", type);
+  //   if (link) {
+  //     setEditForm({
+  //       ...editForm,
+  //       accent: type,
+  //       audio: link,
+  //     });
+  //   }
+  // };
 
-  // 1. Chế độ Edit (Chiếm không gian để nhập liệu)
+  // 1. CHẾ ĐỘ EDIT
   if (isEditing) {
     return (
       <div className="flex flex-col gap-2 p-2 border rounded-md bg-accent/10 animate-in zoom-in-95 duration-200">
@@ -111,15 +99,15 @@ export const PhoneticRow = ({
             placeholder="https://..."
           />
 
-          {/* --- NEW: Auto Fill Options --- */}
-          <div className="flex items-center gap-1">
+          {/* Auto Fill Buttons */}
+          {/* <div className="flex items-center gap-1">
             <Button
               variant="outline"
               size="sm"
               type="button"
               className="h-7 px-2 text-[10px] text-muted-foreground hover:text-primary whitespace-nowrap"
               onClick={() => handleAutoFillAudio(AccentType.US)}
-              title="Auto generate US Audio"
+              title="Auto generate US Link"
             >
               <Wand2 size={10} className="mr-1" /> US
             </Button>
@@ -129,11 +117,11 @@ export const PhoneticRow = ({
               type="button"
               className="h-7 px-2 text-[10px] text-muted-foreground hover:text-primary whitespace-nowrap"
               onClick={() => handleAutoFillAudio(AccentType.UK)}
-              title="Auto generate UK Audio"
+              title="Auto generate UK Link"
             >
               <Wand2 size={10} className="mr-1" /> UK
             </Button>
-          </div>
+          </div> */}
         </div>
 
         {/* Actions Row */}
@@ -143,11 +131,8 @@ export const PhoneticRow = ({
             size="sm"
             className="h-6 px-2 text-[10px] hover:bg-destructive hover:text-white"
             onClick={() => {
-              if (!item.text) {
-                onDelete();
-              } else {
-                setIsEditing(false);
-              }
+              if (!item.text) onDelete();
+              else setIsEditing(false);
             }}
           >
             {item.text ? "Cancel" : "Discard"}
@@ -167,11 +152,10 @@ export const PhoneticRow = ({
     );
   }
 
-  // 2. Chế độ View (Siêu gọn)
+  // 2. CHẾ ĐỘ VIEW
   return (
     <div className="group flex items-center justify-between p-1 rounded-md border border-transparent hover:border-border hover:bg-accent/5 transition-all">
       <div className="flex items-center gap-2">
-        {/* Badge Accent */}
         <Badge
           variant="secondary"
           className="text-[9px] px-1 h-4 rounded-sm uppercase text-muted-foreground"
@@ -179,12 +163,11 @@ export const PhoneticRow = ({
           {item.accent}
         </Badge>
 
-        {/* Text IPA */}
         <span className="text-xs font-mono font-medium text-foreground">
           {item.text}
         </span>
 
-        {/* Nút Loa (Chỉ hiện nếu có audio) */}
+        {/* Nút Loa */}
         {hasAudio && (
           <div
             className="p-1 text-blue-500 hover:text-blue-700 cursor-pointer transition-colors"
@@ -196,13 +179,12 @@ export const PhoneticRow = ({
         )}
       </div>
 
-      {/* Nút Edit (Hiện khi hover row) */}
       <Button
         variant="ghost"
         size="icon"
         className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
         onClick={() => {
-          setEditForm(item); // Reset form về giá trị hiện tại
+          setEditForm(item);
           setIsEditing(true);
         }}
       >

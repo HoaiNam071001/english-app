@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/tooltip";
 import { TOPIC_COLORS } from "@/constants";
 import { AccentType, TopicItem, VocabularyItem } from "@/types";
+import { playAudio } from "@/utils/audio";
 import {
   Check,
   Eye,
@@ -80,83 +81,6 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
   const handleCardClick = () => {
     if (isEditOpen) return;
     onFlip(!isFlipped);
-  };
-
-  // --- LOGIC AUDIO (GIỮ NGUYÊN) ---
-  const audioSourceType = useMemo(() => {
-    const usAudio = item.phonetics?.find(
-      (p) => p.audio && p.accent === AccentType.US
-    );
-    if (usAudio?.audio) return AccentType.US;
-    const otherAudio = item.phonetics?.find((p) => p.audio);
-    if (otherAudio?.audio) return "other";
-    return "tts";
-  }, [item.phonetics]);
-
-  const speakerStyle = useMemo(() => {
-    switch (audioSourceType) {
-      case AccentType.US:
-        return "bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-800";
-      case "other":
-        return "bg-cyan-100 text-cyan-700 hover:bg-cyan-200 dark:bg-cyan-900/50 dark:text-cyan-300 dark:hover:bg-cyan-800";
-      case "tts":
-      default:
-        return "bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/50 dark:text-orange-300 dark:hover:bg-orange-800";
-    }
-  }, [audioSourceType]);
-
-  const speakerTooltip = useMemo(() => {
-    if (audioSourceType === "us") return "Play US Audio (Real voice)";
-    if (audioSourceType === "other") return "Play Audio (Real voice)";
-    return "Browser Text-to-Speech (Robot voice)";
-  }, [audioSourceType]);
-
-  const playBoostedAudio = (url: string) => {
-    try {
-      const AudioContextClass =
-        window.AudioContext || window.webkitAudioContext;
-      if (!AudioContextClass) {
-        new Audio(url).play();
-        return;
-      }
-      const audioCtx = new AudioContextClass();
-      const audio = new Audio(url);
-      audio.crossOrigin = "anonymous";
-      const source = audioCtx.createMediaElementSource(audio);
-      const gainNode = audioCtx.createGain();
-      gainNode.gain.value = 2.5;
-      source.connect(gainNode);
-      gainNode.connect(audioCtx.destination);
-      audio.play().catch((e: unknown) => {
-        console.warn("AudioContext play failed, falling back", e);
-        new Audio(url).play();
-      });
-    } catch (error: unknown) {
-      console.error("Boost audio error:", error);
-      new Audio(url).play();
-    }
-  };
-
-  const handleSpeak = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    let audioUrl = "";
-    const usAudio = item.phonetics?.find(
-      (p) => p.audio && p.accent === AccentType.US
-    );
-    const otherAudio = item.phonetics?.find((p) => p.audio);
-
-    if (usAudio?.audio) audioUrl = usAudio.audio;
-    else if (otherAudio?.audio) audioUrl = otherAudio.audio;
-
-    if (audioUrl) {
-      playBoostedAudio(audioUrl);
-    } else {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(item.text);
-      utterance.lang = "en-US";
-      utterance.volume = 0.8;
-      window.speechSynthesis.speak(utterance);
-    }
   };
 
   const handleRemove = (e: React.MouseEvent) => {
@@ -398,19 +322,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
 
               {/* FOOTER ICONS */}
               <div className="absolute bottom-0 left-0 w-full flex items-center justify-between gap-2 z-20">
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div
-                        className={`p-1.5 rounded-full transition-colors cursor-pointer ${speakerStyle}`}
-                        onClick={handleSpeak}
-                      >
-                        <Volume2 size={14} />
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent side="top">{speakerTooltip}</TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <Speaker item={item} />
 
                 <Popover>
                   <TooltipProvider>
@@ -478,3 +390,62 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
 };
 
 export default VocabularyCard;
+
+const Speaker = ({ item }: { item: VocabularyItem }) => {
+  const audioSourceType = useMemo(() => {
+    const usAudio = item.phonetics?.find(
+      (p) => p.audio && p.accent === AccentType.US
+    );
+    if (usAudio?.audio) return AccentType.US;
+    const otherAudio = item.phonetics?.find((p) => p.audio);
+    if (otherAudio?.audio) return "other";
+    return "tts";
+  }, [item.phonetics]);
+
+  const speakerStyle = useMemo(() => {
+    switch (audioSourceType) {
+      case AccentType.US:
+        return "bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-800";
+      case "other":
+        return "bg-cyan-100 text-cyan-700 hover:bg-cyan-200 dark:bg-cyan-900/50 dark:text-cyan-300 dark:hover:bg-cyan-800";
+      case "tts":
+      default:
+        return "bg-orange-100 text-orange-700 hover:bg-orange-200 dark:bg-orange-900/50 dark:text-orange-300 dark:hover:bg-orange-800";
+    }
+  }, [audioSourceType]);
+  const speakerTooltip = useMemo(() => {
+    if (audioSourceType === "us") return "Play US Audio (Real voice)";
+    if (audioSourceType === "other") return "Play Audio (Real voice)";
+    return "Browser Text-to-Speech (Robot voice)";
+  }, [audioSourceType]);
+
+  const handleSpeak = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const usAudio = item.phonetics?.find(
+      (p) => p.audio && p.accent === AccentType.US
+    );
+    const otherAudio = item.phonetics?.find((p) => p.audio);
+    playAudio(
+      usAudio.audio || otherAudio.audio,
+      item.text,
+      usAudio.accent || otherAudio.accent
+    );
+  };
+  return (
+    <>
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div
+              className={`p-1.5 rounded-full transition-colors cursor-pointer ${speakerStyle}`}
+              onClick={handleSpeak}
+            >
+              <Volume2 size={14} />
+            </div>
+          </TooltipTrigger>
+          <TooltipContent side="top">{speakerTooltip}</TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    </>
+  );
+};
