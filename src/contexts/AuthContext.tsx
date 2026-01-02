@@ -201,7 +201,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
           const userRef = doc(db, DataTable.USER, user.email);
           await setDoc(userRef, { lastLoginAt: Date.now() }, { merge: true });
-          console.log("Heartbeat: Updated lastLoginAt for", user.email);
         } catch (err) {
           console.error("Heartbeat failed:", err);
         }
