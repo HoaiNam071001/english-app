@@ -1,8 +1,6 @@
 import { Button } from "@/components/ui/button";
-import { GUEST_INFO } from "@/constants";
 import { useTopics } from "@/hooks/useTopics";
 import { useVocabulary } from "@/hooks/useVocabulary";
-import CreateVocabularyModal from "@/pages/home/components/CreateVocabularyModal";
 import TopicList from "@/pages/home/components/TopicContainer/TopicList";
 import VocabularySidebar from "@/pages/home/components/TopicContainer/VocabularySidebar";
 import { UserProfile, VocabularyItem } from "@/types";
@@ -20,10 +18,10 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
   const cardContainerRef = useRef<CardContainerRef>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
 
   const {
     allWords,
+    isLoaded,
     fetchAllWords,
     updateWord,
     deleteWord,
@@ -40,9 +38,7 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
   );
 
   const onFetch = async () => {
-    setIsLoaded(false);
-    await fetchAllWords();
-    setIsLoaded(true);
+    await fetchAllWords(false);
   };
 
   useEffect(() => {
@@ -85,41 +81,7 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
   };
 
   return (
-    <div className="container mx-auto p-4 max-w-8xl min-h-screen flex flex-col">
-      {/* HEADER */}
-      <header className="flex justify-between items-center pb-2 border-b bg-background sticky top-0 z-50">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="text-foreground"
-          >
-            {isSidebarOpen ? (
-              <PanelLeftClose size={20} />
-            ) : (
-              <PanelLeftOpen size={20} />
-            )}
-          </Button>
-
-          <div>
-            <div className="text-2xl font-bold text-foreground">
-              Vocabulary Manager
-            </div>
-            <p className="text-sm text-muted-foreground hidden sm:block">
-              User: {user?.email || GUEST_INFO.name}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <CreateVocabularyModal
-            onAddVocabulary={handleAddVocabularyWithTopic}
-            onSuccess={() => fetchAllWords()}
-          />
-        </div>
-      </header>
-
+    <div className="flex flex-col">
       {/* MAIN LAYOUT */}
       <div className="flex flex-1 gap-2 relative overflow-hidden">
         {/* SIDEBAR AREA */}
@@ -128,7 +90,7 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
               h-[80vh] transition-all duration-300 ease-in-out border-r bg-card flex flex-col
               ${
                 isSidebarOpen
-                  ? "w-80 md:w-1/4 opacity-100 translate-x-0 mr-4"
+                  ? "w-80 md:w-1/4 opacity-100 translate-x-0"
                   : "w-0 opacity-0 -translate-x-full mr-0 overflow-hidden border-none"
               }
           `}
@@ -184,7 +146,21 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
         </div>
 
         {/* MAIN CONTENT AREA */}
-        <div className="flex-1 transition-all duration-300 min-w-0 h-[80vh]">
+        <div className="relative flex-1 transition-all duration-300 min-w-0 h-[80vh]">
+          <div className="absolute top-1 left-0 z-100">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="text-foreground"
+            >
+              {isSidebarOpen ? (
+                <PanelLeftClose size={20} />
+              ) : (
+                <PanelLeftOpen size={20} />
+              )}
+            </Button>
+          </div>
           <CardContainer
             ref={cardContainerRef}
             allWords={allWords}
@@ -194,6 +170,7 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
             onMarkLearned={markAsLearned}
             onUpdateWord={updateWord}
             onDeleteWord={deleteWord}
+            handleAddVocabulary={handleAddVocabularyWithTopic}
           />
         </div>
       </div>

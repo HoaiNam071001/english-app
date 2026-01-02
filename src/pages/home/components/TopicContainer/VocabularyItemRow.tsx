@@ -20,7 +20,8 @@ import {
   CheckCircle2,
   Circle,
   Eye, // Import lại Eye
-  EyeOff, // Import lại EyeOff
+  EyeOff,
+  Globe, // Import lại EyeOff
   Info,
   Minus,
   PenLine, // Import thêm PenLine cho nút Edit
@@ -105,8 +106,24 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
         <Checkbox
           checked={isSelected}
           onCheckedChange={() => {}}
-          className="pointer-events-none"
+          className="pointer-events-none mb-3"
         />
+
+        {word.isShared && (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Globe
+                  size={13}
+                  className="shrink-0 animate-in fade-in zoom-in duration-300"
+                />
+              </TooltipTrigger>
+              <TooltipContent side="top" className="text-xs">
+                Public: Shared with community
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
       </div>
 
       <div className="flex-1 min-w-0 pb-1 cursor-default">

@@ -5,15 +5,27 @@ import {
   collection,
   deleteDoc,
   doc,
+  DocumentData,
+  getCountFromServer,
   getDocs,
+  limit,
   orderBy,
+  Query,
   query,
+  QueryDocumentSnapshot,
   serverTimestamp,
+  startAfter,
   updateDoc,
   where,
   writeBatch,
 } from "firebase/firestore";
 import { IVocabularyService } from "./types";
+
+export interface PaginatedResponse {
+  data: VocabularyItem[];
+  lastVisible: QueryDocumentSnapshot<DocumentData> | null;
+  total: number;
+}
 
 export class FirebaseVocabularyService implements IVocabularyService {
   constructor(private userId: string) {}
@@ -47,17 +59,18 @@ export class FirebaseVocabularyService implements IVocabularyService {
     const skippedWords: string[] = [];
 
     newEntries.forEach((entry) => {
+      const normalized = entry.text!.toLowerCase();
+
       if (
-        existingSet.has(entry.normalized!) ||
+        existingSet.has(normalized) ||
         currentBatchSet.has(entry.normalized!)
       ) {
         skippedWords.push(entry.text!);
       } else {
         const newDocRef = doc(collection(db, DataTable.Vocabulary));
         const docData = {
-          text: entry.text,
-          meaning: entry.meaning,
-          normalized: entry.normalized,
+          ...entry,
+          normalized: normalized,
           example: entry.example || null,
           topicId: entry.topicId || null,
           userId: this.userId,
@@ -108,5 +121,61 @@ export class FirebaseVocabularyService implements IVocabularyService {
       });
     });
     await batch.commit();
+  }
+
+  async fetchSharedPage(
+    pageSize: number,
+    lastDoc: QueryDocumentSnapshot<DocumentData> | null = null,
+    keyword: string = ""
+  ): Promise<PaginatedResponse> {
+    const colRef = collection(db, DataTable.Vocabulary);
+    let baseQuery = query(
+      colRef,
+      where("isShared", "==", true),
+      where("userId", "!=", this.userId)
+    );
+
+    if (keyword.trim()) {
+      const searchStr = keyword.toLowerCase().trim();
+      baseQuery = query(
+        baseQuery,
+        where("normalized", ">=", searchStr),
+        where("normalized", "<=", searchStr + "\uf8ff")
+      );
+    }
+
+    // 1. Lấy tổng số (chỉ làm lần đầu hoặc khi cần update số trang)
+    const countSnapshot = await getCountFromServer(baseQuery);
+    const total = countSnapshot.data().count;
+
+    // 2. Xây dựng Query
+    let q: Query<DocumentData, DocumentData>;
+    if (keyword.trim()) {
+      q = query(
+        baseQuery,
+        orderBy("normalized"),
+        orderBy("createdAt", "desc"),
+        limit(pageSize)
+      );
+    } else {
+      q = query(baseQuery, orderBy("createdAt", "desc"), limit(pageSize));
+    }
+
+    // Nếu có lastDoc thì bắt đầu truy vấn từ sau doc đó
+    if (lastDoc) {
+      q = query(q, startAfter(lastDoc));
+    }
+
+    const snapshot = await getDocs(q);
+    const lastVisible = snapshot.docs[snapshot.docs.length - 1] || null;
+
+    const data = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+      createdAt: doc.data().createdAt?.toMillis() || 0,
+      updatedAt: doc.data().updatedAt?.toMillis() || 0,
+    })) as VocabularyItem[];
+
+    return { data, lastVisible, total };
   }
 }

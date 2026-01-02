@@ -4,13 +4,13 @@ import { AdminRoute } from "@/components/Auth/AdminRoute";
 import EmailEntry from "@/components/Auth/EmailEntry";
 import { ProtectedRoute } from "@/components/Auth/ProtectedRoute";
 import { StatusGuard } from "@/components/Auth/StatusGuard";
-import { UserFloatingMenu } from "@/components/UserFloatingMenu";
 import { ROUTES } from "@/constants";
 import { useAuth } from "@/hooks/useAuth";
 import UsersPage from "@/pages/admin/UsersPage";
 import { Loader2 } from "lucide-react";
-import { AdminLayout } from "./AdminLayout";
 import HomePage from "./home";
+import SharedPage from "./shared";
+import { AppLayout } from "./UserLayout";
 
 export const MainLayout = () => {
   const { loading } = useAuth();
@@ -25,26 +25,22 @@ export const MainLayout = () => {
   return (
     <BrowserRouter>
       <StatusGuard>
-        <UserFloatingMenu />
         <Routes>
           {/* Public Routes (Ví dụ: Login) */}
           <Route path={ROUTES.LOGIN} element={<EmailEntry />} />
 
           {/* Protected Routes (Yêu cầu phải là User hoặc Guest) */}
           <Route element={<ProtectedRoute />}>
-            <Route path={ROUTES.HOME} element={<HomePage />} />
+            <Route element={<AppLayout />}>
+              <Route path={ROUTES.HOME} element={<HomePage />} />
+              <Route path={ROUTES.SHARED} element={<SharedPage />} />
+
+              <Route path={ROUTES.ADMIN.ROOT} element={<AdminRoute />}>
+                <Route path={ROUTES.ADMIN.USERS} element={<UsersPage />} />
+              </Route>
+            </Route>
 
             {/* Admin Only - Bọc thêm một lớp AdminRoute */}
-            <Route
-              path={ROUTES.ADMIN.ROOT}
-              element={
-                <AdminRoute>
-                  <AdminLayout />
-                </AdminRoute>
-              }
-            >
-              <Route path={ROUTES.ADMIN.USERS} element={<UsersPage />} />
-            </Route>
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />

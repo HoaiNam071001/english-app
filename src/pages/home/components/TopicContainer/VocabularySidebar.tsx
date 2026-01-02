@@ -8,9 +8,12 @@ import {
   Eye,
   EyeOff,
   FolderInput,
+  Globe,
+  GlobeLock,
   MoreHorizontal,
   RotateCcw,
   Search,
+  Share2,
   Sparkles,
   Trash2,
   X,
@@ -40,6 +43,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useAuth } from "@/hooks/useAuth";
 import { BatchUpdateVocabularyItem, VocabularyItem } from "@/types";
 import { BulkLookupModal } from "../Lookup/BulkLookupModal";
 import MoveTopicModal from "../common/MoveTopicModal";
@@ -144,6 +148,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
   const [lastSelectedId, setLastSelectedId] = useState<string | null>(null);
   const [isBulkLookupOpen, setIsBulkLookupOpen] = useState(false);
   const [isMoveTopicModalOpen, setIsMoveTopicModalOpen] = useState(false);
+  const { userProfile } = useAuth();
 
   const HEIGHT_ITEM = 65;
 
@@ -258,6 +263,16 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
     setLastSelectedId(null);
   };
 
+  const handleBulkShare = (isShared: boolean) => {
+    if (onBulkUpdate) {
+      onBulkUpdate(Array.from(selectedIds), { isShared });
+
+      // Reset selection sau khi thực hiện xong
+      setSelectedIds(new Set());
+      setLastSelectedId(null);
+    }
+  };
+
   const confirmBulkDelete = () => {
     if (onBulkDelete) {
       onBulkDelete(Array.from(selectedIds));
@@ -301,7 +316,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
   };
 
   return (
-    <div className="flex flex-col bg-card border-r pr-4 h-full overflow-hidden">
+    <div className="flex flex-col bg-card border-r pr-2 h-full overflow-hidden">
       <MoveTopicModal
         open={isMoveTopicModalOpen}
         onOpenChange={setIsMoveTopicModalOpen}
@@ -373,6 +388,48 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                   <TooltipContent>Deselect all</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
+
+              {!!userProfile && (
+                <DropdownMenu>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950"
+                          >
+                            <Share2 size={16} />
+                          </Button>
+                        </DropdownMenuTrigger>
+                      </TooltipTrigger>
+                      <TooltipContent>Community Sharing</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+
+                  <DropdownMenuContent align="center" className="w-48">
+                    <DropdownMenuLabel>Sharing Options</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+
+                    <DropdownMenuItem
+                      onClick={() => handleBulkShare(true)}
+                      className="text-emerald-600 focus:text-emerald-700 dark:text-emerald-400 dark:focus:text-emerald-500"
+                    >
+                      <Globe className="mr-2 h-4 w-4" />
+                      <span>Share to Community</span>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem
+                      onClick={() => handleBulkShare(false)}
+                      className="text-muted-foreground"
+                    >
+                      <GlobeLock className="mr-2 h-4 w-4" />
+                      <span>Make Private</span>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
 
               <TooltipProvider>
                 <Tooltip>

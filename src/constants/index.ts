@@ -227,6 +227,7 @@ export const ROUTES = {
   // Public
   HOME: "/",
   LOGIN: "/login",
+  SHARED: "/shared",
 
   // Admin Area
   ADMIN: {

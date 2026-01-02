@@ -1,3 +1,4 @@
+import { MyVocabularyProvider } from "@/contexts/MyVocabularyContext";
 import { useAuth } from "@/hooks/useAuth";
 import { UserStatus } from "@/types";
 import PendingScreen from "./PendingScreen";
@@ -15,5 +16,5 @@ export const StatusGuard = ({ children }: { children: React.ReactNode }) => {
     }
   }
 
-  return <>{children}</>;
+  return <MyVocabularyProvider>{children}</MyVocabularyProvider>;
 };

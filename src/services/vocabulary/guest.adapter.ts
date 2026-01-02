@@ -38,22 +38,22 @@ export class GuestVocabularyService implements IVocabularyService {
     const entriesToAdd: VocabularyItem[] = [];
 
     newEntries.forEach((entry) => {
-      if (existingSet.has(entry.normalized!)) {
+      const normalized = entry.text!.toLowerCase();
+
+      if (existingSet.has(normalized)) {
         skippedWords.push(entry.text!);
       } else {
         const now = Date.now();
         entriesToAdd.push({
           id: crypto.randomUUID(),
-          text: entry.text!,
-          meaning: entry.meaning!,
-          normalized: entry.normalized!,
-          example: entry.example || null,
+          ...entry,
+          normalized: normalized,
           topicId: entry.topicId,
           userId: GUEST_INFO.id,
           createdAt: now,
           updatedAt: now,
           isLearned: false,
-        });
+        } as VocabularyItem);
         addedWords.push(entry.text!);
       }
     });

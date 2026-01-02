@@ -2,7 +2,7 @@ import { SimpleTooltip } from "@/components/SimpleTooltip";
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/hooks/useConfirm";
 import { useTabSession } from "@/hooks/useTabSession";
-import { TabSession, TopicItem, VocabularyItem } from "@/types";
+import { AddReport, TabSession, TopicItem, VocabularyItem } from "@/types";
 import { isToday } from "@/utils";
 import { ChevronLeft, ChevronRight, Plus, RotateCcw } from "lucide-react";
 import React, {
@@ -13,6 +13,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import CreateVocabularyModal from "../CreateVocabularyModal";
 import FlashcardSection from "./FlashcardSection";
 import { TabItem } from "./TabItem"; // Giả sử bạn đã tách file TabItem
 
@@ -29,6 +30,9 @@ interface CardContainerProps {
   onMarkLearned: (id: string, isLearned: boolean) => void;
   onUpdateWord: (id: string, updates: Partial<VocabularyItem>) => void;
   onDeleteWord: (id: string) => void;
+  handleAddVocabulary: (
+    entries: Partial<VocabularyItem[]>
+  ) => Promise<AddReport>;
 }
 
 const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
@@ -37,6 +41,7 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
       allWords,
       topics,
       isLoaded: allWordLoaded,
+      handleAddVocabulary,
       onMarkLearned,
       onUpdateWord,
       onDeleteWord,
@@ -251,7 +256,7 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
     return (
       <div className="flex flex-col h-full gap-2">
         {/* --- TAB BAR CONTAINER --- */}
-        <div className="flex items-center border-b px-2 bg-background/95 backdrop-blur gap-1 h-[46px] z-10">
+        <div className="flex pl-10 items-center border-b bg-background/95 backdrop-blur gap-1 h-[46px] z-10">
           <Button
             variant="ghost"
             size="icon"
@@ -316,6 +321,8 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
               <Plus size={18} />
             </Button>
           </SimpleTooltip>
+
+          <CreateVocabularyModal onAddVocabulary={handleAddVocabulary} />
         </div>
 
         {/* --- CONTENT --- */}

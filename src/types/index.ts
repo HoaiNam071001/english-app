@@ -30,6 +30,7 @@ export interface VocabularyItem {
   createdAt: number; // Kiểu thời gian của Firebase
   updatedAt: number;
   isLearned?: boolean;
+  isShared?: boolean;
   example?: string;
   topicId?: string | null;
   phonetics?: PhoneticItem[];
