@@ -231,6 +231,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
               <PhoneticRow
                 key={index}
                 item={pho}
+                wordText={form.text}
                 onUpdate={(updatedItem) => {
                   const newArr = [...(form.phonetics || [])];
                   newArr[index] = updatedItem;

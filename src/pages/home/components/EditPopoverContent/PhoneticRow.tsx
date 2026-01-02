@@ -1,26 +1,39 @@
 // ----------------------------------------------------------------------
-const VALID_ACCENTS = [AccentType.US, AccentType.UK, AccentType.AU];
-
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AccentType, PhoneticItem } from "@/types";
+// Lưu ý: Nếu dự án dùng Shadcn UI chuẩn thì nên import từ "@/components/ui/dropdown-menu"
+// Nhưng mình giữ nguyên import từ radix theo code cũ của bạn
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@radix-ui/react-dropdown-menu";
-import { Edit2, LinkIcon, Volume2 } from "lucide-react";
+import { Edit2, LinkIcon, Volume2, Wand2 } from "lucide-react";
 import { useState } from "react";
+
+const VALID_ACCENTS = [AccentType.US, AccentType.UK, AccentType.AU];
+
+// Helper tạo link audio
+const getGoogleAudioLink = (text: string, type: AccentType) => {
+  if (!text || !text.trim()) return "";
+  const lang = type === AccentType.UK ? "en-GB" : "en-US";
+  return `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=${lang}&q=${encodeURIComponent(
+    text.trim()
+  )}`;
+};
 
 // ----------------------------------------------------------------------
 export const PhoneticRow = ({
   item,
+  wordText,
   onUpdate,
   onDelete,
 }: {
   item: PhoneticItem;
+  wordText: string;
   onUpdate: (item: PhoneticItem) => void;
   onDelete: () => void;
 }) => {
@@ -35,6 +48,17 @@ export const PhoneticRow = ({
   };
 
   const hasAudio = item.audio && item.audio.trim() !== "";
+
+  const handleAutoFillAudio = (type: AccentType) => {
+    const link = getGoogleAudioLink(wordText || "", type);
+    if (link) {
+      setEditForm({
+        ...editForm,
+        accent: type,
+        audio: link,
+      });
+    }
+  };
 
   // 1. Chế độ Edit (Chiếm không gian để nhập liệu)
   if (isEditing) {
@@ -52,10 +76,11 @@ export const PhoneticRow = ({
                 {editForm.accent}
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent>
+            <DropdownMenuContent className="bg-popover text-popover-foreground border rounded-md shadow-md p-1 min-w-[80px] z-50">
               {VALID_ACCENTS.map((acc) => (
                 <DropdownMenuItem
                   key={acc}
+                  className="text-xs px-2 py-1.5 outline-none cursor-pointer hover:bg-accent hover:text-accent-foreground rounded-sm"
                   onClick={() => setEditForm({ ...editForm, accent: acc })}
                 >
                   {acc}
@@ -74,7 +99,7 @@ export const PhoneticRow = ({
           />
         </div>
 
-        {/* Audio Input */}
+        {/* Audio Input Row */}
         <div className="flex items-center gap-1.5">
           <LinkIcon size={12} className="text-muted-foreground shrink-0" />
           <Input
@@ -85,6 +110,30 @@ export const PhoneticRow = ({
             className="h-7 text-[10px] px-1.5 flex-1"
             placeholder="https://..."
           />
+
+          {/* --- NEW: Auto Fill Options --- */}
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              type="button"
+              className="h-7 px-2 text-[10px] text-muted-foreground hover:text-primary whitespace-nowrap"
+              onClick={() => handleAutoFillAudio(AccentType.US)}
+              title="Auto generate US Audio"
+            >
+              <Wand2 size={10} className="mr-1" /> US
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              type="button"
+              className="h-7 px-2 text-[10px] text-muted-foreground hover:text-primary whitespace-nowrap"
+              onClick={() => handleAutoFillAudio(AccentType.UK)}
+              title="Auto generate UK Audio"
+            >
+              <Wand2 size={10} className="mr-1" /> UK
+            </Button>
+          </div>
         </div>
 
         {/* Actions Row */}
@@ -94,19 +143,14 @@ export const PhoneticRow = ({
             size="sm"
             className="h-6 px-2 text-[10px] hover:bg-destructive hover:text-white"
             onClick={() => {
-              setIsEditing(false);
-              onDelete();
+              if (!item.text) {
+                onDelete();
+              } else {
+                setIsEditing(false);
+              }
             }}
           >
-            Delete
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-6 px-2 text-[10px] hover:bg-destructive hover:text-white"
-            onClick={() => setIsEditing(false)}
-          >
-            Cancel
+            {item.text ? "Cancel" : "Discard"}
           </Button>
           <Button
             size="sm"
@@ -116,7 +160,7 @@ export const PhoneticRow = ({
               setIsEditing(false);
             }}
           >
-            OK
+            Done
           </Button>
         </div>
       </div>
