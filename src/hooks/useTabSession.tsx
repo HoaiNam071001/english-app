@@ -46,9 +46,8 @@ export const useTabSession = () => {
   useEffect(() => {
     setIsLoaded(false);
     isHydrated.current = false;
-
     // Nếu chưa xác định được user (lúc mới mount), chưa load
-    if (!storageKey || !userId) return;
+    if (!storageKey || (!userId && !isGuest)) return;
 
     const timer = setTimeout(() => {
       try {
@@ -85,7 +84,7 @@ export const useTabSession = () => {
     }, 0);
 
     return () => clearTimeout(timer);
-  }, [storageKey, userId]);
+  }, [storageKey, userId, isGuest]);
 
   // --- 2. SAVE DATA ---
   useEffect(() => {
