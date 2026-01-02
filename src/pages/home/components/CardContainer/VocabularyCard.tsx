@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import React, { useMemo, useState } from "react";
 import { EditVocabularyModal } from "../common/EditVocabularyModal";
+import { Phonetics } from "../common/Phonetic";
 import { VocabularyDetailContent } from "../common/VocabularyDetailContent";
 import { FlashcardCommand } from "./FlashcardSection";
 
@@ -99,23 +100,6 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
     } finally {
       setLoading(false);
     }
-  };
-
-  const renderPhonetics = () => {
-    const usInfo = item.phonetics?.find((p) => p.accent === AccentType.US);
-    if (usInfo)
-      return (
-        <div className="text-[10px]  text-blue-500 font-mono tracking-wider select-none">
-          {usInfo.text}
-        </div>
-      );
-    const ukInfo = item.phonetics?.find((p) => p.accent === AccentType.UK);
-    if (ukInfo)
-      return (
-        <div className="text-[10px] font-mono tracking-wider text-cyan-500 select-none">
-          {ukInfo.text}
-        </div>
-      );
   };
 
   const renderTopic = () => {
@@ -250,7 +234,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
               <div className="flex-1 flex flex-col items-center justify-center px-3 py-8 min-h-0 overflow-hidden">
                 {/* --- TEXT SECTION --- */}
                 <div className="h-[60px] min-h-[60px] mb-1 flex flex-col justify-end">
-                  {renderPhonetics()}
+                  <Phonetics item={item} />
                   {item.example ? (
                     <Popover>
                       <PopoverTrigger asChild>

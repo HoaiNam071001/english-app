@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { EditVocabularyModal } from "../common/EditVocabularyModal";
+import { Phonetics } from "../common/Phonetic";
 import { VocabularyDetailContent } from "../common/VocabularyDetailContent";
 
 interface VocabularyItemRowProps {
@@ -143,6 +144,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
           >
             {word.text}
           </span>
+          <Phonetics item={word} />
         </div>
 
         <div className="mt-1 relative w-fit h-[16px]">
