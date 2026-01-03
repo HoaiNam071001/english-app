@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { UserAvatar } from "@/components/UserAvatar";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useAuth } from "@/hooks/useAuth";
 import { UserRole, UserStatus } from "@/types";
@@ -136,18 +137,11 @@ const UsersPage = () => {
                 >
                   <div className="flex items-center gap-3">
                     {/* Avatar */}
-                    <div
-                      className={`
-                          flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-bold text-white shadow-sm
-                          ${
-                            user.status === UserStatus.PENDING
-                              ? "bg-orange-500 dark:bg-orange-600"
-                              : "bg-muted-foreground"
-                          }
-                        `}
-                    >
-                      {user.email.charAt(0).toUpperCase()}
-                    </div>
+                    <UserAvatar
+                      email={user.email}
+                      photoUrl={user.photoURL}
+                      status={user.status}
+                    />
 
                     {/* Main Info */}
                     <div className="flex-1 min-w-0">

@@ -86,6 +86,7 @@ export interface UserProfile {
   lastLoginAt: number;
   approvedBy?: string;
   approvedAt?: number;
+  photoURL?: string | null;
 }
 
 export interface SavedAccount {

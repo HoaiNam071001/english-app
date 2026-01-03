@@ -10,16 +10,9 @@ import { GUEST_INFO, STORAGE_KEY } from "@/constants";
 import { useAuth } from "@/hooks/useAuth";
 import { useConfirm } from "@/hooks/useConfirm";
 import { useToast } from "@/hooks/useToast";
-import {
-  ArrowLeftCircle,
-  LogOut,
-  Settings,
-  Trash2,
-  User as UserIcon,
-  Users,
-} from "lucide-react";
+import { ArrowLeftCircle, LogOut, Trash2, Users } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
-import { Button } from "./ui/button";
+import { UserAvatar } from "./UserAvatar";
 
 export const UserFloatingMenu = () => {
   const { isGuest, user, loginWithGoogle, setIsGuest, switchAccount, logout } =
@@ -57,27 +50,13 @@ export const UserFloatingMenu = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="outline"
-          size="icon"
-          className={`rounded-full shadow-md border-border transition-all h-10 w-10 ${
-            isGuest
-              ? "bg-orange-100 hover:bg-orange-200 border-orange-300 dark:bg-orange-900/20"
-              : "bg-background hover:bg-accent"
-          }`}
-        >
-          {isGuest ? (
-            <UserIcon className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-          ) : user?.photoURL ? (
-            <img
-              src={user.photoURL}
-              alt="Avatar"
-              className="w-full h-full rounded-full object-cover"
-            />
-          ) : (
-            <Settings className="h-5 w-5 text-foreground" />
-          )}
-        </Button>
+        <div className="cursor-pointer">
+          <UserAvatar
+            email={user?.email}
+            isGuest={isGuest}
+            photoUrl={isGuest ? null : user.photoURL}
+          />
+        </div>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent className="w-72" align="end" forceMount>

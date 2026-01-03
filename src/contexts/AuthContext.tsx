@@ -86,13 +86,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (userSnap.exists()) {
       const data = userSnap.data();
       setUserProfile({ ...data } as UserProfile);
-      await setDoc(userRef, { lastLoginAt: Date.now() }, { merge: true });
+      await setDoc(
+        userRef,
+        { lastLoginAt: Date.now(), photoURL: currentUser.photoURL },
+        { merge: true }
+      );
     } else {
       const newProfile: UserProfile = {
         id: currentUser.uid,
         email: currentUser.email,
         role: UserRole.USER,
         status: UserStatus.PENDING,
+        photoURL: currentUser.photoURL,
         createdAt: Date.now(),
         lastLoginAt: Date.now(),
       };
