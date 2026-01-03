@@ -165,8 +165,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
     return allWords.filter((word) => {
       return (
         word.text.toLowerCase().includes(lowerTerm) ||
-        word.meaning.toLowerCase().includes(lowerTerm) ||
-        (word.example && word.example.toLowerCase().includes(lowerTerm))
+        word.meaning.toLowerCase().includes(lowerTerm)
       );
     });
   }, [allWords, debouncedTerm]);
