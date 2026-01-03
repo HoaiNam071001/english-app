@@ -88,7 +88,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setUserProfile({ ...data } as UserProfile);
       await setDoc(
         userRef,
-        { lastLoginAt: Date.now(), photoURL: currentUser.photoURL },
+        {
+          lastLoginAt: Date.now(),
+          photoURL: currentUser.photoURL,
+          emailId: currentUser.uid,
+        },
         { merge: true }
       );
     } else {
