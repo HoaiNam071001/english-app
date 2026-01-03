@@ -1,16 +1,13 @@
-import { UserStatus } from "@/types";
 import { UserIcon } from "lucide-react";
 import React from "react";
 
 export const UserAvatar = ({
   email,
   photoUrl,
-  status,
   isGuest,
 }: {
   email: string;
   photoUrl?: string;
-  status?: UserStatus;
   isGuest?: boolean;
 }) => {
   const [imageError, setImageError] = React.useState(false);
@@ -34,9 +31,7 @@ export const UserAvatar = ({
         ${
           isGuest
             ? "bg-orange-100 hover:bg-orange-200 border-orange-300 dark:bg-orange-900/20"
-            : status === UserStatus.PENDING
-            ? "bg-blue-600"
-            : "bg-muted-foreground"
+            : "bg-blue-700"
         }
       `}
     >
