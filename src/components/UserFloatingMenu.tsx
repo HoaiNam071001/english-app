@@ -121,7 +121,10 @@ export const UserFloatingMenu = () => {
             </DropdownMenuLabel>
             <DropdownMenuItem
               className="p-2 cursor-pointer focus:bg-accent"
-              onClick={() => loginWithGoogle(user.email)}
+              onClick={() => {
+                logout();
+                loginWithGoogle(user.email);
+              }}
             >
               <div className="flex items-center gap-3 w-full">
                 <div className="relative">
