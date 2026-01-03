@@ -147,7 +147,7 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
 
         {/* MAIN CONTENT AREA */}
         <div className="relative flex-1 transition-all duration-300 min-w-0 h-[80vh]">
-          <div className="absolute top-1 left-0 z-100">
+          <div className="absolute top-1 left-0 z-[11]">
             <Button
               variant="ghost"
               size="icon"
