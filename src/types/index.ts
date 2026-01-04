@@ -29,8 +29,11 @@ export interface VocabularyItem {
   normalized: string; // Từ tiếng Anh viết thường (để check trùng)
   createdAt: number; // Kiểu thời gian của Firebase
   updatedAt: number;
+
   isLearned?: boolean;
   isShared?: boolean;
+  isPinned?: boolean;
+
   example?: string;
   topicId?: string | null;
   phonetics?: PhoneticItem[];

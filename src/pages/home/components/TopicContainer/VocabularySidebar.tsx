@@ -11,6 +11,7 @@ import {
   Globe,
   GlobeLock,
   MoreHorizontal,
+  Pin,
   RotateCcw,
   Search,
   Share2,
@@ -19,6 +20,7 @@ import {
   X,
 } from "lucide-react";
 
+import { SimpleGroupedList } from "@/components/SimpleGroupedList";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -35,8 +37,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-// Đã xóa ScrollArea import
-import { SimpleGroupedList } from "@/components/SimpleGroupedList";
 import {
   Tooltip,
   TooltipContent,
@@ -48,7 +48,6 @@ import { BatchUpdateVocabularyItem, VocabularyItem } from "@/types";
 import { BulkLookupModal } from "../Lookup/BulkLookupModal";
 import MoveTopicModal from "../common/MoveTopicModal";
 import { VocabularyItemRow } from "./VocabularyItemRow";
-// Import component ảo hóa vừa tạo
 
 moment.locale("vi");
 
@@ -77,7 +76,6 @@ const formatDateGroup = (dateString: string) => {
   return formatted.charAt(0).toUpperCase() + formatted.slice(1);
 };
 
-// --- Component Header Ngày (Tách ra để dùng trong List ảo) ---
 interface DateGroupHeaderProps {
   dateKey: string;
   count: number;
@@ -148,6 +146,10 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
   const [lastSelectedId, setLastSelectedId] = useState<string | null>(null);
   const [isBulkLookupOpen, setIsBulkLookupOpen] = useState(false);
   const [isMoveTopicModalOpen, setIsMoveTopicModalOpen] = useState(false);
+
+  // [NEW] State cho chế độ xem item được ghim
+  const [showPinnedOnly, setShowPinnedOnly] = useState(false);
+
   const { userProfile } = useAuth();
 
   const HEIGHT_ITEM = 65;
@@ -160,15 +162,21 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
   }, [searchTerm]);
 
   const filteredWords = useMemo(() => {
-    if (!debouncedTerm.trim()) return allWords;
+    let result = allWords;
+    if (showPinnedOnly) {
+      result = result.filter((w) => w.isPinned);
+    }
+
+    if (!debouncedTerm.trim()) return result;
+
     const lowerTerm = debouncedTerm.toLowerCase();
-    return allWords.filter((word) => {
+    return result.filter((word) => {
       return (
         word.text.toLowerCase().includes(lowerTerm) ||
         word.meaning.toLowerCase().includes(lowerTerm)
       );
     });
-  }, [allWords, debouncedTerm]);
+  }, [allWords, debouncedTerm, showPinnedOnly]);
 
   const groupedWords = useMemo(() => {
     const groups: Record<string, VocabularyItem[]> = {};
@@ -185,7 +193,6 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
     [groupedWords]
   );
 
-  // Chuẩn bị dữ liệu đếm cho Virtual List
   const groupCounts = useMemo(() => {
     return sortedDateKeys.map((key) => groupedWords[key].length);
   }, [sortedDateKeys, groupedWords]);
@@ -237,7 +244,6 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
     return selectedWords.length > 0 && selectedWords.every((w) => w.isLearned);
   }, [selectedWords]);
 
-  // --- ACTIONS HANDLERS ---
   const handleBulkMark = () => {
     if (onBulkMarkLearned) {
       const targetStatus = !isAllSelectedLearned;
@@ -265,8 +271,6 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
   const handleBulkShare = (isShared: boolean) => {
     if (onBulkUpdate) {
       onBulkUpdate(Array.from(selectedIds), { isShared });
-
-      // Reset selection sau khi thực hiện xong
       setSelectedIds(new Set());
       setLastSelectedId(null);
     }
@@ -537,23 +541,52 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
               </DropdownMenu>
             </>
           ) : (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={toggleRevealAll}
-                    className="h-8 w-8 text-muted-foreground"
-                  >
-                    {isAllRevealed ? <Eye size={18} /> : <EyeOff size={18} />}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  {isAllRevealed ? "Hide all meanings" : "Show all meanings"}
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant={showPinnedOnly ? "secondary" : "ghost"}
+                      size="icon"
+                      onClick={() => setShowPinnedOnly(!showPinnedOnly)}
+                      className={`h-8 w-8 transition-colors ${
+                        showPinnedOnly
+                          ? "text-orange-600 bg-orange-100 dark:bg-orange-950/50 dark:text-orange-400"
+                          : "text-muted-foreground hover:text-orange-600 hover:bg-orange-50"
+                      }`}
+                    >
+                      <Pin
+                        size={16}
+                        className={showPinnedOnly ? "fill-current" : ""}
+                      />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {showPinnedOnly
+                      ? "Show all items"
+                      : "Show pinned items only"}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={toggleRevealAll}
+                      className="h-8 w-8 text-muted-foreground"
+                    >
+                      {isAllRevealed ? <Eye size={18} /> : <EyeOff size={18} />}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {isAllRevealed ? "Hide all meanings" : "Show all meanings"}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </>
           )}
         </div>
       </div>
@@ -569,7 +602,6 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
           <SimpleGroupedList
             groupCounts={groupCounts}
             estimateRowHeight={HEIGHT_ITEM}
-            // Render Header Ngày
             groupContent={(index) => {
               const dateKey = sortedDateKeys[index];
               const wordsInGroup = groupedWords[dateKey];
@@ -586,7 +618,6 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                 />
               );
             }}
-            // Render Từ vựng
             itemContent={(index, groupIndex, itemIndex) => {
               const dateKey = sortedDateKeys[groupIndex];
               const word = groupedWords[dateKey][itemIndex];

@@ -20,6 +20,7 @@ import {
   FolderSearch,
   Info,
   PenLine,
+  Pin, // [NEW] Import PinOff
   RotateCcw,
   Volume2,
   X,
@@ -63,7 +64,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
   onDelete,
 }) => {
   const [loading, setLoading] = useState(false);
-  const [isEditOpen, setIsEditOpen] = useState(false); // State điều khiển Modal
+  const [isEditOpen, setIsEditOpen] = useState(false);
 
   const currentTopic = useMemo(() => {
     if (!item.topicId) return null;
@@ -134,15 +135,27 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
           onSave={onUpdate}
           onDelete={(id) => {
             onDelete(id);
-            remove(id); // Gọi remove để ẩn card khỏi list ngay lập tức
+            remove(id);
           }}
         />
       )}
 
       <div
         onClick={handleCardClick}
-        className="cursor-pointer perspective-1000 group w-full sm:w-40 h-50 transition-all duration-300 hover:translate-y-1"
+        className="relative cursor-pointer perspective-1000 group w-full sm:w-40 h-50 transition-all duration-300 hover:translate-y-1"
       >
+        {isFlipped && item.isPinned && (
+          <div
+            className="absolute -top-1 -right-1 z-40 animate-in fade-in zoom-in duration-300 pointer-events-none"
+            title="Pinned"
+          >
+            <Pin
+              size={16}
+              className="text-orange-500 fill-orange-500 rotate-[45deg] drop-shadow-[0_2px_2px_rgba(0,0,0,0.1)]"
+            />
+          </div>
+        )}
+
         <Card
           className={`
           relative w-full h-full flex flex-col items-center justify-center p-2 text-center shadow-lg border-2 overflow-hidden
@@ -207,6 +220,8 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
           {/* --- FRONT SIDE (NGỬA) --- */}
           {isFlipped && (
             <div className="flex flex-col h-full w-full relative animate-in fade-in zoom-in-95 duration-500">
+              {/* [NEW] 1. PIN INDICATOR: Absolute Top Right */}
+
               <div className="absolute -top-1 left-0 w-full flex items-center gap-1 z-30">
                 <div
                   className="p-1.5 mr-auto rounded-full hover:bg-accent text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
@@ -218,11 +233,11 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
 
                 {renderTopic()}
 
-                {/* 2. THAY THẾ POPOVER TRIGGER BẰNG DIV ONCLICK */}
+                {/* Edit Button */}
                 <div
                   className="p-1.5 rounded-full hover:bg-accent text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
                   onClick={(e) => {
-                    e.stopPropagation(); // Ngăn sự kiện lật thẻ
+                    e.stopPropagation();
                     setIsEditOpen(true);
                   }}
                   title="Edit word"
@@ -231,9 +246,9 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                 </div>
               </div>
 
+              {/* MAIN CONTENT */}
               <div className="flex-1 flex flex-col items-center justify-center px-3 py-8 min-h-0 overflow-hidden">
-                {/* --- TEXT SECTION --- */}
-                <div className="h-[60px] min-h-[60px] mb-1 flex flex-col justify-end">
+                <div className="h-[60px] min-h-[60px] flex flex-col justify-end">
                   <Phonetics item={item} />
                   {item.example ? (
                     <Popover>
@@ -241,7 +256,6 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                         <div
                           className="text-lg font-bold text-foreground cursor-help decoration-dashed underline decoration-border underline-offset-4 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-center"
                           onClick={(e) => e.stopPropagation()}
-                          title="Click to see note"
                         >
                           {item.text}
                         </div>
@@ -269,11 +283,10 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                   )}
                 </div>
 
-                <div className="w-12 !m-0 h-[2px] min-h-[2px] bg-border rounded-full my-2"></div>
+                <div className="w-12 !m-0 h-[2px] min-h-[2px] bg-border rounded-full"></div>
 
-                {/* --- MEANING SECTION --- */}
                 <div
-                  className="relative group/meaning h-[40px] min-h-[40px] mt-2 w-full flex flex-col items-center justify-start cursor-pointer"
+                  className="relative group/meaning h-[40px] min-h-[40px] mt-1 w-full flex flex-col items-center justify-start cursor-pointer"
                   onClick={(e) => {
                     if (!item.meaning) return;
                     e.stopPropagation();
@@ -304,66 +317,89 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                 </div>
               </div>
 
-              {/* FOOTER ICONS */}
-              <div className="absolute bottom-0 left-0 w-full flex items-center justify-between gap-2 z-20">
-                <Speaker item={item} />
+              {/* [UPDATED] 3. BOTTOM ACTIONS: UI "Dock" Style */}
+              <div className="absolute bottom-0 left-0 w-full z-20">
+                <div className="flex items-center gap-2 justify-between bg-secondary/50 backdrop-blur-sm rounded-full p-0.5 border border-border/50 shadow-sm">
+                  <Speaker item={item} />
 
-                <Popover>
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <PopoverTrigger asChild>
-                          <div
-                            className="p-1.5 rounded-full hover:bg-accent text-blue-500 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors cursor-pointer"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <Info size={14} />
-                          </div>
-                        </PopoverTrigger>
+                        <div
+                          className={`p-1.5 rounded-full transition-all cursor-pointer hover:bg-background `}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onUpdate(item.id, { isPinned: !item.isPinned });
+                          }}
+                        >
+                          <Pin size={15} />
+                        </div>
                       </TooltipTrigger>
-                      <TooltipContent side="top">
-                        <p className="text-xs">View details</p>
+                      <TooltipContent side="top" className="text-xs">
+                        {item.isPinned ? "Unpin" : "Pin"}
                       </TooltipContent>
                     </Tooltip>
                   </TooltipProvider>
 
-                  <PopoverContent
-                    side="right"
-                    className="w-max p-4"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <VocabularyDetailContent
-                      item={item}
-                      topic={currentTopic || undefined}
-                    />
-                  </PopoverContent>
-                </Popover>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div
+                          className={`p-1.5 rounded-full transition-colors cursor-pointer ${
+                            !item.isLearned
+                              ? " text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900"
+                              : " text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900"
+                          }`}
+                          onClick={handleMarkAsLearned}
+                        >
+                          {loading ? (
+                            <span className="animate-spin text-xs">⏳</span>
+                          ) : item.isLearned ? (
+                            <RotateCcw size={14} />
+                          ) : (
+                            <Check size={14} />
+                          )}
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent side="top">
+                        {item.isLearned
+                          ? "Mark as unlearned"
+                          : "Mark as learned"}
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
 
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div
-                        className={`p-1.5 rounded-full transition-colors cursor-pointer ${
-                          !item.isLearned
-                            ? "bg-green-50 dark:bg-green-950/50 text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900"
-                            : "bg-orange-50 dark:bg-orange-950/50 text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900"
-                        }`}
-                        onClick={handleMarkAsLearned}
-                      >
-                        {loading ? (
-                          <span className="animate-spin text-xs">⏳</span>
-                        ) : item.isLearned ? (
-                          <RotateCcw size={14} />
-                        ) : (
-                          <Check size={14} />
-                        )}
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent side="top">
-                      {item.isLearned ? "Mark as unlearned" : "Mark as learned"}
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                  <Popover>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <PopoverTrigger asChild>
+                            <div
+                              className="p-1.5 rounded-full hover:bg-background hover:text-blue-500 transition-all cursor-pointer text-muted-foreground"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <Info size={15} />
+                            </div>
+                          </PopoverTrigger>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" className="text-xs">
+                          Details
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+
+                    <PopoverContent
+                      side="right"
+                      className="w-max p-4"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <VocabularyDetailContent
+                        item={item}
+                        topic={currentTopic || undefined}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
               </div>
             </div>
           )}
@@ -398,9 +434,9 @@ const Speaker = ({ item }: { item: VocabularyItem }) => {
     }
   }, [audioSourceType]);
   const speakerTooltip = useMemo(() => {
-    if (audioSourceType === "us") return "Play US Audio (Real voice)";
-    if (audioSourceType === "other") return "Play Audio (Real voice)";
-    return "Browser Text-to-Speech (Robot voice)";
+    if (audioSourceType === "us") return "Play US Audio";
+    if (audioSourceType === "other") return "Play Audio";
+    return "Browser Text-to-Speech";
   }, [audioSourceType]);
 
   const handleSpeak = (e: React.MouseEvent) => {

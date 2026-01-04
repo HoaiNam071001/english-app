@@ -19,12 +19,13 @@ import {
   Check,
   CheckCircle2,
   Circle,
-  Eye, // Import lại Eye
+  Eye,
   EyeOff,
-  Globe, // Import lại EyeOff
+  Globe,
   Info,
   Minus,
-  PenLine, // Import thêm PenLine cho nút Edit
+  PenLine,
+  Pin, // [NEW]
   Plus,
   RotateCcw,
 } from "lucide-react";
@@ -165,7 +166,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
         </div>
 
         <div className="mt-1 relative w-fit h-[16px]">
-          {/* Layer Text hiển thị nghĩa - KHÔNG CÒN Click để Show/Hide */}
+          {/* Layer Text hiển thị nghĩa */}
           <div
             className={`text-xs text-muted-foreground truncate duration-100 max-w-[200px] cursor-default
               ${
@@ -180,13 +181,61 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
         </div>
       </div>
 
-      {/* Action Buttons Panel */}
+      {/* --- TOP RIGHT ZONE (View Details & Pin Indicator) --- */}
+      <div className="absolute top-1 right-1 flex items-center gap-1">
+        {/* [NEW] View Details Button (moved to Top Right) */}
+        <Popover>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 rounded-full text-muted-foreground/70 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Info size={14} />
+                  </Button>
+                </PopoverTrigger>
+              </TooltipTrigger>
+              <TooltipContent side="left">
+                <p className="text-xs">View details</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+
+          <PopoverContent
+            align="end"
+            side="bottom"
+            className="w-max p-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <VocabularyDetailContent
+              item={word}
+              topic={currentTopic || undefined}
+            />
+          </PopoverContent>
+        </Popover>
+
+        <div className="absolute -right-1 -top-2">
+          {word.isPinned && (
+            <Pin
+              size={12}
+              className="text-orange-500 fill-orange-500 transform rotate-45"
+            />
+          )}
+        </div>
+      </div>
+
+      {/* --- BOTTOM RIGHT ACTION PANEL --- */}
+      {/* [NEW] Positioned at bottom-1 right-1 instead of center */}
       <div
-        className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1
-                  bg-popover/95 backdrop-blur-sm shadow-md border border-border rounded-full p-1
+        className="absolute right-1 bottom-0 flex items-center gap-1
+                  bg-popover/95 backdrop-blur-sm shadow-md border border-border rounded-full
                   opacity-0 translate-x-2 scale-90 pointer-events-none
                   group-hover/actions:opacity-100 group-hover/actions:translate-x-0 group-hover/actions:scale-100 group-hover/actions:pointer-events-auto
-                  transition-all duration-300 ease-out origin-right z-20"
+                  transition-all duration-300 ease-out origin-bottom-right z-20"
       >
         {/* 1. Toggle Learned Button */}
         <TooltipProvider>
@@ -216,7 +265,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
           </Tooltip>
         </TooltipProvider>
 
-        {/* 2. [NEW] Show/Hide Meaning Button */}
+        {/* 2. Show/Hide Meaning Button */}
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -240,7 +289,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
           </Tooltip>
         </TooltipProvider>
 
-        {/* 3. [NEW] Edit Button (Moved here) */}
+        {/* 3. Edit Button */}
         <div
           className="p-1.5 rounded-full hover:bg-accent text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
           onClick={(e) => {
@@ -252,40 +301,30 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
           <PenLine size={14} />
         </div>
 
-        {/* 4. Detail Info Button */}
-        <Popover>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 rounded-full text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <Info size={14} />
-                  </Button>
-                </PopoverTrigger>
-              </TooltipTrigger>
-              <TooltipContent side="top">
-                <p className="text-xs">View details</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-
-          <PopoverContent
-            align="center"
-            side="right"
-            className="w-max p-4"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <VocabularyDetailContent
-              item={word}
-              topic={currentTopic || undefined}
-            />
-          </PopoverContent>
-        </Popover>
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={`h-7 w-7 rounded-full transition-colors ${
+                  word.isPinned
+                    ? "text-orange-500 bg-orange-50 dark:bg-orange-950/30"
+                    : "text-muted-foreground hover:text-orange-600 hover:bg-orange-50"
+                }`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onUpdate(word.id, { isPinned: !word.isPinned });
+                }}
+              >
+                <Pin size={14} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="top">
+              <p className="text-xs">{word.isPinned ? "Unpin" : "Pin item"}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
 
         {/* 5. Add/Remove Practice Button */}
         {isActive ? (
@@ -333,7 +372,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
         )}
       </div>
 
-      {/* 1. COMPONENT EDIT MODAL RIÊNG BIỆT */}
+      {/* COMPONENT EDIT MODAL */}
       {isEditOpen && (
         <EditVocabularyModal
           open={isEditOpen}
