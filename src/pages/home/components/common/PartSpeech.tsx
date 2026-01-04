@@ -11,6 +11,7 @@ export const PartSpeech = ({ data }: { data?: PartOfSpeech[] }) => {
              px-1.5 py-0.5 rounded font-bold uppercase tracking-tighter border
             ${getPartOfSpeechStyle(pos)}
           `}
+          title={pos}
         >
           {getShortPartOfSpeech(pos)}
         </span>

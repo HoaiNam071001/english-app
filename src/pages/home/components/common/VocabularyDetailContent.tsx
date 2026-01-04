@@ -11,6 +11,7 @@ import { playAudio } from "@/utils/audio";
 import { BookOpen, Calendar, Check, Volume2, X } from "lucide-react";
 import moment from "moment";
 import React from "react";
+import { PartSpeech } from "./PartSpeech";
 import { Phonetic } from "./Phonetic/PhoneticItem";
 
 interface VocabularyDetailContentProps {
@@ -52,11 +53,9 @@ export const VocabularyDetailContent: React.FC<
         </div>
 
         {/* 2. PART OF SPEECH (Mới thêm) */}
-        {item.partOfSpeech && item.partOfSpeech.length > 0 && (
-          <div className="text-sm italic text-muted-foreground">
-            {item.partOfSpeech.join(", ")}
-          </div>
-        )}
+        <div className="flex mt-1">
+          <PartSpeech data={item.partOfSpeech} />
+        </div>
 
         {/* 3. PHONETICS (Mới thêm) */}
         {item.phonetics && item.phonetics.length > 0 && (
@@ -73,7 +72,7 @@ export const VocabularyDetailContent: React.FC<
                   {pho.accent || "--"}
                 </span>
                 {/* IPA Text */}
-                <Phonetic accent={pho.accent} text={pho.text} />;
+                <Phonetic accent={pho.accent} text={pho.text} />
                 {/* Audio Button */}
                 {pho.audio && (
                   <TooltipProvider>
