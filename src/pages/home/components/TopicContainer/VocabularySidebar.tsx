@@ -670,7 +670,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
 
               return (
                 <div
-                  className="pb-1"
+                  className="pb-1 pr-1"
                   style={{ height: HEIGHT_ITEM }}
                   key={word.id}
                 >
