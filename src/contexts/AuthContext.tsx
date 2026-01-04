@@ -91,7 +91,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         {
           lastLoginAt: Date.now(),
           photoURL: currentUser.photoURL,
-          emailId: currentUser.uid,
         },
         { merge: true }
       );

@@ -91,10 +91,6 @@ const UsersPage = () => {
 
   return (
     <div className="bg-background">
-      {/* <UserMigrationTool />
-      <VocabularyMigrationTool />
-      <TopicMigrationTool /> */}
-
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-border">
         <div className="flex items-center gap-2">
