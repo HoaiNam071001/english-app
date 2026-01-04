@@ -5,6 +5,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import {
   BookOpen,
   CheckSquare,
+  ChevronDown,
+  ChevronRight,
   Eye,
   EyeOff,
   FolderInput,
@@ -80,11 +82,13 @@ interface DateGroupHeaderProps {
   dateKey: string;
   count: number;
   allSelected: boolean;
+  isCollapsed: boolean;
   onSelect: () => void;
+  onToggle: () => void;
 }
 
 const DateGroupHeader = React.memo<DateGroupHeaderProps>(
-  ({ dateKey, count, allSelected, onSelect }) => {
+  ({ dateKey, count, allSelected, onSelect, isCollapsed, onToggle }) => {
     return (
       <div
         onClick={onSelect}
@@ -93,7 +97,7 @@ const DateGroupHeader = React.memo<DateGroupHeaderProps>(
         sticky top-0 z-20 px-2 py-2 mb-2
         text-xs font-bold uppercase tracking-wider border-b border-border
         flex items-center justify-between cursor-pointer transition-colors
-        bg-card/95 backdrop-blur-sm shadow-sm
+        bg-card/95 backdrop-blur-sm shadow-sm select-none
         ${
           allSelected
             ? "text-blue-700 dark:text-blue-400 bg-blue-50/90 dark:bg-blue-950/30"
@@ -104,19 +108,37 @@ const DateGroupHeader = React.memo<DateGroupHeaderProps>(
         <div className="flex items-center gap-2">
           <Checkbox
             checked={allSelected}
+            // Nếu click checkbox riêng lẻ cũng cần stopPropagation nếu muốn
+            // Nhưng hiện tại logic cha là click div -> select nên ok
             className="h-4 w-4 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
           />
           <span>{formatDateGroup(dateKey)}</span>
         </div>
-        <span
-          className={`px-1.5 rounded-full text-[10px] ${
-            allSelected
-              ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
-              : "bg-muted text-muted-foreground"
-          }`}
-        >
-          {count}
-        </span>
+        <div className="flex items-center gap-1">
+          <span
+            className={`px-1.5 rounded-full text-[10px] ${
+              allSelected
+                ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                : "bg-muted text-muted-foreground"
+            }`}
+          >
+            {count}
+          </span>
+
+          <button
+            onClick={(e) => {
+              e.stopPropagation(); // Ngăn kích hoạt onSelect
+              onToggle();
+            }}
+            className="py-0.5 px-2 hover:bg-black/10 dark:hover:bg-white/10 rounded-sm transition-colors"
+          >
+            {isCollapsed ? (
+              <ChevronRight size={14} />
+            ) : (
+              <ChevronDown size={14} />
+            )}
+          </button>
+        </div>
       </div>
     );
   }
@@ -146,7 +168,9 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
   const [lastSelectedId, setLastSelectedId] = useState<string | null>(null);
   const [isBulkLookupOpen, setIsBulkLookupOpen] = useState(false);
   const [isMoveTopicModalOpen, setIsMoveTopicModalOpen] = useState(false);
-
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
+    new Set()
+  );
   // [NEW] State cho chế độ xem item được ghim
   const [showPinnedOnly, setShowPinnedOnly] = useState(false);
 
@@ -194,8 +218,21 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
   );
 
   const groupCounts = useMemo(() => {
-    return sortedDateKeys.map((key) => groupedWords[key].length);
-  }, [sortedDateKeys, groupedWords]);
+    return sortedDateKeys.map((key) => {
+      if (collapsedGroups.has(key)) return 0; // Thu gọn
+      return groupedWords[key].length; // Mở rộng
+    });
+  }, [sortedDateKeys, groupedWords, collapsedGroups]);
+
+  const toggleGroupCollapse = (dateKey: string) => {
+    const newSet = new Set(collapsedGroups);
+    if (newSet.has(dateKey)) {
+      newSet.delete(dateKey);
+    } else {
+      newSet.add(dateKey);
+    }
+    setCollapsedGroups(newSet);
+  };
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -604,23 +641,33 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
             estimateRowHeight={HEIGHT_ITEM}
             groupContent={(index) => {
               const dateKey = sortedDateKeys[index];
+              // Lấy length thực tế từ data gốc để hiển thị số lượng trên header
+              const realCount = groupedWords[dateKey].length;
+
               const wordsInGroup = groupedWords[dateKey];
               const allSelected = wordsInGroup.every((w) =>
                 selectedIds.has(w.id)
               );
+
               return (
                 <DateGroupHeader
                   key={dateKey}
                   dateKey={dateKey}
-                  count={wordsInGroup.length}
+                  count={realCount} // Luôn hiển thị tổng số item dù đang collapse
                   allSelected={allSelected}
                   onSelect={() => handleSelectDate(dateKey)}
+                  // [NEW] Truyền props collapse
+                  isCollapsed={collapsedGroups.has(dateKey)}
+                  onToggle={() => toggleGroupCollapse(dateKey)}
                 />
               );
             }}
             itemContent={(index, groupIndex, itemIndex) => {
               const dateKey = sortedDateKeys[groupIndex];
+              // Khi collapse, groupCounts[groupIndex] = 0 nên hàm này sẽ KHÔNG được gọi
+              // cho group đó, giúp ẩn item đi và tối ưu hiệu năng.
               const word = groupedWords[dateKey][itemIndex];
+
               return (
                 <div
                   className="pb-1"
