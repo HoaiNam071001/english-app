@@ -252,7 +252,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
               </div>
 
               {/* MAIN CONTENT */}
-              <div className="flex-1 flex flex-col items-center justify-center px-3 py-8 min-h-0 overflow-hidden">
+              <div className="flex-1 flex flex-col items-center justify-center py-8 min-h-0 overflow-hidden">
                 <div className="h-[60px] min-h-[60px] flex flex-col justify-end">
                   <div className="relative flex items-center flex-col">
                     <PartSpeech data={item.partOfSpeech} />
