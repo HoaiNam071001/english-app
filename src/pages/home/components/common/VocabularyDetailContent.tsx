@@ -11,6 +11,7 @@ import { playAudio } from "@/utils/audio";
 import { BookOpen, Calendar, Check, Volume2, X } from "lucide-react";
 import moment from "moment";
 import React from "react";
+import { Phonetic } from "./Phonetic/PhoneticItem";
 
 interface VocabularyDetailContentProps {
   item: VocabularyItem;
@@ -71,12 +72,8 @@ export const VocabularyDetailContent: React.FC<
                 >
                   {pho.accent || "--"}
                 </span>
-
                 {/* IPA Text */}
-                <span className="text-[12px] font-mono font-medium text-foreground">
-                  {pho.text}
-                </span>
-
+                <Phonetic accent={pho.accent} text={pho.text} />;
                 {/* Audio Button */}
                 {pho.audio && (
                   <TooltipProvider>

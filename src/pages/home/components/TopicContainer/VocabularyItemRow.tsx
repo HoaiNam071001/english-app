@@ -95,15 +95,13 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
             : ""
         }
       `}
+      onClick={(e) => {
+        e.stopPropagation();
+        onToggleSelection(word.id, e);
+      }}
     >
       {/* Checkbox Wrapper */}
-      <div
-        className="pt-1 cursor-pointer"
-        onClick={(e) => {
-          e.stopPropagation();
-          onToggleSelection(word.id, e);
-        }}
-      >
+      <div className="pt-1 cursor-pointer">
         <Checkbox
           checked={isSelected}
           onCheckedChange={() => {}}

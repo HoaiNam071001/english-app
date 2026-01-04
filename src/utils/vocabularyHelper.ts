@@ -1,4 +1,4 @@
-import { PhoneticItem, VocabularyItem, WordData } from "@/types";
+import { PartOfSpeech, PhoneticItem, VocabularyItem, WordData } from "@/types";
 
 // Hàm chính: Convert dữ liệu API sang Model lưu DB
 export const mapApiToVocabularyItem = (
@@ -47,4 +47,66 @@ export const mapApiToVocabularyItem = (
     // Example
     example: currentInput.example || firstExample || "",
   };
+};
+
+export const getShortPartOfSpeech = (pos) => {
+  const mapping = {
+    [PartOfSpeech.NOUN]: "n",
+    [PartOfSpeech.VERB]: "v",
+    [PartOfSpeech.ADJECTIVE]: "adj",
+    [PartOfSpeech.ADVERB]: "adv",
+    [PartOfSpeech.PRONOUN]: "pron",
+    [PartOfSpeech.PREPOSITION]: "prep",
+    [PartOfSpeech.CONJUNCTION]: "conj",
+    [PartOfSpeech.INTERJECTION]: "int",
+    [PartOfSpeech.PHRASAL_VERB]: "phr v",
+    [PartOfSpeech.IDIOM]: "idm",
+    [PartOfSpeech.OTHER]: "etc",
+  };
+  return mapping[pos] || pos || "";
+};
+
+export const getPartOfSpeechStyle = (pos: PartOfSpeech | string): string => {
+  const styles: Record<string, string> = {
+    // Noun: Xanh dương năng động
+    [PartOfSpeech.NOUN]:
+      "bg-blue-500/10 text-blue-600 border-blue-200 dark:bg-blue-500/20 dark:text-blue-400 dark:border-blue-800",
+
+    // Verb: Đỏ hồng rực rỡ
+    [PartOfSpeech.VERB]:
+      "bg-rose-500/10 text-rose-600 border-rose-200 dark:bg-rose-500/20 dark:text-rose-400 dark:border-rose-800",
+
+    // Adjective: Xanh lá mạ tươi mát
+    [PartOfSpeech.ADJECTIVE]:
+      "bg-emerald-500/10 text-emerald-600 border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-400 dark:border-emerald-800",
+
+    // Adverb: Vàng cam rực rỡ
+    [PartOfSpeech.ADVERB]:
+      "bg-amber-500/10 text-amber-600 border-amber-200 dark:bg-amber-500/20 dark:text-amber-400 dark:border-amber-800",
+
+    // Pronoun: Tím mộng mơ
+    [PartOfSpeech.PRONOUN]:
+      "bg-violet-500/10 text-violet-600 border-violet-200 dark:bg-violet-500/20 dark:text-violet-400 dark:border-violet-800",
+
+    // Preposition: Xanh lơ (Cyan)
+    [PartOfSpeech.PREPOSITION]:
+      "bg-cyan-500/10 text-cyan-600 border-cyan-200 dark:bg-cyan-500/20 dark:text-cyan-400 dark:border-cyan-800",
+
+    // Conjunction: Cam neon
+    [PartOfSpeech.CONJUNCTION]:
+      "bg-orange-500/10 text-orange-600 border-orange-200 dark:bg-orange-500/20 dark:text-orange-400 dark:border-orange-800",
+
+    // Phrasal Verb: Tím Indigo
+    [PartOfSpeech.PHRASAL_VERB]:
+      "bg-indigo-500/10 text-indigo-600 border-indigo-200 dark:bg-indigo-500/20 dark:text-indigo-400 dark:border-indigo-800",
+
+    // Idiom: Hồng Fuchsia
+    [PartOfSpeech.IDIOM]:
+      "bg-fuchsia-500/10 text-fuchsia-600 border-fuchsia-200 dark:bg-fuchsia-500/20 dark:text-fuchsia-400 dark:border-fuchsia-800",
+  };
+
+  return (
+    styles[pos] ||
+    "bg-slate-500/10 text-slate-600 border-slate-200 dark:bg-slate-500/20 dark:text-slate-400 dark:border-slate-800"
+  );
 };

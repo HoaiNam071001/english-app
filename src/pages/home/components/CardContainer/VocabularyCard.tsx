@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import React, { useMemo, useState } from "react";
 import { EditVocabularyModal } from "../common/EditVocabularyModal";
+import { PartSpeech } from "../common/PartSpeech";
 import { Phonetics } from "../common/Phonetic";
 import { VocabularyDetailContent } from "../common/VocabularyDetailContent";
 import { FlashcardCommand } from "./FlashcardSection";
@@ -253,7 +254,10 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
               {/* MAIN CONTENT */}
               <div className="flex-1 flex flex-col items-center justify-center px-3 py-8 min-h-0 overflow-hidden">
                 <div className="h-[60px] min-h-[60px] flex flex-col justify-end">
-                  <Phonetics item={item} />
+                  <div className="relative flex items-center flex-col">
+                    <PartSpeech data={item.partOfSpeech} />
+                    <Phonetics item={item} />
+                  </div>
                   {item.example ? (
                     <Popover>
                       <PopoverTrigger asChild>

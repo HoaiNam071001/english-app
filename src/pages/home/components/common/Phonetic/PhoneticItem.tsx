@@ -1,0 +1,23 @@
+import { cn } from "@/lib/utils";
+import { AccentType } from "@/types";
+
+export const Phonetic = ({
+  accent,
+  text,
+}: {
+  accent: string;
+  text: string;
+}) => {
+  return (
+    <div
+      className={cn(
+        `text-[12px] inline-block font-mono tracking-wider select-none`,
+        accent === AccentType.US && "text-blue-300",
+        accent === AccentType.UK && "text-cyan-300",
+        accent === AccentType.AU && "text-orange-300"
+      )}
+    >
+      {text}
+    </div>
+  );
+};
