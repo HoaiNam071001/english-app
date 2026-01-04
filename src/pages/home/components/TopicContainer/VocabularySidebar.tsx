@@ -7,6 +7,8 @@ import {
   CheckSquare,
   ChevronDown,
   ChevronRight,
+  ChevronsDown,
+  ChevronsRight,
   Eye,
   EyeOff,
   FolderInput,
@@ -31,14 +33,12 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import {
   Tooltip,
   TooltipContent,
@@ -46,6 +46,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
+import { useConfirm } from "@/hooks/useConfirm";
 import { BatchUpdateVocabularyItem, VocabularyItem } from "@/types";
 import { BulkLookupModal } from "../Lookup/BulkLookupModal";
 import MoveTopicModal from "../common/MoveTopicModal";
@@ -162,7 +163,6 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
 }) => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [revealedIds, setRevealedIds] = useState<Set<string>>(new Set());
-  const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedTerm, setDebouncedTerm] = useState("");
   const [lastSelectedId, setLastSelectedId] = useState<string | null>(null);
@@ -173,7 +173,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
   );
   // [NEW] State cho chế độ xem item được ghim
   const [showPinnedOnly, setShowPinnedOnly] = useState(false);
-
+  const { confirm } = useConfirm();
   const { userProfile } = useAuth();
 
   const HEIGHT_ITEM = 65;
@@ -223,6 +223,18 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
       return groupedWords[key].length; // Mở rộng
     });
   }, [sortedDateKeys, groupedWords, collapsedGroups]);
+
+  const isAllCollapsed =
+    sortedDateKeys.length > 0 && collapsedGroups.size === sortedDateKeys.length;
+
+  // [NEW] Hàm xử lý Expand/Collapse All
+  const toggleCollapseAll = () => {
+    if (isAllCollapsed) {
+      setCollapsedGroups(new Set());
+    } else {
+      setCollapsedGroups(new Set(sortedDateKeys));
+    }
+  };
 
   const toggleGroupCollapse = (dateKey: string) => {
     const newSet = new Set(collapsedGroups);
@@ -313,12 +325,23 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
     }
   };
 
-  const confirmBulkDelete = () => {
-    if (onBulkDelete) {
+  const handleBulkDeleteWithConfirm = async () => {
+    if (!onBulkDelete) return;
+
+    const isConfirmed = await confirm({
+      title: `Delete ${selectedIds.size} Vocabulary Items?`,
+      message:
+        "Are you sure you want to delete these items? This action cannot be undone.",
+      confirmText: "Delete Now",
+      cancelText: "Cancel",
+      variant: "destructive",
+    });
+
+    if (isConfirmed) {
       onBulkDelete(Array.from(selectedIds));
       setSelectedIds(new Set());
-      setIsBulkDeleteOpen(false);
       setLastSelectedId(null);
+      // setIsBulkDeleteOpen(false); // Không cần state này nữa
     }
   };
 
@@ -429,48 +452,6 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                 </Tooltip>
               </TooltipProvider>
 
-              {!!userProfile && (
-                <DropdownMenu>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950"
-                          >
-                            <Share2 size={16} />
-                          </Button>
-                        </DropdownMenuTrigger>
-                      </TooltipTrigger>
-                      <TooltipContent>Community Sharing</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-
-                  <DropdownMenuContent align="center" className="w-48">
-                    <DropdownMenuLabel>Sharing Options</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-
-                    <DropdownMenuItem
-                      onClick={() => handleBulkShare(true)}
-                      className="text-emerald-600 focus:text-emerald-700 dark:text-emerald-400 dark:focus:text-emerald-500"
-                    >
-                      <Globe className="mr-2 h-4 w-4" />
-                      <span>Share to Community</span>
-                    </DropdownMenuItem>
-
-                    <DropdownMenuItem
-                      onClick={() => handleBulkShare(false)}
-                      className="text-muted-foreground"
-                    >
-                      <GlobeLock className="mr-2 h-4 w-4" />
-                      <span>Make Private</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -503,44 +484,6 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                 </Tooltip>
               </TooltipProvider>
 
-              <Popover
-                open={isBulkDeleteOpen}
-                onOpenChange={setIsBulkDeleteOpen}
-              >
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-destructive hover:bg-destructive/10 dark:hover:bg-destructive/20"
-                  >
-                    <Trash2 size={16} />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-60 p-3" align="start">
-                  <div className="space-y-3">
-                    <p className="text-sm">
-                      Remove {selectedIds.size} selected words?
-                    </p>
-                    <div className="flex justify-end gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setIsBulkDeleteOpen(false)}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={confirmBulkDelete}
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  </div>
-                </PopoverContent>
-              </Popover>
-
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
@@ -556,6 +499,8 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                     Actions ({selectedIds.size})
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
+
+                  {/* Mark Learned/Unlearned */}
                   <DropdownMenuItem onClick={handleBulkMark}>
                     {isAllSelectedLearned ? (
                       <>
@@ -567,13 +512,47 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                       </>
                     )}
                   </DropdownMenuItem>
+
+                  {/* Assign Topic */}
                   <DropdownMenuItem
                     onClick={() => setIsMoveTopicModalOpen(true)}
                   >
                     <FolderInput className="mr-2 h-4 w-4" />
                     Assign Topic
                   </DropdownMenuItem>
+
+                  {/* [NEW] Submenu cho Sharing */}
+                  {!!userProfile && (
+                    <DropdownMenuSub>
+                      <DropdownMenuSubTrigger>
+                        <Share2 className="mr-2 h-4 w-4" />
+                        <span>Community Sharing</span>
+                      </DropdownMenuSubTrigger>
+                      <DropdownMenuSubContent className="w-48">
+                        <DropdownMenuItem onClick={() => handleBulkShare(true)}>
+                          <Globe className="mr-2 h-4 w-4 text-emerald-600" />
+                          <span>Share Publicly</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleBulkShare(false)}
+                        >
+                          <GlobeLock className="mr-2 h-4 w-4 text-muted-foreground" />
+                          <span>Make Private</span>
+                        </DropdownMenuItem>
+                      </DropdownMenuSubContent>
+                    </DropdownMenuSub>
+                  )}
+
                   <DropdownMenuSeparator />
+
+                  {/* [NEW] Nút Delete dùng confirm */}
+                  <DropdownMenuItem
+                    onClick={handleBulkDeleteWithConfirm}
+                    className="text-destructive focus:text-destructive focus:bg-destructive/10"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete Selected
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </>
@@ -625,6 +604,28 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
               </TooltipProvider>
             </>
           )}
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={toggleCollapseAll}
+                  disabled={sortedDateKeys.length === 0}
+                  className="h-8 w-8 text-muted-foreground hover:bg-accent"
+                >
+                  {isAllCollapsed ? (
+                    <ChevronsDown size={16} />
+                  ) : (
+                    <ChevronsRight size={16} />
+                  )}
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {isAllCollapsed ? "Expand all groups" : "Collapse all groups"}
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </div>
 
@@ -664,8 +665,6 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
             }}
             itemContent={(index, groupIndex, itemIndex) => {
               const dateKey = sortedDateKeys[groupIndex];
-              // Khi collapse, groupCounts[groupIndex] = 0 nên hàm này sẽ KHÔNG được gọi
-              // cho group đó, giúp ẩn item đi và tối ưu hiệu năng.
               const word = groupedWords[dateKey][itemIndex];
 
               return (
