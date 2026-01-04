@@ -199,15 +199,15 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
                   </Button>
                 </PopoverTrigger>
               </TooltipTrigger>
-              <TooltipContent side="left">
+              <TooltipContent side="right" align="center">
                 <p className="text-xs">View details</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
 
           <PopoverContent
-            align="end"
-            side="bottom"
+            align="center"
+            side="right"
             className="w-max p-4"
             onClick={(e) => e.stopPropagation()}
           >
@@ -238,60 +238,42 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
                   transition-all duration-300 ease-out origin-bottom-right z-20"
       >
         {/* 1. Toggle Learned Button */}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className={`h-7 w-7 rounded-full transition-colors ${
-                  word.isLearned
-                    ? "text-orange-400 dark:text-orange-500 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950"
-                    : "text-muted-foreground hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-950"
-                }`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onToggleLearned(word.id, word.isLearned || false);
-                }}
-              >
-                {word.isLearned ? <RotateCcw size={14} /> : <Check size={14} />}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="top">
-              <p className="text-xs">
-                {word.isLearned ? "Mark as unlearned" : "Mark as learned"}
-              </p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Button
+          variant="ghost"
+          size="icon"
+          className={`h-7 w-7 rounded-full transition-colors ${
+            word.isLearned
+              ? "text-orange-400 dark:text-orange-500 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950"
+              : "text-muted-foreground hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-950"
+          }`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleLearned(word.id, word.isLearned || false);
+          }}
+          title={word.isLearned ? "Mark as unlearned" : "Mark as learned"}
+        >
+          {word.isLearned ? <RotateCcw size={14} /> : <Check size={14} />}
+        </Button>
 
         {/* 2. Show/Hide Meaning Button */}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 rounded-full text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onToggleReveal(word.id);
-                }}
-              >
-                {isMeaningRevealed ? <EyeOff size={14} /> : <Eye size={14} />}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="top">
-              <p className="text-xs">
-                {isMeaningRevealed ? "Hide meaning" : "Show meaning"}
-              </p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7 rounded-full text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950"
+          onClick={(e) => {
+            e.stopPropagation();
+            onToggleReveal(word.id);
+          }}
+          title={isMeaningRevealed ? "Hide meaning" : "Show meaning"}
+        >
+          {isMeaningRevealed ? <EyeOff size={14} /> : <Eye size={14} />}
+        </Button>
 
         {/* 3. Edit Button */}
-        <div
-          className="p-1.5 rounded-full hover:bg-accent text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7 rounded-full hover:bg-accent text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
           onClick={(e) => {
             e.stopPropagation();
             setIsEditOpen(true);
@@ -299,76 +281,52 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
           title="Edit word"
         >
           <PenLine size={14} />
-        </div>
+        </Button>
 
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className={`h-7 w-7 rounded-full transition-colors ${
-                  word.isPinned
-                    ? "text-orange-500 bg-orange-50 dark:bg-orange-950/30"
-                    : "text-muted-foreground hover:text-orange-600 hover:bg-orange-50"
-                }`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onUpdate(word.id, { isPinned: !word.isPinned });
-                }}
-              >
-                <Pin size={14} />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent side="top">
-              <p className="text-xs">{word.isPinned ? "Unpin" : "Pin item"}</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Button
+          variant="ghost"
+          size="icon"
+          className={`h-7 w-7 rounded-full transition-colors ${
+            word.isPinned
+              ? "text-orange-500 bg-orange-50 dark:bg-orange-950/30"
+              : "text-muted-foreground hover:text-orange-600 hover:bg-orange-50"
+          }`}
+          onClick={(e) => {
+            e.stopPropagation();
+            onUpdate(word.id, { isPinned: !word.isPinned });
+          }}
+          title={word.isPinned ? "Unpin" : "Pin item"}
+        >
+          <Pin size={14} />
+        </Button>
 
         {/* 5. Add/Remove Practice Button */}
         {isActive ? (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 rounded-full text-blue-500 dark:text-blue-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onRemoveFromPractice(word);
-                  }}
-                >
-                  <Minus size={14} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="top">
-                <p className="text-xs">Remove from lesson</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 rounded-full text-blue-500 dark:text-blue-400 hover:text-red-600 dark:hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950"
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemoveFromPractice(word);
+            }}
+            title="Remove from lesson"
+          >
+            <Minus size={14} />
+          </Button>
         ) : (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 rounded-full text-muted-foreground hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-950"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onAddToPractice(word);
-                  }}
-                >
-                  <Plus size={14} />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent side="top">
-                <p className="text-xs">Add to lesson</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 rounded-full text-muted-foreground hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-950"
+            onClick={(e) => {
+              e.stopPropagation();
+              onAddToPractice(word);
+            }}
+            title="Add to lesson"
+          >
+            <Plus size={14} />
+          </Button>
         )}
       </div>
 

@@ -326,71 +326,47 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                 <div className="flex items-center gap-2 justify-between bg-secondary/50 backdrop-blur-sm rounded-full p-0.5 border border-border/50 shadow-sm">
                   <Speaker item={item} />
 
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div
-                          className={`p-1.5 rounded-full transition-all cursor-pointer hover:bg-background `}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onUpdate(item.id, { isPinned: !item.isPinned });
-                          }}
-                        >
-                          <Pin size={15} />
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent side="top" className="text-xs">
-                        {item.isPinned ? "Unpin" : "Pin"}
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <div
+                    className={`p-1.5 rounded-full transition-all cursor-pointer hover:bg-background `}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onUpdate(item.id, { isPinned: !item.isPinned });
+                    }}
+                    title={item.isPinned ? "Unpin" : "Pin item"}
+                  >
+                    <Pin size={15} />
+                  </div>
 
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div
-                          className={`p-1.5 rounded-full transition-colors cursor-pointer ${
-                            !item.isLearned
-                              ? " text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900"
-                              : " text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900"
-                          }`}
-                          onClick={handleMarkAsLearned}
-                        >
-                          {loading ? (
-                            <span className="animate-spin text-xs">⏳</span>
-                          ) : item.isLearned ? (
-                            <RotateCcw size={14} />
-                          ) : (
-                            <Check size={14} />
-                          )}
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent side="top">
-                        {item.isLearned
-                          ? "Mark as unlearned"
-                          : "Mark as learned"}
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                  <div
+                    className={`p-1.5 rounded-full transition-colors cursor-pointer ${
+                      !item.isLearned
+                        ? " text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900"
+                        : " text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900"
+                    }`}
+                    onClick={handleMarkAsLearned}
+                    title={
+                      item.isLearned ? "Mark as unlearned" : "Mark as learned"
+                    }
+                  >
+                    {loading ? (
+                      <span className="animate-spin text-xs">⏳</span>
+                    ) : item.isLearned ? (
+                      <RotateCcw size={14} />
+                    ) : (
+                      <Check size={14} />
+                    )}
+                  </div>
 
                   <Popover>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <PopoverTrigger asChild>
-                            <div
-                              className="p-1.5 rounded-full hover:bg-background hover:text-blue-500 transition-all cursor-pointer text-muted-foreground"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <Info size={15} />
-                            </div>
-                          </PopoverTrigger>
-                        </TooltipTrigger>
-                        <TooltipContent side="top" className="text-xs">
-                          Details
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                    <PopoverTrigger asChild>
+                      <div
+                        className="p-1.5 rounded-full hover:bg-background hover:text-blue-500 transition-all cursor-pointer text-muted-foreground"
+                        onClick={(e) => e.stopPropagation()}
+                        title="View details"
+                      >
+                        <Info size={15} />
+                      </div>
+                    </PopoverTrigger>
 
                     <PopoverContent
                       side="right"

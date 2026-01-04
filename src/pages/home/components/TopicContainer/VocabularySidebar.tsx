@@ -356,7 +356,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
       </div>
 
       {/* HEADER TOOLBAR */}
-      <div className="p-3 border-b flex items-center justify-between bg-card z-10">
+      <div className="px-3 py-1 border-b flex items-center justify-between bg-card z-10">
         <div className="flex items-center gap-2">
           <Checkbox
             checked={
