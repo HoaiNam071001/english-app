@@ -13,11 +13,11 @@ import {
 } from "@/components/ui/tooltip";
 import { TOPIC_COLORS } from "@/constants";
 import { AccentType, TopicItem, VocabularyItem } from "@/types";
+import { getIconComponent } from "@/utils";
 import { playAudio } from "@/utils/audio";
 import {
   Check,
   Eye,
-  FolderSearch,
   Info,
   PenLine,
   Pin, // [NEW] Import PinOff
@@ -104,13 +104,17 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
   };
 
   const renderTopic = () => {
+    const TopicIcon = currentTopic
+      ? getIconComponent(currentTopic.icon || "folder")
+      : null;
+
     return (
       <>
         {currentTopic && (
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <FolderSearch
+                <TopicIcon
                   className={`w-4 absolute top-[2px] -translate-x-1/2 left-1/2 ${topicColorStyle.text}`}
                 />
               </TooltipTrigger>
@@ -142,7 +146,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
 
       <div
         onClick={handleCardClick}
-        className="relative cursor-pointer perspective-1000 group w-full sm:w-40 h-50 transition-all duration-300 hover:translate-y-1"
+        className="relative cursor-pointer perspective-1000 group w-full sm:w-40 h-50 transition-all duration-300 hover:scale-[102%]"
       >
         {isFlipped && item.isPinned && (
           <div
