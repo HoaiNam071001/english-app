@@ -91,6 +91,10 @@ const UsersPage = () => {
 
   return (
     <div className="bg-background">
+      {/* <UserMigrationTool />
+      <VocabularyMigrationTool />
+      <TopicMigrationTool /> */}
+
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-border">
         <div className="flex items-center gap-2">
@@ -190,7 +194,7 @@ const UsersPage = () => {
                         <Button
                           size="sm"
                           className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 h-7 px-2.5 text-xs"
-                          onClick={() => approveUser(user.email)}
+                          onClick={() => approveUser(user.id)}
                         >
                           {user.status === UserStatus.REJECTED ? (
                             <RefreshCw size={12} className="mr-1" />
@@ -210,7 +214,7 @@ const UsersPage = () => {
                             size="sm"
                             variant="destructive"
                             className="h-7 px-2.5 text-xs"
-                            onClick={() => rejectUser(user.email)}
+                            onClick={() => rejectUser(user.id)}
                           >
                             {user.status === UserStatus.APPROVED ? (
                               <Ban size={12} className="mr-1" />

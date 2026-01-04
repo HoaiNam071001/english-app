@@ -90,6 +90,7 @@ export interface UserProfile {
   approvedBy?: string;
   approvedAt?: number;
   photoURL?: string | null;
+  emailId?: string;
 }
 
 export interface SavedAccount {

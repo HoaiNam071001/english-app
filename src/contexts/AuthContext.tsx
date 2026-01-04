@@ -80,7 +80,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // --- HÀM ĐỒNG BỘ FIRESTORE (Tách ra để tái sử dụng) ---
   const syncUserToFirestore = async (currentUser: User) => {
-    const userRef = doc(db, DataTable.USER, currentUser.email!);
+    const userRef = doc(db, DataTable.USER, currentUser.uid);
     const userSnap = await getDoc(userRef);
 
     if (userSnap.exists()) {
@@ -208,7 +208,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (user && user.email) {
       intervalId = setInterval(async () => {
         try {
-          const userRef = doc(db, DataTable.USER, user.email);
+          const userRef = doc(db, DataTable.USER, user.uid);
           await setDoc(userRef, { lastLoginAt: Date.now() }, { merge: true });
         } catch (err) {
           console.error("Heartbeat failed:", err);

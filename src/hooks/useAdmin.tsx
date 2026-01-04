@@ -41,9 +41,9 @@ export const useAdmin = (userProfile: UserProfile) => {
     if (userProfile) fetchUsers();
   }, [userProfile, fetchUsers]);
 
-  const approveUser = async (email: string) => {
+  const approveUser = async (id: string) => {
     try {
-      const docRef = doc(db, DataTable.USER, email);
+      const docRef = doc(db, DataTable.USER, id);
       const value = {
         status: UserStatus.APPROVED,
         role: UserRole.USER,
@@ -53,14 +53,14 @@ export const useAdmin = (userProfile: UserProfile) => {
       await updateDoc(docRef, value);
       // Cập nhật UI local: Tìm user đó và đổi status thành APPROVED
       setAllUsers((prev) =>
-        prev.map((u) => (u.email === email ? { ...u, ...value } : u))
+        prev.map((u) => (u.id === id ? { ...u, ...value } : u))
       );
     } catch (error) {
       console.error("Error approving:", error);
     }
   };
 
-  const rejectUser = async (email: string) => {
+  const rejectUser = async (id: string) => {
     const isConfirmed = await confirm({
       title: "Reject User?",
       message: "Are you sure you want to reject this user?",
@@ -71,16 +71,15 @@ export const useAdmin = (userProfile: UserProfile) => {
     if (!isConfirmed) return;
 
     try {
-      const docRef = doc(db, DataTable.USER, email);
+      const docRef = doc(db, DataTable.USER, id);
       const value = {
         status: UserStatus.REJECTED,
         approvedBy: userProfile.email,
         approvedAt: Date.now(),
       };
       await updateDoc(docRef, value);
-      // Cập nhật UI local: Tìm user đó và đổi status thành REJECTED
       setAllUsers((prev) =>
-        prev.map((u) => (u.email === email ? { ...u, ...value } : u))
+        prev.map((u) => (u.id === id ? { ...u, ...value } : u))
       );
     } catch (error) {
       console.error("Error rejecting:", error);
