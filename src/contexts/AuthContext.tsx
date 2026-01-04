@@ -213,7 +213,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } catch (err) {
           console.error("Heartbeat failed:", err);
         }
-      }, 60000);
+      }, 10 * 60000);
     }
     return () => {
       if (intervalId) {
