@@ -86,14 +86,25 @@ interface DateGroupHeaderProps {
   isCollapsed: boolean;
   onSelect: () => void;
   onToggle: () => void;
+  customTitle?: string;
+  isPinnedGroup?: boolean;
 }
 
 const DateGroupHeader = React.memo<DateGroupHeaderProps>(
-  ({ dateKey, count, allSelected, onSelect, isCollapsed, onToggle }) => {
+  ({
+    dateKey,
+    count,
+    allSelected,
+    onSelect,
+    isCollapsed,
+    onToggle,
+    customTitle,
+    isPinnedGroup,
+  }) => {
     return (
       <div
         onClick={onSelect}
-        title="Click to select all items in this date"
+        title="Click to select all items in this group"
         className={`
         sticky top-0 z-20 px-2 py-2 mb-2
         text-xs font-bold uppercase tracking-wider border-b border-border
@@ -109,11 +120,12 @@ const DateGroupHeader = React.memo<DateGroupHeaderProps>(
         <div className="flex items-center gap-2">
           <Checkbox
             checked={allSelected}
-            // Nếu click checkbox riêng lẻ cũng cần stopPropagation nếu muốn
-            // Nhưng hiện tại logic cha là click div -> select nên ok
             className="h-4 w-4 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
           />
-          <span>{formatDateGroup(dateKey)}</span>
+          <div className="flex items-center gap-1">
+            {isPinnedGroup && <Pin size={12} className="fill-current mr-1" />}
+            <span>{customTitle || formatDateGroup(dateKey)}</span>
+          </div>
         </div>
         <div className="flex items-center gap-1">
           <span
@@ -128,7 +140,7 @@ const DateGroupHeader = React.memo<DateGroupHeaderProps>(
 
           <button
             onClick={(e) => {
-              e.stopPropagation(); // Ngăn kích hoạt onSelect
+              e.stopPropagation();
               onToggle();
             }}
             className="py-0.5 px-2 hover:bg-black/10 dark:hover:bg-white/10 rounded-sm transition-colors"
@@ -168,11 +180,12 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
   const [lastSelectedId, setLastSelectedId] = useState<string | null>(null);
   const [isBulkLookupOpen, setIsBulkLookupOpen] = useState(false);
   const [isMoveTopicModalOpen, setIsMoveTopicModalOpen] = useState(false);
+
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
     new Set()
   );
-  // [NEW] State cho chế độ xem item được ghim
   const [showPinnedOnly, setShowPinnedOnly] = useState(false);
+
   const { confirm } = useConfirm();
   const { userProfile } = useAuth();
 
@@ -185,70 +198,108 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  const filteredWords = useMemo(() => {
-    let result = allWords;
-    if (showPinnedOnly) {
-      result = result.filter((w) => w.isPinned);
-    }
-
-    if (!debouncedTerm.trim()) return result;
-
+  // 1. Chỉ lọc theo Search Term
+  const searchedWords = useMemo(() => {
+    if (!debouncedTerm.trim()) return allWords;
     const lowerTerm = debouncedTerm.toLowerCase();
-    return result.filter((word) => {
+    return allWords.filter((word) => {
       return (
         word.text.toLowerCase().includes(lowerTerm) ||
         word.meaning.toLowerCase().includes(lowerTerm)
       );
     });
-  }, [allWords, debouncedTerm, showPinnedOnly]);
+  }, [allWords, debouncedTerm]);
 
-  const groupedWords = useMemo(() => {
-    const groups: Record<string, VocabularyItem[]> = {};
-    filteredWords.forEach((word) => {
-      const dateKey = moment(word.createdAt).format("YYYY-MM-DD");
-      if (!groups[dateKey]) groups[dateKey] = [];
-      groups[dateKey].push(word);
+  // 2. Phân loại Group: Pinned tách riêng, Date tách riêng (không trùng nhau)
+  const displayGroups = useMemo(() => {
+    const dateGroups: Record<string, VocabularyItem[]> = {};
+    const pinnedItems: VocabularyItem[] = [];
+
+    searchedWords.forEach((word) => {
+      // LOGIC MỚI: Nếu bật mode Pin và từ được Pin -> Vào nhóm Pinned
+      if (showPinnedOnly && word.isPinned) {
+        pinnedItems.push(word);
+      }
+      // Ngược lại -> Vào nhóm Date
+      else {
+        const dateKey = moment(word.createdAt).format("YYYY-MM-DD");
+        if (!dateGroups[dateKey]) dateGroups[dateKey] = [];
+        dateGroups[dateKey].push(word);
+      }
     });
+
+    const sortedDateKeys = Object.keys(dateGroups).sort((a, b) =>
+      b.localeCompare(a)
+    );
+
+    const groups = [];
+
+    if (showPinnedOnly && pinnedItems.length > 0) {
+      groups.push({
+        key: "pinned-group-header",
+        title: "Pinned Items",
+        items: pinnedItems,
+        isPinnedGroup: true,
+      });
+    }
+
+    sortedDateKeys.forEach((key) => {
+      groups.push({
+        key: key,
+        title: formatDateGroup(key),
+        items: dateGroups[key],
+        isPinnedGroup: false,
+      });
+    });
+
     return groups;
-  }, [filteredWords]);
+  }, [searchedWords, showPinnedOnly]);
 
-  const sortedDateKeys = useMemo(
-    () => Object.keys(groupedWords).sort((a, b) => b.localeCompare(a)),
-    [groupedWords]
-  );
+  // 3. Tự động collapse khi bật Pin
+  useEffect(() => {
+    if (showPinnedOnly) {
+      const dateGroupKeys = displayGroups
+        .filter((g) => !g.isPinnedGroup)
+        .map((g) => g.key);
+      setCollapsedGroups(new Set(dateGroupKeys));
+    } else {
+      setCollapsedGroups(new Set());
+    }
+  }, [showPinnedOnly]);
 
+  // 4. Tính counts
   const groupCounts = useMemo(() => {
-    return sortedDateKeys.map((key) => {
-      if (collapsedGroups.has(key)) return 0; // Thu gọn
-      return groupedWords[key].length; // Mở rộng
+    return displayGroups.map((group) => {
+      if (collapsedGroups.has(group.key)) return 0;
+      return group.items.length;
     });
-  }, [sortedDateKeys, groupedWords, collapsedGroups]);
+  }, [displayGroups, collapsedGroups]);
 
   const isAllCollapsed =
-    sortedDateKeys.length > 0 && collapsedGroups.size === sortedDateKeys.length;
+    displayGroups.length > 0 &&
+    displayGroups.every((g) => collapsedGroups.has(g.key));
 
-  // [NEW] Hàm xử lý Expand/Collapse All
   const toggleCollapseAll = () => {
     if (isAllCollapsed) {
       setCollapsedGroups(new Set());
     } else {
-      setCollapsedGroups(new Set(sortedDateKeys));
+      setCollapsedGroups(new Set(displayGroups.map((g) => g.key)));
     }
   };
 
-  const toggleGroupCollapse = (dateKey: string) => {
+  const toggleGroupCollapse = (groupKey: string) => {
     const newSet = new Set(collapsedGroups);
-    if (newSet.has(dateKey)) {
-      newSet.delete(dateKey);
+    if (newSet.has(groupKey)) {
+      newSet.delete(groupKey);
     } else {
-      newSet.add(dateKey);
+      newSet.add(groupKey);
     }
     setCollapsedGroups(newSet);
   };
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedIds(new Set(filteredWords.map((w) => w.id)));
+      setSelectedIds(new Set(searchedWords.map((w) => w.id)));
     } else {
       setSelectedIds(new Set());
     }
@@ -262,12 +313,10 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
 
   const toggleSelection = (id: string, event?: React.MouseEvent) => {
     const newSet = new Set(selectedIds);
-
     if (event?.shiftKey && lastSelectedId) {
-      const visibleIds = filteredWords.map((w) => w.id);
+      const visibleIds = searchedWords.map((w) => w.id);
       const lastIndex = visibleIds.indexOf(lastSelectedId);
       const currentIndex = visibleIds.indexOf(id);
-
       if (lastIndex !== -1 && currentIndex !== -1) {
         const start = Math.min(lastIndex, currentIndex);
         const end = Math.max(lastIndex, currentIndex);
@@ -275,16 +324,28 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
         rangeIds.forEach((rid) => newSet.add(rid));
       }
     } else {
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
+      if (newSet.has(id)) newSet.delete(id);
+      else newSet.add(id);
       setLastSelectedId(id);
     }
     setSelectedIds(newSet);
   };
 
+  const handleSelectGroup = (groupIndex: number) => {
+    const group = displayGroups[groupIndex];
+    const idsInGroup = group.items.map((w) => w.id);
+    const isAllSelected = idsInGroup.every((id) => selectedIds.has(id));
+    const newSet = new Set(selectedIds);
+    if (isAllSelected) {
+      idsInGroup.forEach((id) => newSet.delete(id));
+    } else {
+      idsInGroup.forEach((id) => newSet.add(id));
+    }
+    setSelectedIds(newSet);
+    setLastSelectedId(null);
+  };
+
+  // --- Bulk Actions ---
   const selectedWords = useMemo(() => {
     return allWords.filter((w) => selectedIds.has(w.id));
   }, [allWords, selectedIds]);
@@ -327,7 +388,6 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
 
   const handleBulkDeleteWithConfirm = async () => {
     if (!onBulkDelete) return;
-
     const isConfirmed = await confirm({
       title: `Delete ${selectedIds.size} Vocabulary Items?`,
       message:
@@ -336,46 +396,23 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
       cancelText: "Cancel",
       variant: "destructive",
     });
-
     if (isConfirmed) {
       onBulkDelete(Array.from(selectedIds));
       setSelectedIds(new Set());
       setLastSelectedId(null);
-      // setIsBulkDeleteOpen(false); // Không cần state này nữa
     }
   };
 
   const isAllRevealed =
-    filteredWords.length > 0 && revealedIds.size === filteredWords.length;
-
+    searchedWords.length > 0 && revealedIds.size === searchedWords.length;
   const toggleRevealAll = () => {
-    if (isAllRevealed) {
-      setRevealedIds(new Set());
-    } else {
-      setRevealedIds(new Set(filteredWords.map((w) => w.id)));
-    }
+    if (isAllRevealed) setRevealedIds(new Set());
+    else setRevealedIds(new Set(searchedWords.map((w) => w.id)));
   };
-
   const toggleRevealItem = (id: string) => {
     const newSet = new Set(revealedIds);
     newSet.has(id) ? newSet.delete(id) : newSet.add(id);
     setRevealedIds(newSet);
-  };
-
-  const handleSelectDate = (dateKey: string) => {
-    const wordsInDate = groupedWords[dateKey] || [];
-    const idsInDate = wordsInDate.map((w) => w.id);
-    const isAllSelected = idsInDate.every((id) => selectedIds.has(id));
-    const newSet = new Set(selectedIds);
-
-    if (isAllSelected) {
-      idsInDate.forEach((id) => newSet.delete(id));
-    } else {
-      idsInDate.forEach((id) => newSet.add(id));
-    }
-
-    setSelectedIds(newSet);
-    setLastSelectedId(null);
   };
 
   return (
@@ -420,22 +457,21 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
         <div className="flex items-center gap-2">
           <Checkbox
             checked={
-              filteredWords.length > 0 &&
-              selectedIds.size === filteredWords.length
+              searchedWords.length > 0 &&
+              selectedIds.size === searchedWords.length
             }
             onCheckedChange={(c) => handleSelectAll(c as boolean)}
           />
           <span className="text-sm font-semibold text-card-foreground">
             {selectedIds.size > 0
               ? `(${selectedIds.size})`
-              : `List (${filteredWords.length})`}
+              : `List (${searchedWords.length})`}
           </span>
         </div>
 
         <div className="flex gap-1 items-center">
           {selectedIds.size > 0 ? (
             <>
-              {/* Deselect */}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -499,8 +535,6 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                     Actions ({selectedIds.size})
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-
-                  {/* Mark Learned/Unlearned */}
                   <DropdownMenuItem onClick={handleBulkMark}>
                     {isAllSelectedLearned ? (
                       <>
@@ -512,16 +546,11 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                       </>
                     )}
                   </DropdownMenuItem>
-
-                  {/* Assign Topic */}
                   <DropdownMenuItem
                     onClick={() => setIsMoveTopicModalOpen(true)}
                   >
-                    <FolderInput className="mr-2 h-4 w-4" />
-                    Assign Topic
+                    <FolderInput className="mr-2 h-4 w-4" /> Assign Topic
                   </DropdownMenuItem>
-
-                  {/* [NEW] Submenu cho Sharing */}
                   {!!userProfile && (
                     <DropdownMenuSub>
                       <DropdownMenuSubTrigger>
@@ -542,16 +571,12 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                       </DropdownMenuSubContent>
                     </DropdownMenuSub>
                   )}
-
                   <DropdownMenuSeparator />
-
-                  {/* [NEW] Nút Delete dùng confirm */}
                   <DropdownMenuItem
                     onClick={handleBulkDeleteWithConfirm}
                     className="text-destructive focus:text-destructive focus:bg-destructive/10"
                   >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete Selected
+                    <Trash2 className="mr-2 h-4 w-4" /> Delete Selected
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -579,8 +604,8 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                   </TooltipTrigger>
                   <TooltipContent>
                     {showPinnedOnly
-                      ? "Show all items"
-                      : "Show pinned items only"}
+                      ? "Show Normal View"
+                      : "Group Pinned & Collapse Others"}
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -611,7 +636,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                   variant="ghost"
                   size="icon"
                   onClick={toggleCollapseAll}
-                  disabled={sortedDateKeys.length === 0}
+                  disabled={displayGroups.length === 0}
                   className="h-8 w-8 text-muted-foreground hover:bg-accent"
                 >
                   {isAllCollapsed ? (
@@ -631,7 +656,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
 
       {/* --- LIST CONTENT VIRTUALIZED --- */}
       <div className="flex-1 mt-0 w-full overflow-hidden pl-1">
-        {sortedDateKeys.length === 0 ? (
+        {displayGroups.length === 0 ? (
           <div className="flex flex-col items-center justify-center mt-10 text-muted-foreground gap-2">
             <Search size={32} className="opacity-20" />
             <span className="text-sm">No results found.</span>
@@ -641,32 +666,32 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
             groupCounts={groupCounts}
             estimateRowHeight={HEIGHT_ITEM}
             groupContent={(index) => {
-              const dateKey = sortedDateKeys[index];
-              // Lấy length thực tế từ data gốc để hiển thị số lượng trên header
-              const realCount = groupedWords[dateKey].length;
-
-              const wordsInGroup = groupedWords[dateKey];
-              const allSelected = wordsInGroup.every((w) =>
+              const group = displayGroups[index];
+              const realCount = group.items.length;
+              const allSelected = group.items.every((w) =>
                 selectedIds.has(w.id)
               );
 
               return (
                 <DateGroupHeader
-                  key={dateKey}
-                  dateKey={dateKey}
-                  count={realCount} // Luôn hiển thị tổng số item dù đang collapse
+                  key={group.key}
+                  dateKey={group.key}
+                  count={realCount}
                   allSelected={allSelected}
-                  onSelect={() => handleSelectDate(dateKey)}
-                  // [NEW] Truyền props collapse
-                  isCollapsed={collapsedGroups.has(dateKey)}
-                  onToggle={() => toggleGroupCollapse(dateKey)}
+                  onSelect={() => handleSelectGroup(index)}
+                  isCollapsed={collapsedGroups.has(group.key)}
+                  onToggle={() => toggleGroupCollapse(group.key)}
+                  customTitle={group.title}
+                  isPinnedGroup={group.isPinnedGroup}
                 />
               );
             }}
             itemContent={(index, groupIndex, itemIndex) => {
-              const dateKey = sortedDateKeys[groupIndex];
-              const word = groupedWords[dateKey][itemIndex];
+              const group = displayGroups[groupIndex];
+              const word = group.items[itemIndex];
 
+              // Vì item chỉ xuất hiện 1 lần duy nhất trong toàn bộ list (do logic if/else)
+              // nên dùng word.id làm key là đủ và an toàn nhất
               return (
                 <div
                   className="pb-1 pr-1"
