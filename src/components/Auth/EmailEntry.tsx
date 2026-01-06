@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import logo from "@/assets/gg.png";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { ROUTES, STORAGE_KEY } from "@/constants";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/hooks/useAuth"; // Hook mới (Redux wrapped)
 import { SavedAccount } from "@/types";
 import { CheckCircle2, Loader2, PersonStanding, User, X } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -17,8 +18,8 @@ import { useNavigate } from "react-router-dom";
 const EmailEntry = () => {
   const {
     loginWithGoogle,
-    userProfile, // Profile từ DB (null khi switch account)
-    user, // Firebase User (vẫn còn session khi switch account)
+    userProfile,
+    user,
     isGuest,
     loading,
     error,
@@ -29,33 +30,38 @@ const EmailEntry = () => {
   const navigation = useNavigate();
   const [savedAccounts, setSavedAccounts] = useState<SavedAccount[]>([]);
 
-  // Chỉ redirect nếu đã sync xong userProfile hoặc vào chế độ khách
   useEffect(() => {
     if (userProfile || isGuest) {
       navigation(ROUTES.HOME);
     }
   }, [userProfile, isGuest, navigation]);
 
-  // Load saved accounts
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY.SAVED_ACCOUNTS);
-    if (stored) {
-      setSavedAccounts(JSON.parse(stored));
-    }
-  }, []);
+    const loadAccounts = () => {
+      const stored = localStorage.getItem(STORAGE_KEY.SAVED_ACCOUNTS);
+      if (stored) {
+        setSavedAccounts(JSON.parse(stored));
+      }
+    };
+    loadAccounts();
+  }, [user]); // Thêm dependency user để re-load khi login xong
 
   const onGuestLogin = () => {
-    localStorage.setItem(STORAGE_KEY.IS_GUEST, "true");
-    setIsGuest(true);
+    setIsGuest(true); // Logic localStorage đã xử lý trong slice
   };
 
   const handleLogin = async (emailHint?: string) => {
-    await loginWithGoogle(emailHint);
+    try {
+      await loginWithGoogle(emailHint);
+    } catch (e) {
+      console.error("Login Error UI:", e);
+    }
   };
 
   const handleRemoveAccount = (e: React.MouseEvent, email: string) => {
     e.stopPropagation();
     removeSavedAccount(email);
+    // Update local UI state ngay lập tức
     setSavedAccounts((prev) => prev.filter((acc) => acc.email !== email));
   };
 
@@ -77,7 +83,6 @@ const EmailEntry = () => {
               <>
                 <div className="space-y-2 mb-4 max-h-[400px] overflow-auto">
                   {savedAccounts.map((acc) => {
-                    // Kiểm tra active session
                     const isActiveSession = user?.email === acc.email;
 
                     return (
@@ -93,7 +98,6 @@ const EmailEntry = () => {
                       `}
                         onClick={() => handleLogin(acc.email)}
                       >
-                        {/* Avatar */}
                         <div className="h-10 w-10 rounded-full overflow-hidden bg-muted border border-border flex items-center justify-center flex-shrink-0 relative">
                           {acc.photoURL ? (
                             <img
@@ -104,7 +108,6 @@ const EmailEntry = () => {
                           ) : (
                             <User className="h-6 w-6 text-muted-foreground" />
                           )}
-                          {/* Dot xanh nếu Active */}
                           {isActiveSession && (
                             <div className="absolute inset-0 bg-black/10 dark:bg-black/30 flex items-center justify-center rounded-full">
                               <div className="bg-green-500 rounded-full p-0.5 border-2 border-background"></div>
@@ -112,7 +115,6 @@ const EmailEntry = () => {
                           )}
                         </div>
 
-                        {/* Info */}
                         <div className="flex-1 min-w-0 text-left">
                           <p className="font-medium text-sm text-foreground truncate">
                             {acc.displayName || acc.email}
@@ -133,7 +135,6 @@ const EmailEntry = () => {
                           </div>
                         </div>
 
-                        {/* Remove Button (Chỉ hiện khi hover & không active) */}
                         {!isActiveSession && (
                           <Button
                             variant="ghost"
@@ -146,7 +147,6 @@ const EmailEntry = () => {
                           </Button>
                         )}
 
-                        {/* Icon Check nếu active */}
                         {isActiveSession && (
                           <div className="absolute right-3 text-green-600 dark:text-green-500">
                             <CheckCircle2 size={20} />
@@ -156,7 +156,6 @@ const EmailEntry = () => {
                     );
                   })}
                 </div>
-                {/* Divider Or Add Another */}
 
                 <div className="relative py-2">
                   <div className="absolute inset-0 flex items-center">
@@ -171,11 +170,10 @@ const EmailEntry = () => {
               </>
             )}
 
-            {/* Google Login Button */}
             <Button
               variant={savedAccounts.length > 0 ? "secondary" : "default"}
               className={`w-full py-6 text-md flex gap-2 items-center justify-center`}
-              onClick={() => handleLogin()} // Gọi không tham số -> Mở bảng chọn tài khoản
+              onClick={() => handleLogin()}
               disabled={loading}
             >
               {loading ? (
@@ -188,7 +186,6 @@ const EmailEntry = () => {
                 : "Continue with Google"}
             </Button>
 
-            {/* Divider if no saved accounts */}
             {savedAccounts.length === 0 && (
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
@@ -200,7 +197,6 @@ const EmailEntry = () => {
               </div>
             )}
 
-            {/* Guest Login Button */}
             <Button
               variant="ghost"
               className="w-full flex gap-2 text-muted-foreground hover:text-foreground hover:bg-accent"

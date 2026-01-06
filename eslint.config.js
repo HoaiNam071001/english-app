@@ -22,6 +22,14 @@ export default defineConfig([
     },
     // --- THÊM PHẦN RULES VÀO ĐÂY ---
     rules: {
+      "@typescript-eslint/no-unused-vars": [
+        "warn", // Hoặc "off" nếu muốn tắt hẳn
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
+        },
+      ],
       // Tắt quy tắc gốc của JS
       "no-unused-expressions": "off",
       // Cấu hình quy tắc của TypeScript
