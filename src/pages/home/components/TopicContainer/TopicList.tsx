@@ -1,3 +1,4 @@
+import { SimpleTooltip } from "@/components/SimpleTooltip";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -24,7 +25,7 @@ import {
   FolderPlus,
   MoreVertical,
   Pencil,
-  Settings2,
+  Tags,
   Trash2,
 } from "lucide-react";
 import React, { useMemo, useState } from "react";
@@ -117,23 +118,27 @@ const TopicList: React.FC<TopicListProps> = ({
       <div className="px-4 pt-2 pb-2 gap-4 border-b flex items-center bg-card">
         <h3 className="font-semibold text-card-foreground">Topics</h3>
 
-        <Button
-          size="sm"
-          variant="outline"
-          className="h-8 gap-1 ml-auto"
-          onClick={handleOpenCreate}
-        >
-          <FolderPlus size={16} /> <span className="text-xs">New</span>
-        </Button>
+        <SimpleTooltip content={"Edit Word Types"}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsTypeManagerOpen(true)}
+            className="h-8 w-8 text-muted-foreground hover:bg-accent ml-auto"
+          >
+            <Tags size={16} />
+          </Button>
+        </SimpleTooltip>
 
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setIsTypeManagerOpen(true)}
-          className="h-8 w-8 text-muted-foreground hover:bg-accent"
-        >
-          <Settings2 size={16} />
-        </Button>
+        <SimpleTooltip content={"New Topic"}>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-8 gap-1 "
+            onClick={handleOpenCreate}
+          >
+            <FolderPlus size={16} /> <span className="text-xs">New</span>
+          </Button>
+        </SimpleTooltip>
       </div>
 
       <div className="flex-1 p-2 overflow-y-auto">
