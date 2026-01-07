@@ -30,6 +30,7 @@ import { EditVocabularyModal } from "../common/EditVocabularyModal";
 import { PartSpeech } from "../common/PartSpeech";
 import { Phonetics } from "../common/Phonetic";
 import { VocabularyDetailContent } from "../common/VocabularyDetailContent";
+import { WordTypeIndicator } from "../common/WordTypeIndicator";
 import { FlashcardCommand } from "./FlashcardSection";
 
 declare global {
@@ -239,6 +240,8 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                 {renderTopic()}
 
                 {/* Edit Button */}
+                <WordTypeIndicator typeIds={item.typeIds} />
+
                 <div
                   className="p-1.5 rounded-full hover:bg-accent text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
                   onClick={(e) => {

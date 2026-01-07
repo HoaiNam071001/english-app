@@ -1,6 +1,8 @@
 import { AccentType } from "./dictionary";
 
 export * from "./dictionary";
+export * from "./wordType";
+
 export enum PartOfSpeech {
   NOUN = "noun",
   VERB = "verb",
@@ -33,7 +35,7 @@ export interface VocabularyItem {
   isLearned?: boolean;
   isShared?: boolean;
   isPinned?: boolean;
-
+  typeIds?: string[]; // Mảng chứa ID của các WordType
   example?: string;
   topicId?: string | null;
   phonetics?: PhoneticItem[];
@@ -56,6 +58,7 @@ export enum DataTable {
   Vocabulary = "vocabulary",
   Topics = "topics",
   USER = "users",
+  WordType = "word_types",
 }
 
 export interface TopicItem {

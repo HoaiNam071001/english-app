@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useTopics } from "@/hooks/useTopics";
 import { useVocabulary } from "@/hooks/useVocabulary";
+import { useWordTypes } from "@/hooks/useWordTypes";
 import TopicList from "@/pages/home/components/TopicContainer/TopicList";
 import VocabularySidebar from "@/pages/home/components/TopicContainer/VocabularySidebar";
 import { UserProfile, VocabularyItem } from "@/types";
@@ -33,6 +34,7 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
     bulkUpdateWords,
     batchUpdateWords,
   } = useVocabulary();
+  const { fetch: fetchWordTypes } = useWordTypes();
   const [mappingActiveWords, setMappingActiveWords] = useState<Set<string>>(
     new Set()
   );
@@ -43,6 +45,7 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
 
   useEffect(() => {
     onFetch();
+    fetchWordTypes();
   }, [user]);
 
   const { topics, addTopic, deleteTopic, updateTopic } = useTopics();

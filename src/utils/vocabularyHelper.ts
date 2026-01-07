@@ -1,4 +1,5 @@
 import { PartOfSpeech, PhoneticItem, VocabularyItem, WordData } from "@/types";
+import moment from "moment";
 
 // Hàm chính: Convert dữ liệu API sang Model lưu DB
 export const mapApiToVocabularyItem = (
@@ -109,4 +110,14 @@ export const getPartOfSpeechStyle = (pos: PartOfSpeech | string): string => {
     styles[pos] ||
     "bg-slate-500/10 text-slate-600 border-slate-200 dark:bg-slate-500/20 dark:text-slate-400 dark:border-slate-800"
   );
+};
+
+export const formatDateGroup = (dateString: string) => {
+  const date = moment(dateString);
+  if (!date.isValid()) return "Date unknown";
+  const now = moment();
+  if (date.isSame(now, "day")) return "Today";
+  if (date.isSame(now.clone().subtract(1, "days"), "day")) return "Yesterday";
+  const formatted = date.format("dddd, DD/MM/YYYY");
+  return formatted.charAt(0).toUpperCase() + formatted.slice(1);
 };

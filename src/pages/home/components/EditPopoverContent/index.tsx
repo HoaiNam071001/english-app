@@ -12,10 +12,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { useDictionary } from "@/hooks/useDictionary";
 import { useToast } from "@/hooks/useToast";
-import { AccentType, PartOfSpeech, VocabularyItem, WordData } from "@/types"; // Import WordData
+import { AccentType, PartOfSpeech, VocabularyItem, WordData } from "@/types";
 import { ChevronDown, Loader2, Plus, Save, Search, Trash2 } from "lucide-react";
 import React, { useState } from "react";
 import TopicSelector from "../common/TopicSelector";
+import WordTypeSelector from "../common/WordTypeSelector"; // <--- Import mới
 import { DraftSelectionView } from "./DraftSelectionView";
 import { PhoneticRow } from "./PhoneticRow";
 
@@ -43,11 +44,11 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
     topicId: word.topicId || null,
     phonetics: word.phonetics || [],
     partOfSpeech: word.partOfSpeech || [],
+    typeIds: word.typeIds || [], // <--- Thêm dòng này để init state
   });
 
   // State Draft: Lưu WordData thô từ API
   const [draft, setDraft] = useState<WordData | null>(null);
-
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // --- HANDLERS ---
@@ -114,7 +115,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
   if (draft) {
     return (
       <DraftSelectionView
-        data={draft} // Truyền raw WordData vào đây
+        data={draft}
         origin={form}
         onApply={(selectedData) => {
           setForm((prev) => ({ ...prev, ...selectedData }));
@@ -128,7 +129,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
   // Màn hình EDIT CHÍNH
   return (
     <div className="w-[500px] min-h-[500px] max-h-[600px] pr-1 flex flex-col">
-      <div className="flex-1 overflow-auto gap-2 flex flex-col my-2">
+      <div className="flex-1 overflow-auto gap-3 flex flex-col my-2">
         {/* WORD & FIND */}
         <div className="space-y-1">
           <Label htmlFor="text" className="text-xs text-muted-foreground">
@@ -159,50 +160,61 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
           </div>
         </div>
 
-        {/* PART OF SPEECH */}
-        <div className="space-y-1">
-          <Label className="text-xs text-muted-foreground">
-            Part of Speech
-          </Label>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                className="w-full justify-between h-8 px-2 text-left font-normal"
-              >
-                <span className="truncate text-xs">
-                  {form.partOfSpeech && form.partOfSpeech.length > 0 ? (
-                    <span className="text-foreground font-medium">
-                      {form.partOfSpeech.join(", ")}
-                    </span>
-                  ) : (
-                    <span className="text-muted-foreground italic">
-                      Select type...
-                    </span>
-                  )}
-                </span>
-                <ChevronDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-[280px]" align="start">
-              <ScrollArea className="h-[200px]">
-                {Object.values(PartOfSpeech).map((pos) => (
-                  <div
-                    key={pos}
-                    className="flex items-center space-x-2 p-1.5 hover:bg-accent cursor-pointer rounded-sm"
-                    onClick={() => togglePos(pos)}
-                  >
-                    <Checkbox
-                      checked={form.partOfSpeech?.includes(pos)}
-                      className="h-3.5 w-3.5"
-                    />
-                    <span className="text-xs">{pos}</span>
-                  </div>
-                ))}
-              </ScrollArea>
-            </DropdownMenuContent>
-          </DropdownMenu>
+        <div className="grid grid-cols-2 gap-3">
+          {/* PART OF SPEECH */}
+          <div className="space-y-1">
+            <Label className="text-xs text-muted-foreground">
+              Part of Speech
+            </Label>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  className="w-full justify-between h-8 px-2 text-left font-normal"
+                >
+                  <span className="truncate text-xs">
+                    {form.partOfSpeech && form.partOfSpeech.length > 0 ? (
+                      <span className="text-foreground font-medium">
+                        {form.partOfSpeech.join(", ")}
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground italic">
+                        Select type...
+                      </span>
+                    )}
+                  </span>
+                  <ChevronDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-[280px]" align="start">
+                <ScrollArea className="h-[200px]">
+                  {Object.values(PartOfSpeech).map((pos) => (
+                    <div
+                      key={pos}
+                      className="flex items-center space-x-2 p-1.5 hover:bg-accent cursor-pointer rounded-sm"
+                      onClick={() => togglePos(pos)}
+                    >
+                      <Checkbox
+                        checked={form.partOfSpeech?.includes(pos)}
+                        className="h-3.5 w-3.5"
+                      />
+                      <span className="text-xs">{pos}</span>
+                    </div>
+                  ))}
+                </ScrollArea>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          {/* WORD TYPE (NEW) */}
+          <div className="space-y-1">
+            <Label className="text-xs text-muted-foreground">Word Types</Label>
+            <WordTypeSelector
+              value={form.typeIds}
+              onChange={(val) => setForm({ ...form, typeIds: val })}
+            />
+          </div>
         </div>
 
         {/* PHONETICS */}
@@ -270,6 +282,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
           <TopicSelector
             value={form.topicId || null}
             onChange={(val) => setForm({ ...form, topicId: val })}
+            className="h-8 text-sm" // Force chiều cao giống input
           />
         </div>
 

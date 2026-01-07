@@ -213,6 +213,100 @@ export const TOPIC_COLORS: TopicColor[] = [
   },
 ];
 
+export const TYPE_COLORS = [
+  {
+    id: "red",
+    hex: "#ef4444",
+    bg: "bg-red-500",
+    badge:
+      "bg-red-100 text-red-700 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20",
+  },
+  {
+    id: "orange",
+    hex: "#f97316",
+    bg: "bg-orange-500",
+    badge:
+      "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20",
+  },
+  {
+    id: "amber",
+    hex: "#f59e0b",
+    bg: "bg-amber-500",
+    badge:
+      "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20",
+  },
+  {
+    id: "lime",
+    hex: "#84cc16",
+    bg: "bg-lime-500",
+    badge:
+      "bg-lime-100 text-lime-700 border-lime-200 dark:bg-lime-500/10 dark:text-lime-400 dark:border-lime-500/20",
+  },
+  {
+    id: "emerald",
+    hex: "#10b981",
+    bg: "bg-emerald-500",
+    badge:
+      "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20",
+  },
+  {
+    id: "teal",
+    hex: "#14b8a6",
+    bg: "bg-teal-500",
+    badge:
+      "bg-teal-100 text-teal-700 border-teal-200 dark:bg-teal-500/10 dark:text-teal-400 dark:border-teal-500/20",
+  },
+  {
+    id: "cyan",
+    hex: "#06b6d4",
+    bg: "bg-cyan-500",
+    badge:
+      "bg-cyan-100 text-cyan-700 border-cyan-200 dark:bg-cyan-500/10 dark:text-cyan-400 dark:border-cyan-500/20",
+  },
+  {
+    id: "blue",
+    hex: "#3b82f6",
+    bg: "bg-blue-500",
+    badge:
+      "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20",
+  },
+  {
+    id: "indigo",
+    hex: "#6366f1",
+    bg: "bg-indigo-500",
+    badge:
+      "bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20",
+  },
+  {
+    id: "violet",
+    hex: "#8b5cf6",
+    bg: "bg-violet-500",
+    badge:
+      "bg-violet-100 text-violet-700 border-violet-200 dark:bg-violet-500/10 dark:text-violet-400 dark:border-violet-500/20",
+  },
+  {
+    id: "fuchsia",
+    hex: "#d946ef",
+    bg: "bg-fuchsia-500",
+    badge:
+      "bg-fuchsia-100 text-fuchsia-700 border-fuchsia-200 dark:bg-fuchsia-500/10 dark:text-fuchsia-400 dark:border-fuchsia-500/20",
+  },
+  {
+    id: "rose",
+    hex: "#f43f5e",
+    bg: "bg-rose-500",
+    badge:
+      "bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20",
+  },
+  {
+    id: "slate",
+    hex: "#64748b",
+    bg: "bg-slate-500",
+    badge:
+      "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-500/10 dark:text-slate-400 dark:border-slate-500/20",
+  },
+];
+
 export const GUEST_INFO = {
   name: "Guest",
   id: "guest",
@@ -220,6 +314,7 @@ export const GUEST_INFO = {
     topic: "topic_storage",
     vocabulary: "vocabulary_storage",
     cardTabs: "cardTabs",
+    wordTypes: "wordTypes",
   },
 };
 

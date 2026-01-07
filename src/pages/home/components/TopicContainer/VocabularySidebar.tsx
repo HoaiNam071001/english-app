@@ -1,25 +1,35 @@
+/* eslint-disable react-refresh/only-export-components */
 import moment from "moment";
 import "moment/locale/vi";
 import React, { useEffect, useMemo, useState } from "react";
 
 import {
+  Ampersand,
   BookOpen,
+  CheckCircle2,
   CheckSquare,
-  ChevronDown,
-  ChevronRight,
   ChevronsDown,
   ChevronsRight,
+  Circle,
   Eye,
   EyeOff,
+  Filter,
   FolderInput,
   Globe,
   GlobeLock,
+  Layers,
+  LayoutList,
+  ListFilter,
+  Lock,
   MoreHorizontal,
   Pin,
+  PinOff,
   RotateCcw,
   Search,
   Share2,
   Sparkles,
+  Split,
+  Tag,
   Trash2,
   X,
 } from "lucide-react";
@@ -39,6 +49,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Tooltip,
   TooltipContent,
@@ -47,12 +63,30 @@ import {
 } from "@/components/ui/tooltip";
 import { useAuth } from "@/hooks/useAuth";
 import { useConfirm } from "@/hooks/useConfirm";
+import { cn } from "@/lib/utils";
 import { BatchUpdateVocabularyItem, VocabularyItem } from "@/types";
+import { formatDateGroup } from "@/utils";
 import { BulkLookupModal } from "../Lookup/BulkLookupModal";
 import MoveTopicModal from "../common/MoveTopicModal";
+import WordTypeSelector from "../common/WordTypeSelector";
+import { BulkAssignTypeModal } from "./BulkAssignTypeModal";
+import { DateGroupHeader } from "./DateGroupHeader";
+import {
+  DEFAULT_FILTER,
+  FilterOperator,
+  FilterOptionRow,
+  FilterState,
+  LearningStatus,
+  PinStatus,
+  SharingStatus,
+} from "./FilterOptionRow";
 import { VocabularyItemRow } from "./VocabularyItemRow";
 
 moment.locale("vi");
+
+// --- ENUMS & TYPES ---
+
+// 2. Bulk Assign Type Modal
 
 interface VocabularySidebarProps {
   allWords: VocabularyItem[];
@@ -69,96 +103,6 @@ interface VocabularySidebarProps {
   batchUpdateWords?: (updates: BatchUpdateVocabularyItem[]) => void;
 }
 
-const formatDateGroup = (dateString: string) => {
-  const date = moment(dateString);
-  if (!date.isValid()) return "Date unknown";
-  const now = moment();
-  if (date.isSame(now, "day")) return "Today";
-  if (date.isSame(now.clone().subtract(1, "days"), "day")) return "Yesterday";
-  const formatted = date.format("dddd, DD/MM/YYYY");
-  return formatted.charAt(0).toUpperCase() + formatted.slice(1);
-};
-
-interface DateGroupHeaderProps {
-  dateKey: string;
-  count: number;
-  allSelected: boolean;
-  isCollapsed: boolean;
-  onSelect: () => void;
-  onToggle: () => void;
-  customTitle?: string;
-  isPinnedGroup?: boolean;
-}
-
-const DateGroupHeader = React.memo<DateGroupHeaderProps>(
-  ({
-    dateKey,
-    count,
-    allSelected,
-    onSelect,
-    isCollapsed,
-    onToggle,
-    customTitle,
-    isPinnedGroup,
-  }) => {
-    return (
-      <div
-        onClick={onSelect}
-        title="Click to select all items in this group"
-        className={`
-        sticky top-0 z-20 px-2 py-2 mb-2
-        text-xs font-bold uppercase tracking-wider border-b border-border
-        flex items-center justify-between cursor-pointer transition-colors
-        bg-card/95 backdrop-blur-sm shadow-sm select-none
-        ${
-          allSelected
-            ? "text-blue-700 dark:text-blue-400 bg-blue-50/90 dark:bg-blue-950/30"
-            : "text-blue-600 dark:text-blue-400"
-        }
-      `}
-      >
-        <div className="flex items-center gap-2">
-          <Checkbox
-            checked={allSelected}
-            className="h-4 w-4 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
-          />
-          <div className="flex items-center gap-1">
-            {isPinnedGroup && <Pin size={12} className="fill-current mr-1" />}
-            <span>{customTitle || formatDateGroup(dateKey)}</span>
-          </div>
-        </div>
-        <div className="flex items-center gap-1">
-          <span
-            className={`px-1.5 rounded-full text-[10px] ${
-              allSelected
-                ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
-                : "bg-muted text-muted-foreground"
-            }`}
-          >
-            {count}
-          </span>
-
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggle();
-            }}
-            className="py-0.5 px-2 hover:bg-black/10 dark:hover:bg-white/10 rounded-sm transition-colors"
-          >
-            {isCollapsed ? (
-              <ChevronRight size={14} />
-            ) : (
-              <ChevronDown size={14} />
-            )}
-          </button>
-        </div>
-      </div>
-    );
-  }
-);
-
-DateGroupHeader.displayName = "DateGroupHeader";
-
 const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
   allWords,
   activeWordIds,
@@ -173,14 +117,25 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
   onBulkUpdate,
   batchUpdateWords,
 }) => {
+  // State
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [revealedIds, setRevealedIds] = useState<Set<string>>(new Set());
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedTerm, setDebouncedTerm] = useState("");
   const [lastSelectedId, setLastSelectedId] = useState<string | null>(null);
+
+  // Modals
   const [isBulkLookupOpen, setIsBulkLookupOpen] = useState(false);
   const [isMoveTopicModalOpen, setIsMoveTopicModalOpen] = useState(false);
+  const [isBulkTypeModalOpen, setIsBulkTypeModalOpen] = useState(false);
 
+  // Filter
+  const [activeFilters, setActiveFilters] =
+    useState<FilterState>(DEFAULT_FILTER);
+  const [tempFilters, setTempFilters] = useState<FilterState>(DEFAULT_FILTER);
+  const [isFilterPopoverOpen, setIsFilterPopoverOpen] = useState(false);
+
+  // Grouping
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
     new Set()
   );
@@ -188,40 +143,92 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
 
   const { confirm } = useConfirm();
   const { userProfile } = useAuth();
-
   const HEIGHT_ITEM = 65;
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedTerm(searchTerm);
-    }, 300);
+    const timer = setTimeout(() => setDebouncedTerm(searchTerm), 300);
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // 1. Chỉ lọc theo Search Term
+  // --- FILTER LOGIC ---
   const searchedWords = useMemo(() => {
-    if (!debouncedTerm.trim()) return allWords;
-    const lowerTerm = debouncedTerm.toLowerCase();
-    return allWords.filter((word) => {
-      return (
-        word.text.toLowerCase().includes(lowerTerm) ||
-        word.meaning.toLowerCase().includes(lowerTerm)
-      );
-    });
-  }, [allWords, debouncedTerm]);
+    let result = allWords;
 
-  // 2. Phân loại Group: Pinned tách riêng, Date tách riêng (không trùng nhau)
+    // 1. Search Term (Always AND)
+    if (debouncedTerm.trim()) {
+      const lowerTerm = debouncedTerm.toLowerCase();
+      result = result.filter(
+        (word) =>
+          word.text.toLowerCase().includes(lowerTerm) ||
+          word.meaning.toLowerCase().includes(lowerTerm)
+      );
+    }
+
+    // 2. Advanced Filters
+    const { typeIds, learningStatus, sharingStatus, pinStatus, operator } =
+      activeFilters;
+
+    const hasActiveFilters =
+      typeIds.length > 0 ||
+      learningStatus !== LearningStatus.All ||
+      sharingStatus !== SharingStatus.All ||
+      pinStatus !== PinStatus.All;
+
+    if (hasActiveFilters) {
+      result = result.filter((word) => {
+        const conditions: boolean[] = [];
+
+        // Type
+        if (typeIds.length > 0) {
+          const hasType =
+            word.typeIds && word.typeIds.some((id) => typeIds.includes(id));
+          conditions.push(!!hasType);
+        }
+
+        // Learned
+        if (learningStatus !== LearningStatus.All) {
+          conditions.push(
+            learningStatus === LearningStatus.Learned
+              ? !!word.isLearned
+              : !word.isLearned
+          );
+        }
+
+        // Shared
+        if (sharingStatus !== SharingStatus.All) {
+          conditions.push(
+            sharingStatus === SharingStatus.Shared
+              ? !!word.isShared
+              : !word.isShared
+          );
+        }
+
+        // Pinned
+        if (pinStatus !== PinStatus.All) {
+          conditions.push(
+            pinStatus === PinStatus.Pinned ? !!word.isPinned : !word.isPinned
+          );
+        }
+
+        if (conditions.length === 0) return true;
+        return operator === FilterOperator.AND
+          ? conditions.every((c) => c)
+          : conditions.some((c) => c);
+      });
+    }
+
+    return result;
+  }, [allWords, debouncedTerm, activeFilters]);
+
+  // --- GROUPING LOGIC ---
   const displayGroups = useMemo(() => {
     const dateGroups: Record<string, VocabularyItem[]> = {};
     const pinnedItems: VocabularyItem[] = [];
 
     searchedWords.forEach((word) => {
-      // LOGIC MỚI: Nếu bật mode Pin và từ được Pin -> Vào nhóm Pinned
       if (showPinnedOnly && word.isPinned) {
         pinnedItems.push(word);
-      }
-      // Ngược lại -> Vào nhóm Date
-      else {
+      } else {
         const dateKey = moment(word.createdAt).format("YYYY-MM-DD");
         if (!dateGroups[dateKey]) dateGroups[dateKey] = [];
         dateGroups[dateKey].push(word);
@@ -255,7 +262,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
     return groups;
   }, [searchedWords, showPinnedOnly]);
 
-  // 3. Tự động collapse khi bật Pin
+  // --- EFFECT: SYNC PIN MODE ---
   useEffect(() => {
     if (showPinnedOnly) {
       const dateGroupKeys = displayGroups
@@ -265,9 +272,9 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
     } else {
       setCollapsedGroups(new Set());
     }
-  }, [showPinnedOnly]);
+  }, [showPinnedOnly, displayGroups.length]);
 
-  // 4. Tính counts
+  // --- HELPERS ---
   const groupCounts = useMemo(() => {
     return displayGroups.map((group) => {
       if (collapsedGroups.has(group.key)) return 0;
@@ -280,29 +287,20 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
     displayGroups.every((g) => collapsedGroups.has(g.key));
 
   const toggleCollapseAll = () => {
-    if (isAllCollapsed) {
-      setCollapsedGroups(new Set());
-    } else {
-      setCollapsedGroups(new Set(displayGroups.map((g) => g.key)));
-    }
+    setCollapsedGroups(
+      isAllCollapsed ? new Set() : new Set(displayGroups.map((g) => g.key))
+    );
   };
 
   const toggleGroupCollapse = (groupKey: string) => {
     const newSet = new Set(collapsedGroups);
-    if (newSet.has(groupKey)) {
-      newSet.delete(groupKey);
-    } else {
-      newSet.add(groupKey);
-    }
+    newSet.has(groupKey) ? newSet.delete(groupKey) : newSet.add(groupKey);
     setCollapsedGroups(newSet);
   };
 
   const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedIds(new Set(searchedWords.map((w) => w.id)));
-    } else {
-      setSelectedIds(new Set());
-    }
+    if (checked) setSelectedIds(new Set(searchedWords.map((w) => w.id)));
+    else setSelectedIds(new Set());
     setLastSelectedId(null);
   };
 
@@ -315,17 +313,19 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
     const newSet = new Set(selectedIds);
     if (event?.shiftKey && lastSelectedId) {
       const visibleIds = searchedWords.map((w) => w.id);
-      const lastIndex = visibleIds.indexOf(lastSelectedId);
-      const currentIndex = visibleIds.indexOf(id);
-      if (lastIndex !== -1 && currentIndex !== -1) {
-        const start = Math.min(lastIndex, currentIndex);
-        const end = Math.max(lastIndex, currentIndex);
-        const rangeIds = visibleIds.slice(start, end + 1);
-        rangeIds.forEach((rid) => newSet.add(rid));
+      const start = Math.min(
+        visibleIds.indexOf(lastSelectedId),
+        visibleIds.indexOf(id)
+      );
+      const end = Math.max(
+        visibleIds.indexOf(lastSelectedId),
+        visibleIds.indexOf(id)
+      );
+      if (start !== -1 && end !== -1) {
+        visibleIds.slice(start, end + 1).forEach((rid) => newSet.add(rid));
       }
     } else {
-      if (newSet.has(id)) newSet.delete(id);
-      else newSet.add(id);
+      newSet.has(id) ? newSet.delete(id) : newSet.add(id);
       setLastSelectedId(id);
     }
     setSelectedIds(newSet);
@@ -333,81 +333,91 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
 
   const handleSelectGroup = (groupIndex: number) => {
     const group = displayGroups[groupIndex];
-    const idsInGroup = group.items.map((w) => w.id);
-    const isAllSelected = idsInGroup.every((id) => selectedIds.has(id));
+    const ids = group.items.map((w) => w.id);
+    const isAll = ids.every((id) => selectedIds.has(id));
     const newSet = new Set(selectedIds);
-    if (isAllSelected) {
-      idsInGroup.forEach((id) => newSet.delete(id));
-    } else {
-      idsInGroup.forEach((id) => newSet.add(id));
-    }
+    ids.forEach((id) => (isAll ? newSet.delete(id) : newSet.add(id)));
     setSelectedIds(newSet);
     setLastSelectedId(null);
   };
 
-  // --- Bulk Actions ---
-  const selectedWords = useMemo(() => {
-    return allWords.filter((w) => selectedIds.has(w.id));
-  }, [allWords, selectedIds]);
-
-  const isAllSelectedLearned = useMemo(() => {
-    return selectedWords.length > 0 && selectedWords.every((w) => w.isLearned);
-  }, [selectedWords]);
+  // Bulk Handlers
+  const selectedWords = useMemo(
+    () => allWords.filter((w) => selectedIds.has(w.id)),
+    [allWords, selectedIds]
+  );
+  const isAllSelectedLearned = useMemo(
+    () => selectedWords.length > 0 && selectedWords.every((w) => w.isLearned),
+    [selectedWords]
+  );
 
   const handleBulkMark = () => {
-    if (onBulkMarkLearned) {
-      const targetStatus = !isAllSelectedLearned;
-      onBulkMarkLearned(Array.from(selectedIds), targetStatus);
-      setSelectedIds(new Set());
-      setLastSelectedId(null);
-    }
+    onBulkMarkLearned?.(Array.from(selectedIds), !isAllSelectedLearned);
+    handleDeselectAll();
   };
 
   const handleBulkAdd = () => {
-    if (!onBulkAddToPractice) return;
-    const words = allWords.filter((w) => selectedIds.has(w.id));
-    onBulkAddToPractice(words);
-    setSelectedIds(new Set());
-    setLastSelectedId(null);
+    onBulkAddToPractice?.(selectedWords);
+    handleDeselectAll();
   };
 
   const confirmBulkMove = (topicId: string | undefined) => {
-    if (!onBulkUpdate) return;
-    onBulkUpdate(Array.from(selectedIds), { topicId: topicId });
-    setSelectedIds(new Set());
-    setLastSelectedId(null);
+    onBulkUpdate?.(Array.from(selectedIds), { topicId });
+    handleDeselectAll();
+  };
+
+  const confirmBulkAssignType = (typeIds: string[]) => {
+    onBulkUpdate?.(Array.from(selectedIds), { typeIds });
+    handleDeselectAll();
   };
 
   const handleBulkShare = (isShared: boolean) => {
-    if (onBulkUpdate) {
-      onBulkUpdate(Array.from(selectedIds), { isShared });
-      setSelectedIds(new Set());
-      setLastSelectedId(null);
-    }
+    onBulkUpdate?.(Array.from(selectedIds), { isShared });
+    handleDeselectAll();
   };
 
   const handleBulkDeleteWithConfirm = async () => {
-    if (!onBulkDelete) return;
-    const isConfirmed = await confirm({
-      title: `Delete ${selectedIds.size} Vocabulary Items?`,
-      message:
-        "Are you sure you want to delete these items? This action cannot be undone.",
-      confirmText: "Delete Now",
-      cancelText: "Cancel",
-      variant: "destructive",
-    });
-    if (isConfirmed) {
-      onBulkDelete(Array.from(selectedIds));
-      setSelectedIds(new Set());
-      setLastSelectedId(null);
+    if (
+      await confirm({
+        title: `Delete ${selectedIds.size} items?`,
+        message: "Cannot be undone.",
+        confirmText: "Delete",
+        variant: "destructive",
+      })
+    ) {
+      onBulkDelete?.(Array.from(selectedIds));
+      handleDeselectAll();
     }
   };
 
+  // Filter Logic Handlers
+  const handleApplyFilter = () => {
+    setActiveFilters(tempFilters);
+    setIsFilterPopoverOpen(false);
+  };
+
+  const handleResetFilter = () => {
+    setTempFilters(DEFAULT_FILTER);
+    setActiveFilters(DEFAULT_FILTER);
+    setIsFilterPopoverOpen(false);
+  };
+
+  const isFiltering = useMemo(() => {
+    return (
+      activeFilters.typeIds.length > 0 ||
+      activeFilters.learningStatus !== LearningStatus.All ||
+      activeFilters.sharingStatus !== SharingStatus.All ||
+      activeFilters.pinStatus !== PinStatus.All
+    );
+  }, [activeFilters]);
+
+  // View Helpers
   const isAllRevealed =
     searchedWords.length > 0 && revealedIds.size === searchedWords.length;
   const toggleRevealAll = () => {
-    if (isAllRevealed) setRevealedIds(new Set());
-    else setRevealedIds(new Set(searchedWords.map((w) => w.id)));
+    setRevealedIds(
+      isAllRevealed ? new Set() : new Set(searchedWords.map((w) => w.id))
+    );
   };
   const toggleRevealItem = (id: string) => {
     const newSet = new Set(revealedIds);
@@ -417,13 +427,19 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
 
   return (
     <div className="flex flex-col bg-card border-r pr-2 h-full overflow-hidden">
+      {/* --- MODALS --- */}
       <MoveTopicModal
         open={isMoveTopicModalOpen}
         onOpenChange={setIsMoveTopicModalOpen}
         selectedCount={selectedIds.size}
         onConfirm={confirmBulkMove}
       />
-
+      <BulkAssignTypeModal
+        open={isBulkTypeModalOpen}
+        onOpenChange={setIsBulkTypeModalOpen}
+        selectedCount={selectedIds.size}
+        onConfirm={confirmBulkAssignType}
+      />
       <BulkLookupModal
         open={isBulkLookupOpen}
         onOpenChange={setIsBulkLookupOpen}
@@ -431,28 +447,212 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
         onApplyUpdates={batchUpdateWords}
       />
 
-      {/* SEARCH BAR */}
-      <div className="p-3 pb-0 z-20">
-        <div className="relative">
+      {/* --- TOP BAR: SEARCH & FILTER --- */}
+      <div className="p-3 pb-0 z-20 flex gap-2">
+        <div className="relative flex-1">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9 pr-8 bg-muted/50 border-border focus:bg-background transition-all h-9 text-sm"
+            className="pl-9 pr-8 bg-muted/50 border-border h-9 text-sm"
           />
           {searchTerm && (
             <button
               onClick={() => setSearchTerm("")}
-              className="absolute right-2.5 top-2.5 text-muted-foreground hover:text-foreground transition-colors"
+              className="absolute right-2.5 top-2.5 text-muted-foreground hover:text-foreground"
             >
               <X size={16} />
             </button>
           )}
         </div>
+
+        <Popover
+          open={isFilterPopoverOpen}
+          onOpenChange={(open) => {
+            setIsFilterPopoverOpen(open);
+            if (open) setTempFilters(activeFilters);
+          }}
+        >
+          <PopoverTrigger asChild>
+            <Button
+              variant={isFiltering ? "default" : "outline"}
+              size="icon"
+              className={cn(
+                "h-9 w-9 shrink-0 cursor-pointer",
+                isFiltering && "bg-primary"
+              )}
+            >
+              <ListFilter size={16} />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80 p-4" align="start">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between border-b pb-2">
+                <h4 className="font-semibold text-sm flex items-center gap-2">
+                  <Filter size={14} /> Filter Options
+                </h4>
+                {isFiltering && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 px-2 text-xs text-muted-foreground"
+                    onClick={() => setTempFilters(DEFAULT_FILTER)}
+                  >
+                    Clear All
+                  </Button>
+                )}
+              </div>
+
+              {/* Word Types */}
+              <div className="space-y-1.5">
+                <Label className="text-xs text-muted-foreground">
+                  Word Types
+                </Label>
+                <WordTypeSelector
+                  value={tempFilters.typeIds}
+                  onChange={(val) =>
+                    setTempFilters((prev) => ({ ...prev, typeIds: val }))
+                  }
+                  className="w-full"
+                />
+              </div>
+
+              {/* Status Filters Grid */}
+              <div className="grid grid-cols-2 gap-4">
+                {/* Column 1: Learning Status */}
+                <FilterOptionRow
+                  label="Learning Status"
+                  value={tempFilters.learningStatus}
+                  onChange={(val) =>
+                    setTempFilters((prev) => ({ ...prev, learningStatus: val }))
+                  }
+                  options={[
+                    {
+                      value: LearningStatus.All,
+                      icon: <LayoutList size={16} />,
+                      tooltip: "All items",
+                    },
+                    {
+                      value: LearningStatus.Learned,
+                      icon: (
+                        <CheckCircle2 size={16} className="text-green-600" />
+                      ),
+                      tooltip: "Learned",
+                    },
+                    {
+                      value: LearningStatus.NotLearned,
+                      icon: (
+                        <Circle size={16} className="text-muted-foreground" />
+                      ),
+                      tooltip: "Learning (Not learned)",
+                    },
+                  ]}
+                />
+
+                {/* Column 2: Visibility */}
+                <FilterOptionRow
+                  label="Visibility"
+                  value={tempFilters.sharingStatus}
+                  onChange={(val) =>
+                    setTempFilters((prev) => ({ ...prev, sharingStatus: val }))
+                  }
+                  options={[
+                    {
+                      value: SharingStatus.All,
+                      icon: <Layers size={16} />,
+                      tooltip: "All",
+                    },
+                    {
+                      value: SharingStatus.Shared,
+                      icon: <Globe size={16} className="text-blue-500" />,
+                      tooltip: "Public / Shared",
+                    },
+                    {
+                      value: SharingStatus.Private,
+                      icon: <Lock size={16} className="text-amber-500" />,
+                      tooltip: "Private",
+                    },
+                  ]}
+                />
+              </div>
+
+              {/* Row: Pinned & Logic */}
+              <div className="grid grid-cols-2 gap-4 pt-1">
+                <FilterOptionRow
+                  label="Pinned"
+                  value={tempFilters.pinStatus}
+                  onChange={(val) =>
+                    setTempFilters((prev) => ({ ...prev, pinStatus: val }))
+                  }
+                  options={[
+                    {
+                      value: PinStatus.All,
+                      icon: <LayoutList size={16} />,
+                      tooltip: "All",
+                    },
+                    {
+                      value: PinStatus.Pinned,
+                      icon: (
+                        <Pin
+                          size={16}
+                          className="text-orange-500 fill-orange-500"
+                        />
+                      ),
+                      tooltip: "Pinned Only",
+                    },
+                    {
+                      value: PinStatus.NotPinned,
+                      icon: <PinOff size={16} />,
+                      tooltip: "Unpinned Only",
+                    },
+                  ]}
+                />
+
+                <FilterOptionRow
+                  label="Match Logic"
+                  value={tempFilters.operator}
+                  onChange={(val) =>
+                    setTempFilters((prev) => ({ ...prev, operator: val }))
+                  }
+                  options={[
+                    {
+                      value: FilterOperator.OR,
+                      icon: <Split size={16} className="rotate-180" />, // Icon tượng trưng rẽ nhánh (OR)
+                      tooltip: "Match ANY condition (OR)",
+                    },
+                    {
+                      value: FilterOperator.AND,
+                      icon: <Ampersand size={16} />,
+                      tooltip: "Match ALL conditions (AND)",
+                    },
+                  ]}
+                />
+              </div>
+
+              <div className="pt-2 flex gap-2 border-t mt-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 h-8 text-xs"
+                  onClick={handleResetFilter}
+                >
+                  Reset
+                </Button>
+                <Button
+                  size="sm"
+                  className="flex-1 h-8 text-xs"
+                  onClick={handleApplyFilter}
+                >
+                  Apply Filters
+                </Button>
+              </div>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
 
-      {/* HEADER TOOLBAR */}
+      {/* --- SELECTION TOOLBAR --- */}
       <div className="px-3 py-1 border-b flex items-center justify-between bg-card z-10">
         <div className="flex items-center gap-2">
           <Checkbox
@@ -472,6 +672,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
         <div className="flex gap-1 items-center">
           {selectedIds.size > 0 ? (
             <>
+              {/* --- ACTION ICONS (SELECTED) --- */}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -479,7 +680,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                       variant="ghost"
                       size="icon"
                       onClick={handleDeselectAll}
-                      className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-accent"
+                      className="h-8 w-8"
                     >
                       <X size={16} />
                     </Button>
@@ -522,11 +723,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-foreground hover:bg-accent"
-                  >
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
                     <MoreHorizontal size={16} />
                   </Button>
                 </DropdownMenuTrigger>
@@ -551,22 +748,26 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                   >
                     <FolderInput className="mr-2 h-4 w-4" /> Assign Topic
                   </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => setIsBulkTypeModalOpen(true)}
+                  >
+                    <Tag className="mr-2 h-4 w-4" /> Assign Word Types
+                  </DropdownMenuItem>
                   {!!userProfile && (
                     <DropdownMenuSub>
                       <DropdownMenuSubTrigger>
                         <Share2 className="mr-2 h-4 w-4" />
-                        <span>Community Sharing</span>
+                        <span>Sharing</span>
                       </DropdownMenuSubTrigger>
-                      <DropdownMenuSubContent className="w-48">
+                      <DropdownMenuSubContent>
                         <DropdownMenuItem onClick={() => handleBulkShare(true)}>
                           <Globe className="mr-2 h-4 w-4 text-emerald-600" />
-                          <span>Share Publicly</span>
+                          Public
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => handleBulkShare(false)}
                         >
-                          <GlobeLock className="mr-2 h-4 w-4 text-muted-foreground" />
-                          <span>Make Private</span>
+                          <GlobeLock className="mr-2 h-4 w-4" /> Private
                         </DropdownMenuItem>
                       </DropdownMenuSubContent>
                     </DropdownMenuSub>
@@ -583,6 +784,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
             </>
           ) : (
             <>
+              {/* --- VIEW ICONS (NO SELECTION) --- */}
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -590,11 +792,11 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                       variant={showPinnedOnly ? "secondary" : "ghost"}
                       size="icon"
                       onClick={() => setShowPinnedOnly(!showPinnedOnly)}
-                      className={`h-8 w-8 transition-colors ${
-                        showPinnedOnly
-                          ? "text-orange-600 bg-orange-100 dark:bg-orange-950/50 dark:text-orange-400"
-                          : "text-muted-foreground hover:text-orange-600 hover:bg-orange-50"
-                      }`}
+                      className={cn(
+                        "h-8 w-8 transition-colors",
+                        showPinnedOnly &&
+                          "text-orange-600 bg-orange-100 dark:bg-orange-950/50"
+                      )}
                     >
                       <Pin
                         size={16}
@@ -603,9 +805,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    {showPinnedOnly
-                      ? "Show Normal View"
-                      : "Group Pinned & Collapse Others"}
+                    {showPinnedOnly ? "Show All" : "Pinned Only"}
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -623,43 +823,60 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    {isAllRevealed ? "Hide all meanings" : "Show all meanings"}
+                    {isAllRevealed ? "Hide Meanings" : "Show Meanings"}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={toggleCollapseAll}
+                      disabled={displayGroups.length === 0}
+                      className="h-8 w-8 text-muted-foreground"
+                    >
+                      {isAllCollapsed ? (
+                        <ChevronsDown size={16} />
+                      ) : (
+                        <ChevronsRight size={16} />
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {isAllCollapsed ? "Expand All" : "Collapse All"}
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </>
           )}
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={toggleCollapseAll}
-                  disabled={displayGroups.length === 0}
-                  className="h-8 w-8 text-muted-foreground hover:bg-accent"
-                >
-                  {isAllCollapsed ? (
-                    <ChevronsDown size={16} />
-                  ) : (
-                    <ChevronsRight size={16} />
-                  )}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                {isAllCollapsed ? "Expand all groups" : "Collapse all groups"}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
         </div>
       </div>
 
-      {/* --- LIST CONTENT VIRTUALIZED --- */}
+      {/* --- LIST --- */}
       <div className="flex-1 mt-0 w-full overflow-hidden pl-1">
         {displayGroups.length === 0 ? (
           <div className="flex flex-col items-center justify-center mt-10 text-muted-foreground gap-2">
-            <Search size={32} className="opacity-20" />
-            <span className="text-sm">No results found.</span>
+            {isFiltering ? (
+              <Filter size={32} className="opacity-20" />
+            ) : (
+              <Search size={32} className="opacity-20" />
+            )}
+            <span className="text-sm">
+              {isFiltering ? "No matches found." : "No results."}
+            </span>
+            {isFiltering && (
+              <Button
+                variant="link"
+                size="sm"
+                onClick={handleResetFilter}
+                className="h-auto p-0 text-primary"
+              >
+                Reset Filters
+              </Button>
+            )}
           </div>
         ) : (
           <SimpleGroupedList
@@ -667,17 +884,12 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
             estimateRowHeight={HEIGHT_ITEM}
             groupContent={(index) => {
               const group = displayGroups[index];
-              const realCount = group.items.length;
-              const allSelected = group.items.every((w) =>
-                selectedIds.has(w.id)
-              );
-
               return (
                 <DateGroupHeader
                   key={group.key}
                   dateKey={group.key}
-                  count={realCount}
-                  allSelected={allSelected}
+                  count={group.items.length}
+                  allSelected={group.items.every((w) => selectedIds.has(w.id))}
                   onSelect={() => handleSelectGroup(index)}
                   isCollapsed={collapsedGroups.has(group.key)}
                   onToggle={() => toggleGroupCollapse(group.key)}
@@ -687,11 +899,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
               );
             }}
             itemContent={(index, groupIndex, itemIndex) => {
-              const group = displayGroups[groupIndex];
-              const word = group.items[itemIndex];
-
-              // Vì item chỉ xuất hiện 1 lần duy nhất trong toàn bộ list (do logic if/else)
-              // nên dùng word.id làm key là đủ và an toàn nhất
+              const word = displayGroups[groupIndex].items[itemIndex];
               return (
                 <div
                   className="pb-1 pr-1"

@@ -19,8 +19,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { ICON_KEYS, ICON_MAP, TOPIC_COLORS } from "@/constants";
 import { TopicItem, VocabularyItem } from "@/types";
 import { getColorStyle, getIconComponent } from "@/utils";
-import { Folder, FolderPlus, MoreVertical, Pencil, Trash2 } from "lucide-react";
+import {
+  Folder,
+  FolderPlus,
+  MoreVertical,
+  Pencil,
+  Settings2,
+  Trash2,
+} from "lucide-react";
 import React, { useMemo, useState } from "react";
+import { WordTypeManagerModal } from "../common/WordTypeManagerModal";
 
 interface TopicListProps {
   topics: TopicItem[];
@@ -41,6 +49,7 @@ const TopicList: React.FC<TopicListProps> = ({
 }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTopicId, setEditingTopicId] = useState<string | null>(null); // null = mode create
+  const [isTypeManagerOpen, setIsTypeManagerOpen] = useState(false);
 
   // Form State
   const [label, setLabel] = useState("");
@@ -101,15 +110,29 @@ const TopicList: React.FC<TopicListProps> = ({
 
   return (
     <div className="flex flex-col h-full bg-muted/30">
-      <div className="px-4 pt-2 pb-2 border-b flex justify-between items-center bg-card">
+      <WordTypeManagerModal
+        open={isTypeManagerOpen}
+        onOpenChange={setIsTypeManagerOpen}
+      />
+      <div className="px-4 pt-2 pb-2 gap-4 border-b flex items-center bg-card">
         <h3 className="font-semibold text-card-foreground">Topics</h3>
+
         <Button
           size="sm"
           variant="outline"
-          className="h-8 gap-1"
+          className="h-8 gap-1 ml-auto"
           onClick={handleOpenCreate}
         >
           <FolderPlus size={16} /> <span className="text-xs">New</span>
+        </Button>
+
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => setIsTypeManagerOpen(true)}
+          className="h-8 w-8 text-muted-foreground hover:bg-accent"
+        >
+          <Settings2 size={16} />
         </Button>
       </div>
 
