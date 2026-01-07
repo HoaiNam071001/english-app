@@ -804,9 +804,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                       />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>
-                    {showPinnedOnly ? "Show All" : "Pinned Only"}
-                  </TooltipContent>
+                  <TooltipContent>Group Pinned items</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
 
