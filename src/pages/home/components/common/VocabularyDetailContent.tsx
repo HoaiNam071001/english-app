@@ -42,6 +42,13 @@ export const VocabularyDetailContent: React.FC<
         {/* 1. WORD TEXT & TOPIC */}
         <div className="flex">
           <div className="flex-1 mr-2">
+            {topic && (
+                <span
+                  className={`${badgeBaseClass} text-[12px] whitespace-nowrap text-foreground border-border bg-background`}
+                >
+                  {topic.label}
+                </span>
+              )}
             <div className=" flex justify-between items-start">
               <div className="text-xl font-bold break-words pr-2 text-blue-600">
                 {item.text}
@@ -50,13 +57,6 @@ export const VocabularyDetailContent: React.FC<
             {/* 2. PART OF SPEECH (Mới thêm) */}
             <div className="flex mt-1 items-center">
               <PartSpeech data={item.partOfSpeech} />
-              {topic && (
-                <span
-                  className={`${badgeBaseClass} ml-auto whitespace-nowrap text-foreground border-border bg-background`}
-                >
-                  {topic.label}
-                </span>
-              )}
             </div>
 
             {/* 3. PHONETICS (Mới thêm) */}
