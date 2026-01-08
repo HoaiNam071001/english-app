@@ -3,7 +3,7 @@ import { getPartOfSpeechStyle, getShortPartOfSpeech } from "@/utils";
 
 export const PartSpeech = ({ data }: { data?: PartOfSpeech[] }) => {
   return (
-    <div className="flex flex-wrap justify-center gap-1 mb-1 text-[8px]">
+    <div className="flex flex-wrap justify-center gap-1 text-[8px]">
       {data?.map((pos) => (
         <span
           key={pos}

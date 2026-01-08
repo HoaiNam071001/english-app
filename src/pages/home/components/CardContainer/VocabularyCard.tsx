@@ -257,7 +257,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
               {/* MAIN CONTENT */}
               <div className="flex-1 flex flex-col items-center justify-center pb-8 pt-3 min-h-0 overflow-hidden">
                 <div className="h-[80px] min-h-[80px] flex flex-col justify-end">
-                  <div className="relative flex items-center flex-col">
+                  <div className="relative flex items-center flex-col gap-[2px]">
                     <PartSpeech data={item.partOfSpeech} />
                     <Phonetics item={item} />
                   </div>
