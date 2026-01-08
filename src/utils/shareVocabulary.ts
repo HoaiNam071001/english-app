@@ -10,5 +10,6 @@ export const clonedVocabularyItem = (
     example: item.example,
     phonetics: item.phonetics,
     partOfSpeech: item.partOfSpeech,
+    imageUrl: item.imageUrl,
   };
 };
