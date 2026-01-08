@@ -32,6 +32,7 @@ export interface VocabularyItem {
   createdAt: number; // Kiểu thời gian của Firebase
   updatedAt: number;
 
+  imageUrl?: string;
   isLearned?: boolean;
   isShared?: boolean;
   isPinned?: boolean;

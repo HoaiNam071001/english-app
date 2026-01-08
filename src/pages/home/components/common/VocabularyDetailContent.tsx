@@ -13,6 +13,7 @@ import moment from "moment";
 import React from "react";
 import { PartSpeech } from "./PartSpeech";
 import { Phonetic } from "./Phonetic/PhoneticItem";
+import { ImagePreview } from "@/components/ImagePreview";
 
 interface VocabularyDetailContentProps {
   item: VocabularyItem;
@@ -39,64 +40,69 @@ export const VocabularyDetailContent: React.FC<
       {/* Header Section */}
       <div>
         {/* 1. WORD TEXT & TOPIC */}
-        <div className="flex justify-between items-start">
-          <div className="text-xl font-bold break-words pr-2 text-blue-600">
-            {item.text}
-          </div>
-          {topic && (
-            <span
-              className={`${badgeBaseClass} whitespace-nowrap text-foreground border-border bg-background`}
-            >
-              {topic.label}
-            </span>
-          )}
-        </div>
-
-        {/* 2. PART OF SPEECH (Mới thêm) */}
-        <div className="flex mt-1">
-          <PartSpeech data={item.partOfSpeech} />
-        </div>
-
-        {/* 3. PHONETICS (Mới thêm) */}
-        {item.phonetics && item.phonetics.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-1">
-            {item.phonetics.map((pho, index) => (
-              <div
-                key={index}
-                className="flex items-center gap-2 bg-muted/40 rounded-md pl-2 pr-1 border border-border/40"
-              >
-                {/* Accent Badge */}
-                <span
-                  className={`px-1 rounded text-[10px] font-bold uppercase tracking-wider text-blue-500`}
-                >
-                  {pho.accent || "--"}
-                </span>
-                {/* IPA Text */}
-                <Phonetic accent={pho.accent} text={pho.text} />
-                {/* Audio Button */}
-                {pho.audio && (
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div
-                          className={`p-1 rounded-full transition-colors cursor-pointer bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-800`}
-                          onClick={() => handlePlayAudio(pho)}
-                        >
-                          <Volume2 size={14} />
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent side="top">
-                        <p className="text-xs">
-                          {pho.audio ? "Play Audio" : "Text-to-Speech"}
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                )}
+        <div className="flex">
+          <div className="flex-1">
+            <div className=" flex justify-between items-start">
+              <div className="text-xl font-bold break-words pr-2 text-blue-600">
+                {item.text}
               </div>
-            ))}
+              {topic && (
+                <span
+                  className={`${badgeBaseClass} whitespace-nowrap text-foreground border-border bg-background`}
+                >
+                  {topic.label}
+                </span>
+              )}
+            </div>
+            {/* 2. PART OF SPEECH (Mới thêm) */}
+            <div className="flex mt-1">
+              <PartSpeech data={item.partOfSpeech} />
+            </div>
+
+            {/* 3. PHONETICS (Mới thêm) */}
+            {item.phonetics && item.phonetics.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-1">
+                {item.phonetics.map((pho, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center gap-2 bg-muted/40 rounded-md pl-2 pr-1 border border-border/40"
+                  >
+                    {/* Accent Badge */}
+                    <span
+                      className={`px-1 rounded text-[10px] font-bold uppercase tracking-wider text-blue-500`}
+                    >
+                      {pho.accent || "--"}
+                    </span>
+                    {/* IPA Text */}
+                    <Phonetic accent={pho.accent} text={pho.text} />
+                    {/* Audio Button */}
+                    {pho.audio && (
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div
+                              className={`p-1 rounded-full transition-colors cursor-pointer bg-blue-100 text-blue-700 hover:bg-blue-200 dark:bg-blue-900/50 dark:text-blue-300 dark:hover:bg-blue-800`}
+                              onClick={() => handlePlayAudio(pho)}
+                            >
+                              <Volume2 size={14} />
+                            </div>
+                          </TooltipTrigger>
+                          <TooltipContent side="top">
+                            <p className="text-xs">
+                              {pho.audio ? "Play Audio" : "Text-to-Speech"}
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-        )}
+
+          {item.imageUrl && <ImagePreview url={item.imageUrl} />}
+        </div>
       </div>
 
       <Separator />

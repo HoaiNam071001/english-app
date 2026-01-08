@@ -19,6 +19,7 @@ import TopicSelector from "../common/TopicSelector";
 import WordTypeSelector from "../common/WordTypeSelector"; // <--- Import mới
 import { DraftSelectionView } from "./DraftSelectionView";
 import { PhoneticRow } from "./PhoneticRow";
+import { ImageIllustration } from "@/components/ImageIllustration";
 
 interface EditPopoverContentProps {
   word: VocabularyItem;
@@ -44,7 +45,8 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
     topicId: word.topicId || null,
     phonetics: word.phonetics || [],
     partOfSpeech: word.partOfSpeech || [],
-    typeIds: word.typeIds || [], // <--- Thêm dòng này để init state
+    typeIds: word.typeIds || [],
+    imageUrl: word.imageUrl || "",
   });
 
   // State Draft: Lưu WordData thô từ API
@@ -131,22 +133,31 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
     <div className="w-[500px] min-h-[500px] max-h-[600px] pr-1 flex flex-col">
       <div className="flex-1 overflow-auto gap-3 flex flex-col my-2">
         {/* WORD & FIND */}
-        <div className="space-y-1">
-          <Label htmlFor="text" className="text-xs text-muted-foreground">
-            Word
-          </Label>
-          <div className="relative">
-            <Input
-              id="text"
-              value={form.text}
-              onChange={(e) => setForm({ ...form, text: e.target.value })}
-              className="h-8 text-sm font-bold pr-8"
+        <div className="flex gap-3">
+          {/* Ảnh minh họa - Xếp bên trái */}
+          <div className="space-y-1">
+            <ImageIllustration
+              url={form.imageUrl || ""}
+              onApply={(newUrl) => setForm({ ...form, imageUrl: newUrl })}
             />
-            <SimpleTooltip content="Find more information">
+          </div>
+
+          {/* Word Input - Chiếm phần còn lại */}
+          <div className="flex-1 space-y-1">
+            <Label htmlFor="text" className="text-xs text-muted-foreground">
+              Word
+            </Label>
+            <div className="relative">
+              <Input
+                id="text"
+                value={form.text}
+                onChange={(e) => setForm({ ...form, text: e.target.value })}
+                className="h-8 text-sm font-bold pr-8"
+              />
               <Button
                 size="icon"
                 variant="ghost"
-                className="absolute right-0 top-0 h-6 w-6 text-muted-foreground hover:text-primary m-1"
+                className="absolute right-0 top-0 h-8 w-8 text-muted-foreground"
                 onClick={handleFind}
                 disabled={apiLoading}
               >
@@ -156,7 +167,22 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
                   <Search size={14} />
                 )}
               </Button>
-            </SimpleTooltip>
+            </div>
+
+            <div className="space-y-1 mt-2">
+              <Label
+                htmlFor="meaning"
+                className="text-xs text-muted-foreground"
+              >
+                Meaning (VN)
+              </Label>
+              <Input
+                id="meaning"
+                value={form.meaning}
+                onChange={(e) => setForm({ ...form, meaning: e.target.value })}
+                className="h-8 text-sm"
+              />
+            </div>
           </div>
         </div>
 
@@ -261,19 +287,6 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
               </div>
             )}
           </div>
-        </div>
-
-        {/* MEANING */}
-        <div className="space-y-1">
-          <Label htmlFor="meaning" className="text-xs text-muted-foreground">
-            Meaning (VN)
-          </Label>
-          <Input
-            id="meaning"
-            value={form.meaning}
-            onChange={(e) => setForm({ ...form, meaning: e.target.value })}
-            className="h-8 text-sm"
-          />
         </div>
 
         {/* TOPIC */}
