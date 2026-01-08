@@ -29,11 +29,6 @@ export const ImageIllustration = ({
 
     // Nếu để trống thì có thể hiểu là muốn xóa ảnh
     onApply(trimmedUrl);
-
-    // Thông báo thành công nếu cần
-    if (trimmedUrl !== url) {
-      toast.success("Preview updated!");
-    }
   };
 
   return (
