@@ -101,7 +101,7 @@ export const VocabularyDetailContent: React.FC<
             )}
           </div>
 
-          {item.imageUrl && <ImagePreview url={item.imageUrl} />}
+          {item.imageUrl && <ImagePreview url={item.imageUrl}/>}
         </div>
       </div>
 

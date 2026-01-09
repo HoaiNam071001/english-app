@@ -206,7 +206,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
             <PopoverContent
               align="center"
               side="right"
-              className="w-max p-4"
+              className="w-max p-4 shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
               <VocabularyDetailContent

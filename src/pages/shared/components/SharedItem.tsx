@@ -167,7 +167,7 @@ export const SharedItem: React.FC<SharedItemProps> = ({
           <PopoverContent
             side="top"
             align="center"
-            className="w-max p-4"
+            className="w-max p-4 shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <VocabularyDetailContent item={word} />
