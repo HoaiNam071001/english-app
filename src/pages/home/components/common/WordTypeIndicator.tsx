@@ -40,13 +40,13 @@ export const WordTypeIndicator = ({ typeIds }: WordTypeIndicatorProps) => {
   if (!gradientStyle) return null;
 
   return (
-    <div className="flex items-center justify-center">
+    <div className="flex items-center justify-center opacity-80">
       <TooltipProvider>
         <Tooltip delayDuration={200}>
           <TooltipTrigger asChild>
             {/* Circle Container với Conic Gradient */}
             <div
-              className="w-4 h-4 rounded-full shadow-sm ring-[1.5px] ring-white dark:ring-black/20 cursor-help transition-transform hover:scale-110"
+              className="w-3 h-3 rounded-full shadow-sm ring-[1.5px] ring-white dark:ring-black/20 cursor-help transition-transform hover:scale-110"
               style={gradientStyle}
             />
           </TooltipTrigger>

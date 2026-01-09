@@ -112,4 +112,5 @@ export interface TabSession {
   wordIds: string[]; // Quan trọng: Lưu danh sách ID bài học
   flippedIds: Set<string>;
   meaningIds: Set<string>;
+  imageIds: Set<string>;
 }

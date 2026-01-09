@@ -18,6 +18,9 @@ import { playAudio } from "@/utils/audio";
 import {
   Check,
   Eye,
+  EyeOff,
+  ImageIcon,
+  ImageOff,
   Info,
   PenLine,
   Pin, // [NEW] Import PinOff
@@ -46,11 +49,13 @@ interface VocabularyCardProps {
   command: FlashcardCommand | null;
   isFlipped: boolean;
   showMeaning: boolean;
+  hideImage: boolean;
   topics: TopicItem[];
   onLearned: (id: string, isLearned: boolean) => Promise<void> | void;
   remove: (id: string) => void;
   onFlip: (isFlipped: boolean) => void;
   onToggleMeaning: (showMeaning: boolean) => void;
+  onToggleImage: (hideImage: boolean) => void;
   onUpdate: (id: string, updates: Partial<VocabularyItem>) => void;
   onDelete: (id: string) => void;
 }
@@ -60,10 +65,12 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
   topics,
   isFlipped,
   showMeaning,
+  hideImage = false,
   onLearned,
   remove,
   onFlip,
   onToggleMeaning,
+  onToggleImage,
   onUpdate,
   onDelete,
 }) => {
@@ -118,9 +125,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <TopicIcon
-                  className={`w-4 absolute top-0 right-6 ${topicColorStyle.text}`}
-                />
+                <TopicIcon className={`w-4 ${topicColorStyle.text}`} />
               </TooltipTrigger>
               <TooltipContent side="top" className="text-xs">
                 Topic: {currentTopic.label}
@@ -181,35 +186,84 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
           {/* --- FRONT SIDE (NGỬA) --- */}
           {isFlipped && (
             <div className="group flex flex-col h-full w-full relative animate-in fade-in zoom-in-95 duration-500">
-              {/* [NEW] 1. PIN INDICATOR: Absolute Top Right */}
-
-              <div className="absolute -top-1 left-0 w-full flex items-center gap-1 z-30">
+              {/* 1. TOP META INFO  */}
+              <div className="absolute -top-1 left-0 flex items-center gap-1 z-30 w-full">
                 <div
-                  className="p-1.5 mr-auto rounded-full hover:bg-accent text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
+                  className="p-1.5 rounded-full hover:bg-accent text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
                   onClick={handleRemove}
                   title="Remove"
                 >
                   <X size={14} />
                 </div>
-
-                {renderTopic()}
-
-                {/* Edit Button */}
                 <WordTypeIndicator typeIds={item.typeIds} />
+                <div className="ml-auto flex gap-1">
+                  {renderTopic()}
 
-                <div
-                  className="p-1.5 rounded-full hover:bg-accent text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsEditOpen(true);
-                  }}
-                  title="Edit word"
-                >
-                  <PenLine size={14} />
+                  {/* View Details */}
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <div
+                        className="p-1 rounded-full hover:bg-background hover:text-blue-500 transition-all cursor-pointer text-muted-foreground"
+                        onClick={(e) => e.stopPropagation()}
+                        title="View details"
+                      >
+                        <Info size={14} />
+                      </div>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      side="right"
+                      align="center"
+                      className="w-max p-4 shadow-2xl"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <VocabularyDetailContent
+                        item={item}
+                        topic={currentTopic || undefined}
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </div>
               </div>
 
-              {/* MAIN CONTENT */}
+              
+              {/* FLag */}
+              <div className={cn(
+                "z-100 shadow-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center justify-evenly gap-2 bg-secondary/50 rounded-full px-1 py-0.5 border border-border/50",
+                "duration-300 absolute top-0 left-1/2 -translate-x-1/2 "
+                )}>
+                {/* Toggle Meaning */}
+                <div
+                  className="p-1 rounded-full hover:bg-background hover:text-blue-400 transition-all cursor-pointer text-muted-foreground"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleMeaning(!showMeaning);
+                  }}
+                  title={showMeaning ? "Hide Meaning" : "Show Meaning"}
+                >
+                  {showMeaning ? <Eye size={14} /> : <EyeOff size={14} />}
+                </div>
+
+                {/* Toggle Image (Optional) */}
+                {item.imageUrl && (
+                  <div
+                    className="p-1 rounded-full hover:bg-background hover:text-primary transition-all cursor-pointer text-muted-foreground"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onToggleImage(!hideImage);
+                    }}
+                    title={!hideImage ? "Hide Image" : "Show Image"}
+                  >
+                    {hideImage ? (
+                      <ImageIcon size={14} />
+                    ) : (
+                      <ImageOff size={14} />
+                    )}
+                  </div>
+                )}
+              </div>
+
+
+              {/* 2. MAIN CONTENT */}
               <div className="flex-1 flex flex-col items-center pb-8 pt-4 min-h-0 overflow-hidden">
                 <div className="h-[80px] min-h-[80px] flex flex-col justify-end">
                   <div className="relative flex items-center flex-col gap-[2px]">
@@ -251,14 +305,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
 
                 <div className="w-12 !m-0 h-[2px] min-h-[2px] bg-border rounded-full"></div>
 
-                <div
-                  className="relative min-h-[18px] h-[18px] flex w-full cursor-pointer truncate"
-                  onClick={(e) => {
-                    if (!item.meaning) return;
-                    e.stopPropagation();
-                    onToggleMeaning(!showMeaning);
-                  }}
-                >
+                <div className="relative min-h-[18px] h-[18px] flex w-full cursor-pointer truncate">
                   <div
                     className={cn(
                       `inline-block truncate w-full text-[12px] leading-normal text-muted-foreground italic transition-all duration-300`,
@@ -269,45 +316,38 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                   >
                     {item.meaning}
                   </div>
-
-                  {!showMeaning && item.meaning && (
-                    <div className="top-1 absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-                      <Eye
-                        size={18}
-                        className="text-primary/70 bg-background/80 rounded-full p-0.5 shadow-sm"
-                      />
-                    </div>
-                  )}
                 </div>
 
-                {item.imageUrl && (
+                {!!item.imageUrl && !hideImage && (
                   <div className="mt-1">
                     <ImagePreview url={item.imageUrl} h={60} w={100} />
                   </div>
                 )}
               </div>
 
-              {/* [UPDATED] 3. BOTTOM ACTIONS: UI "Dock" Style */}
-              <div className="opacity-0 duration-300 group-hover:opacity-100 absolute bottom-0 left-0 w-full z-20">
-                <div className="flex items-center gap-2 justify-between bg-secondary/50 backdrop-blur-sm rounded-full p-0.5 border border-border/50 shadow-sm">
+              {/* [UPDATED] 3. BOTTOM ACTIONS: ALL BUTTONS */}
+              <div className="backdrop-blur-sm opacity-0 duration-300 group-hover:opacity-100 absolute bottom-0 left-0 w-full z-20">
+                <div className="flex items-center justify-between gap-0.5 bg-secondary/50 rounded-full p-0.5 border border-border/50 shadow-sm mx-auto w-full">
+                  {/* Speak */}
                   <Speaker item={item} />
-
+                  {/* Pin */}
                   <div
-                    className={`p-1.5 rounded-full transition-all cursor-pointer hover:bg-background `}
+                    className="p-1 rounded-full transition-all cursor-pointer hover:bg-background"
                     onClick={(e) => {
                       e.stopPropagation();
                       onUpdate(item.id, { isPinned: !item.isPinned });
                     }}
                     title={item.isPinned ? "Unpin" : "Pin item"}
                   >
-                    <Pin size={15} />
+                    <Pin size={14} />
                   </div>
 
+                  {/* Learned */}
                   <div
-                    className={`p-1.5 rounded-full transition-colors cursor-pointer ${
+                    className={`p-1 rounded-full transition-colors cursor-pointer ${
                       !item.isLearned
-                        ? " text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900"
-                        : " text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900"
+                        ? "text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900"
+                        : "text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900"
                     }`}
                     onClick={handleMarkAsLearned}
                     title={
@@ -323,28 +363,17 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                     )}
                   </div>
 
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <div
-                        className="p-1.5 rounded-full hover:bg-background hover:text-blue-500 transition-all cursor-pointer text-muted-foreground"
-                        onClick={(e) => e.stopPropagation()}
-                        title="View details"
-                      >
-                        <Info size={15} />
-                      </div>
-                    </PopoverTrigger>
-
-                    <PopoverContent
-                      side="right"
-                      className="w-max p-4 shadow-2xl"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <VocabularyDetailContent
-                        item={item}
-                        topic={currentTopic || undefined}
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  {/* Edit */}
+                  <div
+                    className="p-1 rounded-full hover:bg-accent text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setIsEditOpen(true);
+                    }}
+                    title="Edit word"
+                  >
+                    <PenLine size={14} />
+                  </div>
                 </div>
               </div>
             </div>

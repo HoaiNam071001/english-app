@@ -11,6 +11,7 @@ interface StoredTabSession {
   wordIds: string[];
   flippedIds: string[];
   meaningIds: string[];
+  imageIds: string[];
 }
 
 interface StoredData {
@@ -65,6 +66,7 @@ export const useTabSession = () => {
               wordIds: t.wordIds || [],
               flippedIds: new Set(t.flippedIds),
               meaningIds: new Set(t.meaningIds),
+              imageIds: new Set(t.imageIds),
             }));
 
             setTabs(hydratedTabs);
@@ -98,6 +100,7 @@ export const useTabSession = () => {
           wordIds: t.wordIds,
           flippedIds: Array.from(t.flippedIds || []),
           meaningIds: Array.from(t.meaningIds || []),
+          imageIds: Array.from(t.imageIds || []),
         }));
 
         const dataToStore: StoredData = {
@@ -134,6 +137,7 @@ export const useTabSession = () => {
       wordIds: wordIds,
       flippedIds: new Set(),
       meaningIds: new Set(),
+      imageIds: new Set(),
     };
   };
 

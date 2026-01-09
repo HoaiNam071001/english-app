@@ -144,12 +144,15 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
                 tab.flippedIds?.values()?.filter((id) => !idsSet.has(id)) || [];
               const newMeaningIds =
                 tab.meaningIds?.values()?.filter((id) => !idsSet.has(id)) || [];
-
+              const newImageIds =
+                tab.imageIds?.values()?.filter((id) => !idsSet.has(id)) ||
+                [];
               return {
                 ...tab,
                 wordIds: newWordIds,
                 flippedIds: new Set(newFlippedIds),
                 meaningIds: new Set(newMeaningIds),
+                imageIds: new Set(newImageIds),
               };
             }
             return tab;
@@ -334,12 +337,14 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
             displayCards={activeDisplayCards}
             flippedIds={activeTab.flippedIds}
             meaningIds={activeTab.meaningIds}
+            imageIds={activeTab.imageIds}
             onFlippedIdsChange={(ids) =>
               updateActiveTabState({ flippedIds: ids })
             }
             onMeaningIdsChange={(ids) =>
               updateActiveTabState({ meaningIds: ids })
             }
+            onImageIdsChange={(ids) => updateActiveTabState({ imageIds: ids })}
             setDisplayCards={(items) =>
               updateActiveTabState({ wordIds: items.map((i) => i.id) })
             }
