@@ -228,7 +228,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
               
               {/* FLag */}
               <div className={cn(
-                "z-100 shadow-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center justify-evenly gap-2 bg-secondary/50 rounded-full px-1 py-0.5 border border-border/50",
+                "z-50 shadow-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center justify-evenly gap-2 bg-secondary/50 rounded-full px-1 py-0.5 border border-border/50",
                 "duration-300 absolute top-0 left-1/2 -translate-x-1/2 "
                 )}>
                 {/* Toggle Meaning */}
