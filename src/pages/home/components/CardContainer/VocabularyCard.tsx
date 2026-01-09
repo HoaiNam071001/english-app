@@ -119,7 +119,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
             <Tooltip>
               <TooltipTrigger asChild>
                 <TopicIcon
-                  className={`w-4 absolute top-[2px] -translate-x-1/2 left-1/2 ${topicColorStyle.text}`}
+                  className={`w-4 absolute top-0 right-6 ${topicColorStyle.text}`}
                 />
               </TooltipTrigger>
               <TooltipContent side="top" className="text-xs">
