@@ -146,7 +146,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
             >
               {word.text}
             </span>
-            <Phonetics item={word} />
+            <Phonetics item={word} className="truncate" />
           </div>
 
           <div className="relative w-fit h-[16px]">
