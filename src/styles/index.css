@@ -68,6 +68,11 @@
       border-radius: var(--radius-small);
     }
 
+    ._listItemChecked_1tncs_73::after {
+      top: 0.5rem !important;
+      left: 0.75rem !important;
+    }
+
     .mdxeditor {
       overflow: auto;
     }
