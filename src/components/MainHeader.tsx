@@ -1,7 +1,7 @@
 import { ROUTES } from "@/constants";
 import { useAuth } from "@/hooks/useAuth";
 import { UserRole } from "@/types";
-import { Book, Globe, LucideIcon, Shield } from "lucide-react";
+import { Book, Globe, LucideIcon, NotebookPen, Shield } from "lucide-react";
 import { useMemo } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { UserFloatingMenu } from "./UserFloatingMenu";
@@ -40,6 +40,15 @@ export const MainHeader = () => {
           checkIsActive(ROUTES.HOME) &&
           location.pathname !== ROUTES.SHARED &&
           !location.pathname.startsWith(ROUTES.ADMIN.ROOT),
+        isVisible: true,
+        variant: "default",
+      },
+      {
+        key: "note",
+        label: "Note",
+        path: ROUTES.NOTE,
+        icon: NotebookPen,
+        isActive: checkIsActive(ROUTES.NOTE),
         isVisible: true,
         variant: "default",
       },

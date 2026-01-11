@@ -54,6 +54,8 @@ export const STORAGE_KEY = {
   IS_GUEST: "is_GUEST",
   SAVED_ACCOUNTS: "SAVED_ACCOUNTS",
   CAR_TABS: "CAR_TABS",
+  NOTE_LAYOUT: "NOTE_LAYOUT",
+  NOTE_GROUPED: "NOTE_GROUPED",
 };
 
 export const ADMIN_INFO = {
@@ -315,6 +317,7 @@ export const GUEST_INFO = {
     vocabulary: "vocabulary_storage",
     cardTabs: "cardTabs",
     wordTypes: "wordTypes",
+    notes: "Notes",
   },
 };
 
@@ -323,6 +326,7 @@ export const ROUTES = {
   HOME: "/",
   LOGIN: "/login",
   SHARED: "/shared",
+  NOTE: "/note",
 
   // Admin Area
   ADMIN: {

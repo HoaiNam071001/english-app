@@ -1,0 +1,113 @@
+/* editor */
+
+.mdxeditor-popup-container,
+._popupContainer_1e2ox_1240 {
+  z-index: 100 !important;
+}
+
+.dark ._dialogOverlay_1e2ox_870 {
+  background-color: transparent;
+}
+
+@layer components {
+  .niz-editor-wrapper {
+    ._listitem_1tncs_69 {
+      margin: 0 !important;
+    }
+    /* tick */
+
+    .prose :where(.prose > :first-child):not(:where([class~="not-prose"] *)) {
+      margin-top: 0 !important;
+    }
+    .prose :where(ul):not(:where([class~="not-prose"] *)) {
+      list-style-type: disc !important;
+      margin-top: 0.5em !important;
+      margin-bottom: 0.5em !important;
+      padding-left: 1.5em !important;
+    }
+
+    .prose :where(ul > li):not(:where([class~="not-prose"] *)) {
+      padding-left: 0.375em;
+    }
+
+    /* number */
+
+    .prose :where(ol):not(:where([class~="not-prose"] *)) {
+      list-style-type: decimal;
+      margin-top: 0.5em !important;
+      margin-bottom: 0.5em !important;
+      padding-left: 1.5em !important;
+    }
+    .prose :where(ol > li):not(:where([class~="not-prose"] *)) {
+      padding-left: 0.375em;
+    }
+
+    /* checkbox */
+
+    .prose li[role="checkbox"] {
+      text-indent: 1.2rem;
+    }
+    ._listItemChecked_1tncs_73,
+    ._listItemUnchecked_1tncs_74 {
+      position: relative;
+      margin-left: 0;
+      margin-right: 0;
+      margin-inline-start: -1.8rem !important;
+      padding-left: 1rem !important;
+      padding-right: 1rem !important;
+      list-style-type: none;
+      outline: none;
+    }
+
+    .prose li[role="checkbox"]:before {
+      transform: translate(6px, 6px);
+    }
+
+    ._listItemUnchecked_1tncs_74:before {
+      border: 1px solid var(--baseBorder);
+      border-radius: var(--radius-small);
+    }
+
+    .mdxeditor {
+      overflow: auto;
+    }
+  }
+
+  /* --- DARK MODE --- */
+
+  .dark .niz-editor-wrapper {
+    ._toolbarRoot_1e2ox_162 svg {
+      /* override --baseBorderHover */
+      color: var(--foreground) !important;
+    }
+
+    ._toolbarToggleItem_1e2ox_208[data-disabled] svg,
+    ._toolbarButton_1e2ox_239[data-disabled] svg {
+      color: var(--baseBorderHover) !important;
+    }
+
+    ._toolbarToggleItem_1e2ox_208:hover,
+    ._toolbarButton_1e2ox_239:hover {
+      background-color: var(--muted-foreground) !important;
+    }
+
+    ._toolbarToggleItem_1e2ox_208[data-state="on"],
+    ._toolbarButton_1e2ox_239[data-state="on"],
+    ._toolbarToggleItem_1e2ox_208:active,
+    ._toolbarButton_1e2ox_239:active {
+      background-color: var(--muted-foreground) !important;
+    }
+
+    .mdxeditor-toolbar {
+      background-color: var(--muted) !important;
+    }
+
+    ._contentEditable_1e2ox_380 {
+      color: var(--foreground) !important;
+    }
+
+    ._placeholder_1e2ox_1106 {
+      color: var(--muted-foreground) !important;
+    }
+  }
+}

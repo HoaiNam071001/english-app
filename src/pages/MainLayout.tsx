@@ -8,9 +8,10 @@ import { ROUTES } from "@/constants";
 import { useAuth } from "@/hooks/useAuth";
 import UsersPage from "@/pages/admin/UsersPage";
 import { Loader2 } from "lucide-react";
+import { AppLayout } from "./AppLayout";
 import HomePage from "./home";
+import NotePage from "./note";
 import SharedPage from "./shared";
-import { AppLayout } from "./UserLayout";
 
 export const MainLayout = () => {
   const { loading } = useAuth();
@@ -29,11 +30,11 @@ export const MainLayout = () => {
           {/* Public Routes (Ví dụ: Login) */}
           <Route path={ROUTES.LOGIN} element={<EmailEntry />} />
 
-          {/* Protected Routes (Yêu cầu phải là User hoặc Guest) */}
           <Route element={<ProtectedRoute />}>
             <Route element={<AppLayout />}>
               <Route path={ROUTES.HOME} element={<HomePage />} />
               <Route path={ROUTES.SHARED} element={<SharedPage />} />
+              <Route path={ROUTES.NOTE} element={<NotePage />} />
 
               <Route path={ROUTES.ADMIN.ROOT} element={<AdminRoute />}>
                 <Route path={ROUTES.ADMIN.USERS} element={<UsersPage />} />

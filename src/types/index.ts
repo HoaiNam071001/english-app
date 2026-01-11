@@ -1,6 +1,7 @@
 import { AccentType } from "./dictionary";
 
 export * from "./dictionary";
+export * from "./note";
 export * from "./wordType";
 
 export enum PartOfSpeech {
@@ -60,6 +61,7 @@ export enum DataTable {
   Topics = "topics",
   USER = "users",
   WordType = "word_types",
+  Notes = "notes",
 }
 
 export interface TopicItem {
