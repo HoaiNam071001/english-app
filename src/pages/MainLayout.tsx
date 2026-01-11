@@ -8,6 +8,7 @@ import { ROUTES } from "@/constants";
 import { useAuth } from "@/hooks/useAuth";
 import UsersPage from "@/pages/admin/UsersPage";
 import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { AppLayout } from "./AppLayout";
 import HomePage from "./home";
 import NotePage from "./note";
@@ -16,7 +17,17 @@ import SharedPage from "./shared";
 export const MainLayout = () => {
   const { loading } = useAuth();
 
-  if (loading) {
+  const [isDelaying, setIsDelaying] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsDelaying(false);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading || isDelaying) {
     return (
       <div className="h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
