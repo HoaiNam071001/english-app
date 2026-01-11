@@ -1,6 +1,5 @@
-import { useState } from "react";
-import { Button } from "./ui/button";
 import { useToast } from "@/hooks/useToast";
+import { useEffect, useState } from "react";
 
 export const ImageIllustration = ({
   url,
@@ -13,23 +12,36 @@ export const ImageIllustration = ({
   const [isHovered, setIsHovered] = useState(false);
   const toast = useToast();
 
-  const handleApply = () => {
-    const trimmedUrl = tempUrl.trim();
+  // Đồng bộ tempUrl khi prop url từ bên ngoài thay đổi
+  useEffect(() => {
+    setTempUrl(url);
+  }, [url]);
 
-    // Kiểm tra định dạng Base64
-    const isBase64 = /^data:image\/[a-z]+;base64,/.test(trimmedUrl);
+  // Logic Debounce: Đợi người dùng dừng gõ 1s rồi mới apply
+  useEffect(() => {
+    // Nếu giá trị không đổi so với ảnh hiện tại thì không làm gì
+    if (tempUrl === url) return;
 
-    if (isBase64) {
-      setTempUrl(url);
-      toast.error(
-        "Base64 format is not allowed. Please use a direct image URL."
-      );
-      return;
-    }
+    const handler = setTimeout(() => {
+      const trimmedUrl = tempUrl.trim();
 
-    // Nếu để trống thì có thể hiểu là muốn xóa ảnh
-    onApply(trimmedUrl);
-  };
+      // Kiểm tra định dạng Base64
+      const isBase64 = /^data:image\/[a-z]+;base64,/.test(trimmedUrl);
+
+      if (isBase64) {
+        toast.error(
+          "Base64 format is not allowed. Please use a direct image URL."
+        );
+        setTempUrl(url); // Reset về URL cũ nếu lỗi
+        return;
+      }
+
+      onApply(trimmedUrl);
+    }, 1000); // 1000ms = 1s
+
+    // Cleanup function: Xóa timer nếu người dùng tiếp tục gõ trước khi hết 1s
+    return () => clearTimeout(handler);
+  }, [tempUrl, url, onApply, toast]);
 
   return (
     <div
@@ -37,8 +49,6 @@ export const ImageIllustration = ({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => {
         setIsHovered(false);
-        // Reset nội dung textarea về URL hiện tại nếu chưa bấm Apply
-        setTempUrl(url);
       }}
     >
       {/* Background Image Preview */}
@@ -61,21 +71,12 @@ export const ImageIllustration = ({
           placeholder="Paste URL here..."
           value={tempUrl}
           onChange={(e) => setTempUrl(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
-              e.preventDefault();
-              handleApply();
-            }
-          }}
         />
 
-        <Button
-          size="sm"
-          className="h-5 w-full text-[9px] font-bold bg-blue-600 hover:bg-blue-500 text-white border-none"
-          onClick={handleApply}
-        >
-          APPLY
-        </Button>
+        {/* Chỉ báo trạng thái đang chờ xử lý (Optional) */}
+        <div className="text-[8px] text-gray-400 text-right italic">
+          Auto-applying...
+        </div>
       </div>
     </div>
   );
