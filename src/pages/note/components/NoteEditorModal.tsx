@@ -53,6 +53,7 @@ export const NoteEditorModal: React.FC<NoteEditorModalProps> = ({
     <CommonModal
       open={open}
       onOpenChange={onOpenChange}
+      closeOnInteractOutside={false}
       title={
         <div className="flex items-center gap-2 text-foreground">
           {isViewMode ? (

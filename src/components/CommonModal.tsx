@@ -12,14 +12,13 @@ import React from "react";
 interface CommonModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  title: React.ReactNode; // string hoặc component
-  description?: string; // Optional: mô tả nhỏ dưới title
-  icon?: React.ReactNode; // Optional: Icon bên cạnh title
-  children: React.ReactNode; // Nội dung chính (Form, Text...)
-
-  // Footer props
-  footer?: React.ReactNode; // Nếu muốn custom toàn bộ footer
-  onConfirm?: () => void; // Hàm chạy khi bấm Confirm
+  title: React.ReactNode;
+  description?: string;
+  icon?: React.ReactNode;
+  children: React.ReactNode;
+  closeOnInteractOutside?: boolean;
+  footer?: React.ReactNode;
+  onConfirm?: () => void;
   confirmText?: string;
   confirmVariant?:
     | "default"
@@ -29,8 +28,8 @@ interface CommonModalProps {
     | "ghost"
     | "link";
   cancelText?: string;
-  loading?: boolean; // Hiển thị spinner khi đang xử lý
-  disableConfirm?: boolean; // Disable nút confirm (ví dụ: chưa chọn item)
+  loading?: boolean;
+  disableConfirm?: boolean;
 }
 
 export const CommonModal: React.FC<CommonModalProps> = ({
@@ -40,6 +39,7 @@ export const CommonModal: React.FC<CommonModalProps> = ({
   description,
   icon,
   children,
+  closeOnInteractOutside = true, // Giá trị mặc định
   footer,
   onConfirm,
   confirmText = "Confirm",
@@ -50,7 +50,15 @@ export const CommonModal: React.FC<CommonModalProps> = ({
 }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="!max-w-max !gap-2">
+      <DialogContent
+        className="!max-w-max !gap-2"
+        // Chặn sự kiện đóng khi tương tác ra ngoài nếu flag là false
+        onInteractOutside={(e) => {
+          if (!closeOnInteractOutside) {
+            e.preventDefault();
+          }
+        }}
+      >
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {icon && <span className="text-primary">{icon}</span>}
@@ -63,7 +71,6 @@ export const CommonModal: React.FC<CommonModalProps> = ({
 
         <div className="">{children}</div>
 
-        {/* Nếu có footer custom thì dùng, không thì dùng default */}
         {footer ? (
           footer
         ) : (
