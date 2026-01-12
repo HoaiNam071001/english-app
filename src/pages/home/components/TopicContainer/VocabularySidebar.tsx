@@ -156,7 +156,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
 
     // 1. Search Term (Always AND)
     if (debouncedTerm.trim()) {
-      const lowerTerm = debouncedTerm.toLowerCase();
+      const lowerTerm = debouncedTerm.trim().toLowerCase();
       result = result.filter(
         (word) =>
           word.text.toLowerCase().includes(lowerTerm) ||
