@@ -55,7 +55,7 @@ const NotePage = () => {
 
   // --- EFFECTS ---
     useEffect(() => {
-    if (!isGrouped) return;
+    if (globalExpandState === undefined) return;
     setStorage(STORAGE_KEY.NOTE_EXPANDED, globalExpandState);
   }, [globalExpandState]);
   useEffect(() => {
