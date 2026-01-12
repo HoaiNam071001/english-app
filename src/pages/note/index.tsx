@@ -23,15 +23,16 @@ import { NoteEditorModal } from "./components/NoteEditorModal";
 type LayoutType = "grid" | "list";
 
 const NotePage = () => {
+  const { getStorage, setStorage } = useLocalStorage();
+
   // --- STATE ---
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedNote, setSelectedNote] = useState<NoteModel | null>(null);
   const [isViewMode, setIsViewMode] = useState(false);
   const [globalExpandState, setGlobalExpandState] = useState<
     boolean | undefined
-  >(undefined);
+  >(getStorage(STORAGE_KEY.NOTE_EXPANDED) || undefined);
   // View Settings
-  const { getStorage, setStorage } = useLocalStorage();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [layout, setLayout] = useState<LayoutType>(
@@ -53,9 +54,13 @@ const NotePage = () => {
   } = useNotes();
 
   // --- EFFECTS ---
+    useEffect(() => {
+    if (!isGrouped) return;
+    setStorage(STORAGE_KEY.NOTE_EXPANDED, globalExpandState);
+  }, [globalExpandState]);
   useEffect(() => {
     if (!isGrouped) return;
-    setStorage(STORAGE_KEY.NOTE_GROUPED, layout);
+    setStorage(STORAGE_KEY.NOTE_GROUPED, isGrouped);
   }, [isGrouped]);
   useEffect(() => {
     if (!layout) return;
