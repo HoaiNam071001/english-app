@@ -3,7 +3,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { BookOpen, Search } from "lucide-react";
+import { GraduationCap, Languages, School } from "lucide-react";
 
 const DictionarySearchButton = ({ text, showText = false }) => {
   // Hàm xử lý mở cửa sổ popup (giữ nguyên logic tính toán vị trí)
@@ -67,7 +67,7 @@ const DictionarySearchButton = ({ text, showText = false }) => {
           onClick={(e) => e.stopPropagation()} // Ngăn chặn sự kiện click lan ra ngoài nếu nút này nằm trong một thẻ cha có onClick
           title="Tra từ điển"
         >
-          <Search size={14} />
+          <Languages size={14} />
           {showText && <div className="text-[12px]">{text}</div>}
         </div>
       </PopoverTrigger>
@@ -81,7 +81,7 @@ const DictionarySearchButton = ({ text, showText = false }) => {
             className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground cursor-pointer"
             onClick={() => handleSelectDictionary("cambridge")}
           >
-            <BookOpen className="h-4 w-4" />
+            <School className="h-4 w-4" />
             <span>Cambridge</span>
           </button>
 
@@ -89,7 +89,7 @@ const DictionarySearchButton = ({ text, showText = false }) => {
             className="flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-none transition-colors hover:bg-accent hover:text-accent-foreground cursor-pointer"
             onClick={() => handleSelectDictionary("oxford")}
           >
-            <BookOpen className="h-4 w-4" />
+            <GraduationCap className="h-4 w-4" />
             <span>Oxford</span>
           </button>
         </div>
