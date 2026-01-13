@@ -233,7 +233,7 @@ export const SharedContainer = () => {
         NEW COMPACT HEADER
         ========================================
       */}
-      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b shadow-sm">
+      <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-md border-b shadow-sm pt-4">
         <div className="pb-2">
           {/* ROW 1: Title & Search */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">

@@ -54,7 +54,7 @@ const NotePage = () => {
   } = useNotes();
 
   // --- EFFECTS ---
-    useEffect(() => {
+  useEffect(() => {
     if (globalExpandState === undefined) return;
     setStorage(STORAGE_KEY.NOTE_EXPANDED, globalExpandState);
   }, [globalExpandState]);
@@ -163,7 +163,7 @@ const NotePage = () => {
   return (
     <div className="bg-background text-foreground font-sans">
       {/* HEADER SECTION */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pt-4">
         <div>
           <div className="text-xl font-bold tracking-tight mb-1 text-foreground/90">
             My Knowledge Base

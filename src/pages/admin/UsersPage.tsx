@@ -92,7 +92,7 @@ const UsersPage = () => {
   return (
     <div className="bg-background">
       {/* HEADER */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-border">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-border pt-4">
         <div className="flex items-center gap-2">
           <ShieldAlert
             className="text-orange-600 dark:text-orange-500"
