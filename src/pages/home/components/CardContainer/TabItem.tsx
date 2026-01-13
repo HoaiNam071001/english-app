@@ -45,7 +45,7 @@ export const TabItem = ({
   return (
     <div
       onClick={onActivate}
-      className={`group flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-t-lg cursor-pointer border-t border-x transition-all select-none min-w-[120px] max-w-[200px] shrink-0 ${
+      className={`h-full group flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-t-lg cursor-pointer border-t border-x transition-all select-none min-w-[120px] max-w-[200px] shrink-0 ${
         isActive
           ? "bg-muted/30 border-border text-foreground relative -mb-[1px] border-b-transparent z-10 shadow-sm"
           : "bg-transparent border-transparent text-muted-foreground hover:bg-muted/50 hover:text-foreground"

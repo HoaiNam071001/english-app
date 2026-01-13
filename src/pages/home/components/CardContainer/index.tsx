@@ -145,8 +145,7 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
               const newMeaningIds =
                 tab.meaningIds?.values()?.filter((id) => !idsSet.has(id)) || [];
               const newImageIds =
-                tab.imageIds?.values()?.filter((id) => !idsSet.has(id)) ||
-                [];
+                tab.imageIds?.values()?.filter((id) => !idsSet.has(id)) || [];
               return {
                 ...tab,
                 wordIds: newWordIds,
@@ -271,7 +270,7 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
 
           <div
             ref={scrollContainerRef}
-            className="flex-1 flex overflow-x-auto scrollbar-hide items-end h-full gap-2 px-1"
+            className="flex-1 flex items-center overflow-x-auto scrollbar-hide items-end h-full gap-2"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             {tabs.map((tab) => (
@@ -288,6 +287,20 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
                 onEditCancel={() => setEditingTabId(null)}
               />
             ))}
+
+            <div className="sticky right-0 bg-background h-full flex items-center">
+              <SimpleTooltip content={"New Tab"}>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleAddTab}
+                  className=" h-9 w-9 shrink-0 text-muted-foreground hover:text-foreground"
+                  title="New Tab"
+                >
+                  <Plus size={18} />
+                </Button>
+              </SimpleTooltip>
+            </div>
           </div>
 
           <Button
@@ -298,8 +311,6 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
           >
             <ChevronRight size={16} />
           </Button>
-
-          <div className="w-[1px] h-5 bg-border mx-1"></div>
 
           <SimpleTooltip content={"Reset"}>
             <Button
@@ -312,18 +323,7 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
               <RotateCcw size={16} />
             </Button>
           </SimpleTooltip>
-
-          <SimpleTooltip content={"New Tab"}>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleAddTab}
-              className="h-9 w-9 shrink-0 text-muted-foreground hover:text-foreground"
-              title="New Tab"
-            >
-              <Plus size={18} />
-            </Button>
-          </SimpleTooltip>
+          <div className="w-[1px] h-5 bg-border mx-1"></div>
 
           <CreateVocabularyModal onAddVocabulary={handleAddVocabulary} />
         </div>
