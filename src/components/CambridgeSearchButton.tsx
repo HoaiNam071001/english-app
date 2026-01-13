@@ -3,7 +3,7 @@ import { Search } from "lucide-react";
 const CambridgeSearchButton = ({ text, showText = false }) => {
   const handlePopupSearch = (e) => {
     e.stopPropagation();
-    const trimText = text?.trim();
+    const trimText = text?.trim().toLowerCase();
 
     if (!trimText) return;
 
