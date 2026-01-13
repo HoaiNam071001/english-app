@@ -37,6 +37,7 @@ import { WordTypeIndicator } from "../common/WordTypeIndicator";
 import { FlashcardCommand } from "./FlashcardSection";
 import { cn } from "@/lib/utils";
 import { ImagePreview } from "@/components/ImagePreview";
+import CambridgeSearchButton from "@/components/CambridgeSearchButton";
 
 declare global {
   interface Window {
@@ -330,6 +331,8 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                 <div className="flex items-center justify-between gap-0.5 bg-secondary/50 rounded-full p-0.5 border border-border/50 shadow-sm mx-auto w-full">
                   {/* Speak */}
                   <Speaker item={item} />
+
+                  <CambridgeSearchButton text={item.text}/>
                   {/* Pin */}
                   <div
                     className="p-1 rounded-full transition-all cursor-pointer hover:bg-background"

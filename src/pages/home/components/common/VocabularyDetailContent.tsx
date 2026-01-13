@@ -14,6 +14,7 @@ import React from "react";
 import { PartSpeech } from "./PartSpeech";
 import { Phonetic } from "./Phonetic/PhoneticItem";
 import { ImagePreview } from "@/components/ImagePreview";
+import CambridgeSearchButton from "@/components/CambridgeSearchButton";
 
 interface VocabularyDetailContentProps {
   item: VocabularyItem;
@@ -43,16 +44,17 @@ export const VocabularyDetailContent: React.FC<
         <div className="flex">
           <div className="flex-1 mr-2">
             {topic && (
-                <span
-                  className={`${badgeBaseClass} text-[12px] whitespace-nowrap text-foreground border-border bg-background`}
-                >
-                  {topic.label}
-                </span>
-              )}
+              <span
+                className={`${badgeBaseClass} text-[12px] whitespace-nowrap text-foreground border-border bg-background`}
+              >
+                {topic.label}
+              </span>
+            )}
             <div className=" flex justify-between items-start">
               <div className="text-xl font-bold break-words pr-2 text-blue-600">
                 {item.text}
               </div>
+              <CambridgeSearchButton text={item.text} />
             </div>
             {/* 2. PART OF SPEECH (Mới thêm) */}
             <div className="flex mt-1 items-center">
@@ -101,7 +103,7 @@ export const VocabularyDetailContent: React.FC<
             )}
           </div>
 
-          {item.imageUrl && <ImagePreview url={item.imageUrl}/>}
+          {item.imageUrl && <ImagePreview url={item.imageUrl} />}
         </div>
       </div>
 
