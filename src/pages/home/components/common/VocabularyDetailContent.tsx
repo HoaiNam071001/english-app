@@ -1,4 +1,6 @@
+import DictionarySearchButton from "@/components/DictionarySearchButton";
 import { DisplayText } from "@/components/DisplayText";
+import { ImagePreview } from "@/components/ImagePreview";
 import { Separator } from "@/components/ui/separator";
 import {
   Tooltip,
@@ -13,8 +15,6 @@ import moment from "moment";
 import React from "react";
 import { PartSpeech } from "./PartSpeech";
 import { Phonetic } from "./Phonetic/PhoneticItem";
-import { ImagePreview } from "@/components/ImagePreview";
-import CambridgeSearchButton from "@/components/CambridgeSearchButton";
 
 interface VocabularyDetailContentProps {
   item: VocabularyItem;
@@ -54,7 +54,7 @@ export const VocabularyDetailContent: React.FC<
               <div className="text-xl font-bold break-words pr-2 text-blue-600">
                 {item.text}
               </div>
-              <CambridgeSearchButton text={item.text} />
+              <DictionarySearchButton text={item.text} />
             </div>
             {/* 2. PART OF SPEECH (Mới thêm) */}
             <div className="flex mt-1 items-center">

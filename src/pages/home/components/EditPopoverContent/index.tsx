@@ -1,4 +1,5 @@
-import { SimpleTooltip } from "@/components/SimpleTooltip";
+import DictionarySearchButton from "@/components/DictionarySearchButton";
+import { ImageIllustration } from "@/components/ImageIllustration";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -19,8 +20,6 @@ import TopicSelector from "../common/TopicSelector";
 import WordTypeSelector from "../common/WordTypeSelector"; // <--- Import mới
 import { DraftSelectionView } from "./DraftSelectionView";
 import { PhoneticRow } from "./PhoneticRow";
-import { ImageIllustration } from "@/components/ImageIllustration";
-import CambridgeSearchButton from "@/components/CambridgeSearchButton";
 
 interface EditPopoverContentProps {
   word: VocabularyItem;
@@ -146,10 +145,13 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
           {/* Word Input - Chiếm phần còn lại */}
           <div className="flex-1 space-y-1">
             <div className="flex items-center gap-4">
-              <Label htmlFor="text" className="text-xs text-muted-foreground mr-auto">
+              <Label
+                htmlFor="text"
+                className="text-xs text-muted-foreground mr-auto"
+              >
                 Word
               </Label>
-              <CambridgeSearchButton text={form.text} showText/>
+              <DictionarySearchButton text={form.text} showText />
             </div>
             <div className="relative">
               <Input

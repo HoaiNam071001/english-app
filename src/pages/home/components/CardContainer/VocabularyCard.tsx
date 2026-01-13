@@ -1,4 +1,6 @@
+import DictionarySearchButton from "@/components/DictionarySearchButton";
 import { DisplayText } from "@/components/DisplayText";
+import { ImagePreview } from "@/components/ImagePreview";
 import { Card } from "@/components/ui/card";
 import {
   Popover,
@@ -12,6 +14,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { TOPIC_COLORS } from "@/constants";
+import { cn } from "@/lib/utils";
 import { AccentType, TopicItem, VocabularyItem } from "@/types";
 import { getIconComponent } from "@/utils";
 import { playAudio } from "@/utils/audio";
@@ -35,9 +38,6 @@ import { Phonetics } from "../common/Phonetic";
 import { VocabularyDetailContent } from "../common/VocabularyDetailContent";
 import { WordTypeIndicator } from "../common/WordTypeIndicator";
 import { FlashcardCommand } from "./FlashcardSection";
-import { cn } from "@/lib/utils";
-import { ImagePreview } from "@/components/ImagePreview";
-import CambridgeSearchButton from "@/components/CambridgeSearchButton";
 
 declare global {
   interface Window {
@@ -226,12 +226,13 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                 </div>
               </div>
 
-              
               {/* FLag */}
-              <div className={cn(
-                "z-50 shadow-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center justify-evenly gap-2 bg-secondary/50 rounded-full px-1 py-0.5 border border-border/50",
-                "duration-300 absolute top-0 left-1/2 -translate-x-1/2 "
-                )}>
+              <div
+                className={cn(
+                  "z-50 shadow-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center justify-evenly gap-2 bg-secondary/50 rounded-full px-1 py-0.5 border border-border/50",
+                  "duration-300 absolute top-0 left-1/2 -translate-x-1/2 "
+                )}
+              >
                 {/* Toggle Meaning */}
                 <div
                   className="p-1 rounded-full hover:bg-background hover:text-blue-400 transition-all cursor-pointer text-muted-foreground"
@@ -262,7 +263,6 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                   </div>
                 )}
               </div>
-
 
               {/* 2. MAIN CONTENT */}
               <div className="flex-1 flex flex-col items-center pb-8 pt-4 min-h-0 overflow-hidden">
@@ -332,7 +332,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                   {/* Speak */}
                   <Speaker item={item} />
 
-                  <CambridgeSearchButton text={item.text}/>
+                  <DictionarySearchButton text={item.text} />
                   {/* Pin */}
                   <div
                     className="p-1 rounded-full transition-all cursor-pointer hover:bg-background"
