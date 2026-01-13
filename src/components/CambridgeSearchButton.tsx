@@ -3,11 +3,12 @@ import { Search } from "lucide-react";
 const CambridgeSearchButton = ({ text, showText = false }) => {
   const handlePopupSearch = (e) => {
     e.stopPropagation();
+    const trimText = text?.trim()?.replace(/\s+/g, '-');
 
-    if (!text?.trim()) return;
+    if (!trimText) return;
 
     const url = `https://dictionary.cambridge.org/dictionary/english/${encodeURIComponent(
-      text.trim()
+      trimText
     )}`;
 
     const popupWidth = 500;
