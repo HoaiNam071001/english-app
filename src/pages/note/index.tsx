@@ -162,24 +162,6 @@ const NotePage = () => {
 
   return (
     <div className="bg-background text-foreground font-sans">
-      {/* HEADER SECTION */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pt-4">
-        <div>
-          <div className="text-xl font-bold tracking-tight mb-1 text-foreground/90">
-            My Knowledge Base
-          </div>
-          <p className="text-muted-foreground text-sm">
-            Capture ideas, organize thoughts, and create everywhere.
-          </p>
-        </div>
-        <Button
-          onClick={handleCreateNew}
-          className="h-10 px-6 shadow-md shadow-primary/20 bg-primary hover:bg-primary/90 transition-all active:scale-95"
-        >
-          <Plus size={18} className="mr-2" /> New Note
-        </Button>
-      </div>
-
       {/* TOOLBAR SECTION */}
       <div className="sticky top-0 z-10 bg-background/95 backdrop-blur py-4 border-b mb-6">
         <div className="flex flex-col sm:flex-row gap-3 justify-between">
@@ -269,6 +251,13 @@ const NotePage = () => {
                 <ListIcon size={16} />
               </Button>
             </div>
+
+            <Button
+              onClick={handleCreateNew}
+              className="h-10 px-6 shadow-md shadow-primary/20 bg-primary hover:bg-primary/90 transition-all active:scale-95"
+            >
+              <Plus size={18} className="mr-2" /> New Note
+            </Button>
           </div>
         </div>
       </div>
