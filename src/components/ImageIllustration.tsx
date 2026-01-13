@@ -37,7 +37,7 @@ export const ImageIllustration = ({
       }
 
       onApply(trimmedUrl);
-    }, 1000); // 1000ms = 1s
+    }, 500); // 1000ms = 1s
 
     // Cleanup function: Xóa timer nếu người dùng tiếp tục gõ trước khi hết 1s
     return () => clearTimeout(handler);
