@@ -1,9 +1,24 @@
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ROUTES } from "@/constants";
 import { useAuth } from "@/hooks/useAuth";
 import { UserRole } from "@/types";
-import { Book, Globe, LucideIcon, NotebookPen, Shield } from "lucide-react";
-import { useMemo } from "react";
-import { Link, useLocation } from "react-router-dom";
+import {
+  Book,
+  Globe,
+  LucideIcon,
+  Menu,
+  NotebookPen,
+  Shield,
+} from "lucide-react";
+import { useMemo, useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { UserFloatingMenu } from "./UserFloatingMenu";
 
 interface NavItem {
@@ -19,7 +34,9 @@ interface NavItem {
 
 export const MainHeader = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { userProfile } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems: NavItem[] = useMemo(() => {
     const checkIsActive = (path: string) => {
@@ -93,18 +110,25 @@ export const MainHeader = () => {
     return `${baseClasses} bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300`;
   };
 
+  const handleMobileNavClick = (path: string) => {
+    navigate(path);
+    setMobileMenuOpen(false);
+  };
+
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center justify-between mx-auto max-w-8xl px-4">
-        <div className="mr-4 hidden md:flex">
-          <Link to={ROUTES.HOME} className="mr-6 flex items-center space-x-2">
-            <span className="hidden font-bold sm:inline-block text-lg bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-500">
+      <div className="container flex h-14 items-center justify-between mx-auto max-w-8xl px-3 md:px-4">
+        {/* Logo - Mobile: Visible, Desktop: Visible */}
+        <div className="flex items-center">
+          <Link to={ROUTES.HOME} className="flex items-center space-x-2">
+            <span className="font-bold text-base md:text-lg bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-500">
               VocabManager
             </span>
           </Link>
         </div>
 
-        <nav className="flex items-center gap-1 mx-auto md:mx-0">
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center gap-1 mx-auto md:mx-0">
           {navItems.map((item) => {
             if (!item.isVisible) return null;
 
@@ -130,7 +154,46 @@ export const MainHeader = () => {
           })}
         </nav>
 
-        <div className="flex flex-1 items-center justify-end space-x-2">
+        {/* Mobile Navigation Menu */}
+        <div className="flex md:hidden items-center gap-2">
+          <DropdownMenu open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-9 w-9">
+                <Menu size={20} />
+                <span className="sr-only">Toggle menu</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              {navItems
+                .filter((item) => item.isVisible)
+                .map((item, index) => {
+                  const Icon = item.icon;
+                  return (
+                    <div key={item.key}>
+                      {index > 0 && <DropdownMenuSeparator />}
+                      <DropdownMenuItem
+                        onClick={() => handleMobileNavClick(item.path)}
+                        className={`flex items-center gap-2 cursor-pointer ${
+                          item.isActive
+                            ? item.variant === "admin"
+                              ? "bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300"
+                              : "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                            : ""
+                        }`}
+                      >
+                        <Icon size={16} />
+                        <span>{item.label}</span>
+                      </DropdownMenuItem>
+                    </div>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <UserFloatingMenu />
+        </div>
+
+        {/* Desktop User Menu */}
+        <div className="hidden md:flex flex-1 items-center justify-end space-x-2">
           <UserFloatingMenu />
         </div>
       </div>

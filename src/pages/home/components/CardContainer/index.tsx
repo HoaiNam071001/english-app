@@ -4,7 +4,7 @@ import { useConfirm } from "@/hooks/useConfirm";
 import { useTabSession } from "@/hooks/useTabSession";
 import { AddReport, TabSession, TopicItem, VocabularyItem } from "@/types";
 import { isToday } from "@/utils";
-import { ChevronLeft, ChevronRight, Plus, RotateCcw } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronsUpDown, LayoutList, List, PanelLeftClose, Plus, RotateCcw } from "lucide-react";
 import React, {
   forwardRef,
   useEffect,
@@ -33,6 +33,9 @@ interface CardContainerProps {
   handleAddVocabulary: (
     entries: Partial<VocabularyItem[]>
   ) => Promise<AddReport>;
+  onSidebarToggle?: () => void;
+  isSidebarOpen?: boolean;
+  onSidebarModalOpen?: () => void;
 }
 
 const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
@@ -46,6 +49,9 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
       onUpdateWord,
       onDeleteWord,
       onActiveChanged,
+      onSidebarToggle,
+      isSidebarOpen = true,
+      onSidebarModalOpen,
     },
     ref
   ) => {
@@ -60,6 +66,7 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
     } = useTabSession();
 
     const [editingTabId, setEditingTabId] = useState<string | null>(null);
+    const [isCollapsed, setIsCollapsed] = useState(false);
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const hasInitialized = useRef(false);
 
@@ -256,13 +263,58 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
       );
 
     return (
-      <div className="flex flex-col h-full gap-2">
+      <div className="flex flex-col h-full gap-0">
+        {/* --- TOP ACTION BAR (Mobile only) --- */}
+        <div className="flex items-center justify-between px-2 py-1.5 border-b bg-background/95 backdrop-blur shrink-0 md:hidden">
+          <div className="flex items-center gap-1.5">
+            {/* Sidebar Toggle Button - Mobile: List to open modal */}
+            {onSidebarModalOpen && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onSidebarModalOpen}
+                className="text-foreground h-8 w-8"
+              >
+                <List size={18} />
+              </Button>
+            )}
+            {/* Collapse/Expand Toggle Button - Mobile only */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="text-foreground h-8 w-8"
+            >
+              <ChevronsUpDown size={18} />
+            </Button>
+          </div>
+          <CreateVocabularyModal onAddVocabulary={handleAddVocabulary} />
+        </div>
+
         {/* --- TAB BAR CONTAINER --- */}
-        <div className="flex pl-10 items-center border-b bg-background/95 backdrop-blur gap-1 h-[46px] z-10">
+        <div className={`flex items-center border-b bg-background/95 backdrop-blur gap-0.5 md:gap-1 h-[46px] z-10 shrink-0 ${isCollapsed ? "hidden md:flex" : ""}`}>
+          {/* Sidebar Toggle Button - Desktop: Toggle sidebar (in tab bar) */}
+          {onSidebarToggle && (
+            <div className="hidden md:flex items-center px-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={onSidebarToggle}
+                className="text-foreground h-8 w-8"
+              >
+                {isSidebarOpen ? (
+                  <PanelLeftClose size={18} />
+                ) : (
+                  <LayoutList size={18} />
+                )}
+              </Button>
+            </div>
+          )}
+          {/* Scroll Left Button - Hide on mobile if not needed */}
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6 shrink-0 text-muted-foreground"
+            className="h-6 w-6 shrink-0 text-muted-foreground hidden sm:flex"
             onClick={() => scrollTabs("left")}
           >
             <ChevronLeft size={16} />
@@ -270,7 +322,7 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
 
           <div
             ref={scrollContainerRef}
-            className="flex-1 flex items-center overflow-x-auto scrollbar-hide items-end h-full gap-2"
+            className="flex-1 flex items-center overflow-x-auto scrollbar-hide items-end h-full gap-1.5 md:gap-2 min-w-0"
             style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
             {tabs.map((tab) => (
@@ -288,44 +340,61 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
               />
             ))}
 
-            <div className="sticky right-0 bg-background h-full flex items-center">
+            <div className="sticky right-0 bg-background h-full flex items-center px-0.5">
               <SimpleTooltip content={"New Tab"}>
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={handleAddTab}
-                  className=" h-9 w-9 shrink-0 text-muted-foreground hover:text-foreground"
+                  className="h-8 w-8 md:h-9 md:w-9 shrink-0 text-muted-foreground hover:text-foreground"
                   title="New Tab"
                 >
-                  <Plus size={18} />
+                  <Plus size={16} className="md:w-[18px] md:h-[18px]" />
                 </Button>
               </SimpleTooltip>
             </div>
           </div>
 
+          {/* Scroll Right Button - Hide on mobile */}
           <Button
             variant="ghost"
             size="icon"
-            className="h-6 w-6 shrink-0 text-muted-foreground"
+            className="h-6 w-6 shrink-0 text-muted-foreground hidden sm:flex"
             onClick={() => scrollTabs("right")}
           >
             <ChevronRight size={16} />
           </Button>
 
-          <SimpleTooltip content={"Reset"}>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleManualReset}
-              className="h-9 w-9 shrink-0 text-orange-500 hover:text-orange-600 hover:bg-orange-50"
-              title="Reset Session"
-            >
-              <RotateCcw size={16} />
-            </Button>
-          </SimpleTooltip>
-          <div className="w-[1px] h-5 bg-border mx-1"></div>
-
-          <CreateVocabularyModal onAddVocabulary={handleAddVocabulary} />
+          {/* Action Buttons Group - Desktop: Reset + Add New Word */}
+          <div className="hidden md:flex items-center gap-0.5 shrink-0 px-1">
+            <SimpleTooltip content={"Reset"}>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleManualReset}
+                className="h-8 w-8 md:h-9 md:w-9 shrink-0 text-orange-500 hover:text-orange-600 hover:bg-orange-50"
+                title="Reset Session"
+              >
+                <RotateCcw size={14} className="md:w-4 md:h-4" />
+              </Button>
+            </SimpleTooltip>
+            <div className="w-[1px] h-4 md:h-5 bg-border mx-0.5 md:mx-1"></div>
+            <CreateVocabularyModal onAddVocabulary={handleAddVocabulary} />
+          </div>
+          {/* Reset Button - Mobile only */}
+          <div className="flex items-center shrink-0 px-1 md:hidden">
+            <SimpleTooltip content={"Reset"}>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleManualReset}
+                className="h-8 w-8 shrink-0 text-orange-500 hover:text-orange-600 hover:bg-orange-50"
+                title="Reset Session"
+              >
+                <RotateCcw size={14} className="md:w-4 md:h-4" />
+              </Button>
+            </SimpleTooltip>
+          </div>
         </div>
 
         {/* --- CONTENT --- */}
@@ -338,6 +407,7 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
             flippedIds={activeTab.flippedIds}
             meaningIds={activeTab.meaningIds}
             imageIds={activeTab.imageIds}
+            isToolbarCollapsed={isCollapsed}
             onFlippedIdsChange={(ids) =>
               updateActiveTabState({ flippedIds: ids })
             }

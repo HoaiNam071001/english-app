@@ -26,7 +26,7 @@ import {
   Eye,
   EyeOff,
   Image as ImageIcon, // [NEW] Alias để tránh trùng tên
-  ImageOff,           // [NEW]
+  ImageOff, // [NEW]
   MoreHorizontal,
   RotateCcw,
   Trash2,
@@ -50,6 +50,7 @@ export interface FlashcardSectionProps {
   onUpdateWord: (id: string, updates: Partial<VocabularyItem>) => void;
   onDeleteWord: (id: string) => void;
   onAddWords: (newWords: VocabularyItem[]) => void;
+  isToolbarCollapsed?: boolean;
 }
 
 export enum FlashcardCommandType {
@@ -80,6 +81,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
   onUpdateWord,
   onDeleteWord,
   onAddWords,
+  isToolbarCollapsed = false,
 }) => {
   const [command, setCommand] = useState<FlashcardCommand | null>(null);
   const [isDeleteAllOpen, setIsDeleteAllOpen] = useState(false);
@@ -199,30 +201,31 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
   // --- RENDER ---
   return (
     <div className="w-full h-full flex flex-col bg-muted/10 overflow-hidden">
-      {/* ... Toolbar ... */}
-      <div className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 border-b bg-background/80 backdrop-blur-sm shrink-0">
-        <div className="flex items-center gap-2">
-          {/* ... Left Content ... */}
-          <div className="text-sm font-semibold text-muted-foreground flex items-center gap-1.5">
-            <span>CARDS</span>
+      {/* Toolbar */}
+      <div className={`flex items-center justify-between gap-1.5 px-2 py-2 border-b bg-background/80 backdrop-blur-sm shrink-0 overflow-x-auto ${isToolbarCollapsed ? "hidden md:flex" : ""}`}>
+        {/* Left: Cards count & Add control */}
+        <div className="flex items-center gap-1.5 flex-1 min-w-0 shrink-0">
+          <div className="text-sm font-semibold text-muted-foreground flex items-center gap-1.5 shrink-0">
+            <span className="hidden sm:inline">CARDS</span>
             <span className="bg-primary/10 text-primary px-1.5 py-0.5 rounded text-xs font-bold">
               {displayCards.length}
             </span>
           </div>
-          <div className="h-4 w-[1px] bg-border mx-1 hidden sm:block"></div>
-          <AddCardControl
-            allWords={allWords}
-            displayCards={displayCards}
-            topics={topics}
-            onAdd={onAddWords}
-          />
+          <div className="h-4 w-[1px] bg-border mx-0.5 hidden sm:block shrink-0"></div>
+          <div className="min-w-0 shrink">
+            <AddCardControl
+              allWords={allWords}
+              displayCards={displayCards}
+              topics={topics}
+              onAdd={onAddWords}
+            />
+          </div>
         </div>
 
-        {/* Right: Actions */}
-        <div className="flex items-center gap-1">
-          
-          {/* 1. Group: Flip */}
-          <div className="flex items-center bg-muted/50 rounded-md p-0.5 border">
+        {/* Right: Actions - Mobile: Grouped in dropdown, Desktop: Individual buttons */}
+        <div className="flex items-center gap-0.5 shrink-0">
+          {/* Mobile: Flip actions - inline */}
+          <div className="flex items-center bg-muted/50 rounded-md p-0.5 border sm:hidden shrink-0">
             <SimpleTooltip content={"Flip All Up"}>
               <Button
                 variant="ghost"
@@ -248,8 +251,35 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
             </SimpleTooltip>
           </div>
 
-          {/* 2. Group: Meaning */}
-          <div className="flex items-center bg-muted/50 rounded-md p-0.5 border ml-1">
+          {/* Desktop: Individual flip group */}
+          <div className="hidden sm:flex items-center bg-muted/50 rounded-md p-0.5 border shrink-0">
+            <SimpleTooltip content={"Flip All Up"}>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => sendCommand(FlashcardCommandType.FLIP_ALL)}
+                className="h-7 w-7 text-blue-600 dark:text-blue-400 hover:bg-background"
+                title="Flip All Up"
+              >
+                <BookOpen size={14} />
+              </Button>
+            </SimpleTooltip>
+            <div className="w-[1px] h-4 bg-border/50 mx-0.5"></div>
+            <SimpleTooltip content={"Flip All Down"}>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => sendCommand(FlashcardCommandType.RESET_FLIP)}
+                className="h-7 w-7 text-muted-foreground hover:bg-background"
+                title="Flip All Down"
+              >
+                <Book size={14} />
+              </Button>
+            </SimpleTooltip>
+          </div>
+
+          {/* 2. Group: Meaning - Desktop only */}
+          <div className="hidden sm:flex items-center bg-muted/50 rounded-md p-0.5 border ml-0.5 shrink-0">
             <SimpleTooltip content={"Show All Meanings"}>
               <Button
                 variant="ghost"
@@ -279,8 +309,8 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
             </SimpleTooltip>
           </div>
 
-          {/* [NEW] 3. Group: Image */}
-          <div className="flex items-center bg-muted/50 rounded-md p-0.5 border ml-1">
+          {/* 3. Group: Image - Desktop only */}
+          <div className="hidden sm:flex items-center bg-muted/50 rounded-md p-0.5 border ml-0.5 shrink-0">
             <SimpleTooltip content={"Show All Images"}>
               <Button
                 variant="ghost"
@@ -306,14 +336,79 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
             </SimpleTooltip>
           </div>
 
-          <div className="w-[1px] h-4 bg-border mx-1"></div>
+          <div className="w-[1px] h-4 bg-border mx-0.5 hidden sm:block shrink-0"></div>
 
-          {/* Shuffle */}
+          {/* Mobile: More Actions Menu (groups Meaning, Image, Shuffle, etc.) */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-muted-foreground hover:text-foreground sm:hidden shrink-0"
+              >
+                <MoreHorizontal size={15} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel className="text-xs">Actions</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => sendCommand(FlashcardCommandType.SHOW_MEANING_ALL)}
+              >
+                <Eye className="mr-2 h-3.5 w-3.5" /> Show All Meanings
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => sendCommand(FlashcardCommandType.HIDE_MEANING_ALL)}
+              >
+                <EyeOff className="mr-2 h-3.5 w-3.5" /> Hide All Meanings
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => sendCommand(FlashcardCommandType.SHOW_IMAGE_ALL)}
+              >
+                <ImageIcon className="mr-2 h-3.5 w-3.5" /> Show All Images
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => sendCommand(FlashcardCommandType.HIDE_IMAGE_ALL)}
+              >
+                <ImageOff className="mr-2 h-3.5 w-3.5" /> Hide All Images
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleShuffle}>
+                <RotateCcw className="mr-2 h-3.5 w-3.5" /> Shuffle
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={removeLearnedCards}
+                disabled={!hasLearnedCards}
+              >
+                <CheckCircle className="mr-2 h-3.5 w-3.5" /> Remove Learned
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel className="text-xs">
+                Flipped Cards ({flippedIds.size})
+              </DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => sortFlippedCards("top")}>
+                <ArrowUpToLine className="mr-2 h-3.5 w-3.5" /> Move to top
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => sortFlippedCards("bottom")}>
+                <ArrowDownToLine className="mr-2 h-3.5 w-3.5" /> Move to bottom
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={removeFlippedCards}
+                disabled={flippedIds.size === 0}
+                className="text-red-600 focus:text-red-600"
+              >
+                <Eraser className="mr-2 h-3.5 w-3.5" /> Remove flipped
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Desktop: Individual action buttons */}
+          {/* Shuffle - Desktop only */}
           <SimpleTooltip content={"Shuffle"}>
             <Button
               variant="ghost"
               size="icon"
-              className="h-8 w-8 text-muted-foreground hover:text-foreground"
+              className="h-8 w-8 text-muted-foreground hover:text-foreground hidden sm:flex shrink-0"
               onClick={handleShuffle}
               title="Shuffle"
             >
@@ -321,29 +416,27 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
             </Button>
           </SimpleTooltip>
 
-          {/* Remove Learned */}
+          {/* Remove Learned - Desktop only */}
           <SimpleTooltip content={"Remove learned"}>
-            <div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-foreground"
-                onClick={removeLearnedCards}
-                disabled={!hasLearnedCards}
-                title="Remove Learned"
-              >
-                <CheckCircle size={15} />
-              </Button>
-            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 text-muted-foreground hover:text-foreground hidden sm:flex shrink-0"
+              onClick={removeLearnedCards}
+              disabled={!hasLearnedCards}
+              title="Remove Learned"
+            >
+              <CheckCircle size={15} />
+            </Button>
           </SimpleTooltip>
 
-          {/* More Menu */}
+          {/* More Menu - Desktop only (for flipped cards) */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                className="h-8 w-8 text-muted-foreground hover:text-foreground hidden sm:flex shrink-0"
               >
                 <MoreHorizontal size={15} />
               </Button>
@@ -370,14 +463,14 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Delete All Popover */}
+          {/* Delete All Popover - Always visible */}
           <Popover open={isDeleteAllOpen} onOpenChange={setIsDeleteAllOpen}>
             <SimpleTooltip content={"Clear Session"}>
               <PopoverTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                  className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
                   title="Clear Session"
                 >
                   <Trash2 size={15} />

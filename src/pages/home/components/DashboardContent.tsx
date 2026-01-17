@@ -1,13 +1,11 @@
-import { Button } from "@/components/ui/button";
+import { CommonModal } from "@/components/CommonModal";
 import { useTopics } from "@/hooks/useTopics";
 import { useVocabulary } from "@/hooks/useVocabulary";
 import { useWordTypes } from "@/hooks/useWordTypes";
-import TopicList from "@/pages/home/components/TopicContainer/TopicList";
-import VocabularySidebar from "@/pages/home/components/TopicContainer/VocabularySidebar";
 import { UserProfile, VocabularyItem } from "@/types";
-import { ChevronLeft, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import CardContainer, { CardContainerRef } from "./CardContainer";
+import { VocabularySidebarContent } from "./VocabularySidebarContent";
 
 interface DashboardContentProps {
   user: UserProfile | null;
@@ -17,6 +15,7 @@ const ALL_TOPIC_KEY = "ALL";
 
 export const DashboardContent = ({ user }: DashboardContentProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarModalOpen, setIsSidebarModalOpen] = useState(false);
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
   const cardContainerRef = useRef<CardContainerRef>(null);
 
@@ -70,7 +69,6 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
     return allWords.filter((w) => w.topicId === selectedTopicId);
   }, [allWords, selectedTopicId]);
 
-  const currentTopic = topics.find((t) => t.id === selectedTopicId);
 
   const handleAddVocabularyWithTopic = async (entries: VocabularyItem[]) => {
     const entriesWithTopic = entries.map((e) => ({
@@ -83,14 +81,39 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
     return await addVocabulary(entriesWithTopic);
   };
 
+  // Sidebar content component props
+  const sidebarContentProps = {
+    selectedTopicId,
+    topics,
+    allWords,
+    filteredWords,
+    mappingActiveWords,
+    onSelectTopic: setSelectedTopicId,
+    onAddTopic: addTopic,
+    onUpdateTopic: updateTopic,
+    onDeleteTopic: deleteTopic,
+    onBulkUpdate: bulkUpdateWords,
+    onAddToPractice: (word: VocabularyItem) => handleAddWordsToPractice([word]),
+    onBulkAddToPractice: handleAddWordsToPractice,
+    onBulkDelete: bulkDeleteWords,
+    onUpdateWord: updateWord,
+    onDelete: deleteWord,
+    onToggleLearned: toggleLearnedStatus,
+    onBulkMarkLearned: bulkMarkLearned,
+    batchUpdateWords,
+    onRemoveFromPractice: (value: VocabularyItem) =>
+      handleRemoveWordsToPractice([value]),
+  };
+
   return (
     <div className="flex flex-col">
       {/* MAIN LAYOUT */}
       <div className="flex flex-1 gap-2 relative overflow-hidden">
-        {/* SIDEBAR AREA */}
+        {/* SIDEBAR AREA - Desktop: Sidebar, Mobile: Hidden (use modal instead) */}
         <div
           className={`
               h-[80vh] transition-all duration-300 ease-in-out border-r bg-card flex flex-col
+              hidden md:flex
               ${
                 isSidebarOpen
                   ? "w-80 md:w-1/4 opacity-100 translate-x-0"
@@ -98,72 +121,24 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
               }
           `}
         >
-          {selectedTopicId === null ? (
-            <div className="h-full w-80 md:w-auto">
-              <TopicList
-                topics={topics}
-                vocabulary={allWords}
-                onAddTopic={addTopic}
-                onUpdateTopic={updateTopic}
-                onDeleteTopic={deleteTopic}
-                onSelectTopic={(id) => setSelectedTopicId(id || ALL_TOPIC_KEY)}
-              />
-            </div>
-          ) : (
-            <div className="h-full w-80 md:w-auto flex flex-col">
-              <div className="flex items-center gap-2 p-2 border-b bg-muted/50">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSelectedTopicId(null)}
-                  className="gap-1 px-2"
-                >
-                  <ChevronLeft size={16} /> Back
-                </Button>
-                <span className="font-semibold text-sm truncate">
-                  {selectedTopicId === ALL_TOPIC_KEY
-                    ? "All Vocabulary"
-                    : currentTopic?.label}
-                </span>
-              </div>
-              <div className="flex-1 overflow-hidden">
-                <VocabularySidebar
-                  allWords={filteredWords}
-                  activeWordIds={mappingActiveWords}
-                  onBulkUpdate={bulkUpdateWords}
-                  onAddToPractice={(word) => handleAddWordsToPractice([word])}
-                  onBulkAddToPractice={handleAddWordsToPractice}
-                  onBulkDelete={bulkDeleteWords}
-                  onUpdateWord={updateWord}
-                  onDelete={deleteWord}
-                  onToggleLearned={toggleLearnedStatus}
-                  onBulkMarkLearned={bulkMarkLearned}
-                  batchUpdateWords={batchUpdateWords}
-                  onRemoveFromPractice={(value) =>
-                    handleRemoveWordsToPractice([value])
-                  }
-                />
-              </div>
-            </div>
-          )}
+          <VocabularySidebarContent {...sidebarContentProps} />
         </div>
+
+        {/* SIDEBAR MODAL - Mobile only */}
+        <CommonModal
+          open={isSidebarModalOpen}
+          onOpenChange={setIsSidebarModalOpen}
+          title="Topics & Vocabulary"
+          closeOnInteractOutside={true}
+          footer={null}
+        >
+          <div className="w-[90vw] max-w-md h-[70vh] flex flex-col overflow-hidden">
+            <VocabularySidebarContent {...sidebarContentProps} />
+          </div>
+        </CommonModal>
 
         {/* MAIN CONTENT AREA */}
         <div className="relative flex-1 transition-all duration-300 min-w-0 h-[80vh]">
-          <div className="absolute top-1 left-0 z-[11]">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="text-foreground"
-            >
-              {isSidebarOpen ? (
-                <PanelLeftClose size={20} />
-              ) : (
-                <PanelLeftOpen size={20} />
-              )}
-            </Button>
-          </div>
           <CardContainer
             ref={cardContainerRef}
             allWords={allWords}
@@ -174,6 +149,9 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
             onUpdateWord={updateWord}
             onDeleteWord={deleteWord}
             handleAddVocabulary={handleAddVocabularyWithTopic}
+            onSidebarToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+            isSidebarOpen={isSidebarOpen}
+            onSidebarModalOpen={() => setIsSidebarModalOpen(true)}
           />
         </div>
       </div>
