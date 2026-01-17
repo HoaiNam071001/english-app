@@ -288,97 +288,103 @@ export const BulkLookupModal: React.FC<BulkLookupModalProps> = ({
         </div>
       }
     >
-      <div className="relative border rounded-md overflow-hidden bg-background h-[600px] flex flex-col w-[1000px]">
+      <div className="relative border rounded-md overflow-hidden bg-background h-[60vh] md:h-[600px] max-h-[600px] flex flex-col w-[85vw] md:w-[1000px] md:max-w-[1000px]">
         <div className="flex-1 overflow-auto">
-          <table className="w-full text-sm text-left border-collapse">
-            <thead className="bg-muted sticky top-0 z-20 shadow-sm text-xs uppercase text-muted-foreground font-semibold">
-              <tr>
-                {/* WORD */}
-                <th className="p-3 w-[160px] bg-muted/50 z-20 border-r">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="word-row-all"
-                      checked={allRowsChecked}
-                      onCheckedChange={(c: CheckedState) =>
-                        toggleAllGlobal(c === true)
-                      }
-                    />
-                    <label htmlFor="word-row-all">Word</label>
-                  </div>
-                </th>
-
-                {/* PHONETICS */}
-                <th className="p-3 w-[140px] border-r">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="PHONETICS-row-all"
-                      checked={allPhoneticsChecked}
-                      onCheckedChange={(c: CheckedState) =>
-                        toggleColumnAll("phonetics", c === true)
-                      }
-                    />
-                    <label htmlFor="PHONETICS-row-all">Phonetics</label>
-                  </div>
-                </th>
-
-                {/* TYPE (POS) */}
-                <th className="p-3 w-[120px] border-r">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="TYPE-row-all"
-                      checked={allPosChecked}
-                      onCheckedChange={(c: CheckedState) =>
-                        toggleColumnAll("partOfSpeech", c === true)
-                      }
-                    />
-                    <label htmlFor="TYPE-row-all">Type</label>
-                  </div>
-                </th>
-
-                {/* NOTE */}
-                <th className="p-3 min-w-[350px]">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="NOTE-row-all"
-                      checked={allMeaningsChecked}
-                      onCheckedChange={(c: CheckedState) =>
-                        toggleColumnAll("enMeanings", c === true)
-                      }
-                    />
-                    <label htmlFor="NOTE-row-all">Note</label>
-                  </div>
-                </th>
-              </tr>
-            </thead>
-
-            <tbody className="divide-y">
-              {results.map((item) => (
-                <LookupRow
-                  key={item.original.id}
-                  item={item}
-                  selection={selections[item.original.id]}
-                  onUpdateSelection={(newSel) =>
-                    setSelections((prev) => ({
-                      ...prev,
-                      [item.original.id]: newSel,
-                    }))
-                  }
-                  onToggleRow={(c) => toggleRow(item.original.id, c)}
-                  onIgnore={() => handleIgnoreRow(item.original.id)}
-                />
-              ))}
-              {!isProcessing && results.length === 0 && (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left border-collapse min-w-[800px]">
+              <thead className="bg-muted sticky top-0 z-20 shadow-sm text-[10px] md:text-xs uppercase text-muted-foreground font-semibold">
                 <tr>
-                  <td
-                    colSpan={5}
-                    className="p-8 text-center text-muted-foreground"
-                  >
-                    All words processed.
-                  </td>
+                  {/* WORD */}
+                  <th className="p-2 md:p-3 w-[140px] md:w-[160px] bg-muted/50 border-r z-30">
+                    <div className="flex items-center gap-1 md:gap-2">
+                      <Checkbox
+                        id="word-row-all"
+                        checked={allRowsChecked}
+                        onCheckedChange={(c: CheckedState) =>
+                          toggleAllGlobal(c === true)
+                        }
+                        className="h-3 w-3 md:h-4 md:w-4"
+                      />
+                      <label htmlFor="word-row-all" className="whitespace-nowrap">Word</label>
+                    </div>
+                  </th>
+
+                  {/* PHONETICS */}
+                  <th className="p-2 md:p-3 w-[120px] md:w-[140px] border-r">
+                    <div className="flex items-center gap-1 md:gap-2">
+                      <Checkbox
+                        id="PHONETICS-row-all"
+                        checked={allPhoneticsChecked}
+                        onCheckedChange={(c: CheckedState) =>
+                          toggleColumnAll("phonetics", c === true)
+                        }
+                        className="h-3 w-3 md:h-4 md:w-4"
+                      />
+                      <label htmlFor="PHONETICS-row-all" className="whitespace-nowrap">Phonetics</label>
+                    </div>
+                  </th>
+
+                  {/* TYPE (POS) */}
+                  <th className="p-2 md:p-3 w-[100px] md:w-[120px] border-r">
+                    <div className="flex items-center gap-1 md:gap-2">
+                      <Checkbox
+                        id="TYPE-row-all"
+                        checked={allPosChecked}
+                        onCheckedChange={(c: CheckedState) =>
+                          toggleColumnAll("partOfSpeech", c === true)
+                        }
+                        className="h-3 w-3 md:h-4 md:w-4"
+                      />
+                      <label htmlFor="TYPE-row-all" className="whitespace-nowrap">Type</label>
+                    </div>
+                  </th>
+
+                  {/* NOTE */}
+                  <th className="p-2 md:p-3 min-w-[280px] md:min-w-[350px]">
+                    <div className="flex items-center gap-1 md:gap-2">
+                      <Checkbox
+                        id="NOTE-row-all"
+                        checked={allMeaningsChecked}
+                        onCheckedChange={(c: CheckedState) =>
+                          toggleColumnAll("enMeanings", c === true)
+                        }
+                        className="h-3 w-3 md:h-4 md:w-4"
+                      />
+                      <label htmlFor="NOTE-row-all" className="whitespace-nowrap">Note</label>
+                    </div>
+                  </th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+
+              <tbody className="divide-y">
+                {results.map((item) => (
+                  <LookupRow
+                    key={item.original.id}
+                    item={item}
+                    selection={selections[item.original.id]}
+                    onUpdateSelection={(newSel) =>
+                      setSelections((prev) => ({
+                        ...prev,
+                        [item.original.id]: newSel,
+                      }))
+                    }
+                    onToggleRow={(c) => toggleRow(item.original.id, c)}
+                    onIgnore={() => handleIgnoreRow(item.original.id)}
+                  />
+                ))}
+                {!isProcessing && results.length === 0 && (
+                  <tr>
+                    <td
+                      colSpan={4}
+                      className="p-4 md:p-8 text-center text-muted-foreground text-xs md:text-sm"
+                    >
+                      All words processed.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </CommonModal>

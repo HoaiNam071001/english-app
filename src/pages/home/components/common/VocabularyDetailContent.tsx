@@ -37,12 +37,12 @@ export const VocabularyDetailContent: React.FC<
   };
 
   return (
-    <div className="space-y-2 w-90">
+    <div className="space-y-2 max-h-[70vh] overflow-y-auto w-full max-w-[90vw] md:w-90 md:max-w-none">
       {/* Header Section */}
       <div>
         {/* 1. WORD TEXT & TOPIC */}
-        <div className="flex">
-          <div className="flex-1 mr-2">
+        <div className="flex flex-col md:flex-row gap-3">
+          <div className="flex-1">
             {topic && (
               <span
                 className={`${badgeBaseClass} text-[12px] whitespace-nowrap text-foreground border-border bg-background`}
@@ -50,11 +50,13 @@ export const VocabularyDetailContent: React.FC<
                 {topic.label}
               </span>
             )}
-            <div className=" flex justify-between items-start">
-              <div className="text-xl font-bold break-words pr-2 text-blue-600">
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mt-1">
+              <div className="text-lg md:text-xl font-bold break-words text-blue-600">
                 {item.text}
               </div>
-              <DictionarySearchButton text={item.text} />
+              <div className="shrink-0">
+                <DictionarySearchButton text={item.text} />
+              </div>
             </div>
             {/* 2. PART OF SPEECH (Mới thêm) */}
             <div className="flex mt-1 items-center">
@@ -103,7 +105,11 @@ export const VocabularyDetailContent: React.FC<
             )}
           </div>
 
-          {item.imageUrl && <ImagePreview url={item.imageUrl} />}
+          {item.imageUrl && (
+            <div className="shrink-0">
+              <ImagePreview url={item.imageUrl} />
+            </div>
+          )}
         </div>
       </div>
 
@@ -130,7 +136,7 @@ export const VocabularyDetailContent: React.FC<
               )}
             </div>
           </div>
-          <p className="text-base font-medium">{item.meaning}</p>
+          <p className="text-sm md:text-base font-medium break-words">{item.meaning}</p>
         </div>
 
         {item.example && (

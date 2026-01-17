@@ -1,9 +1,4 @@
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { VocabularyItem } from "@/types";
 
 import { Button } from "@/components/ui/button";
@@ -32,7 +27,7 @@ import {
 import { useMemo, useState } from "react";
 import { EditVocabularyModal } from "../common/EditVocabularyModal";
 import { Phonetics } from "../common/Phonetic";
-import { VocabularyDetailContent } from "../common/VocabularyDetailContent";
+import { VocabularyDetailPopup } from "../common/VocabularyDetailPopup";
 import { WordTypeIndicator } from "../common/WordTypeIndicator";
 
 interface VocabularyItemRowProps {
@@ -86,16 +81,14 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
       <div
         className={`
         max-w-full relative select-none group/actions p-2 text-sm border rounded-lg transition-all flex items-start gap-3 group
-        ${
-          isSelected
+        ${isSelected
             ? "bg-blue-50/50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800"
             : "border-border hover:border-border/80"
-        }
-        ${
-          isActive
+          }
+        ${isActive
             ? "border-l-4 border-l-blue-500 dark:border-l-blue-400 bg-muted/50"
             : ""
-        }
+          }
       `}
         onClick={(e) => {
           e.stopPropagation();
@@ -106,7 +99,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
         <div className="pt-1 cursor-pointer flex flex-col items-center">
           <Checkbox
             checked={isSelected}
-            onCheckedChange={() => {}}
+            onCheckedChange={() => { }}
             className="pointer-events-none mb-2"
           />
 
@@ -138,11 +131,10 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
             )}
 
             <span
-              className={`font-medium truncate max-w-[200px] ${
-                word.isLearned && !isActive
-                  ? "text-muted-foreground line-through"
-                  : "text-foreground"
-              }`}
+              className={`font-medium truncate max-w-[200px] ${word.isLearned && !isActive
+                ? "text-muted-foreground line-through"
+                : "text-foreground"
+                }`}
             >
               {word.text}
             </span>
@@ -152,11 +144,10 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
           <div className="relative w-fit h-[16px]">
             <div
               className={`text-xs text-muted-foreground truncate duration-100 max-w-[200px] cursor-default
-              ${
-                !isMeaningRevealed
+              ${!isMeaningRevealed
                   ? "blur-[4px] select-none opacity-60"
                   : "blur-0 opacity-100"
-              }
+                }
             `}
             >
               {word.meaning}
@@ -165,7 +156,8 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
         </div>
 
         {/* --- TOP RIGHT ZONE (Shared, Details, Pin) --- */}
-        <div className="absolute top-1 right-1 flex items-center gap-1">
+        <div className="absolute top-1 right-1 flex items-center gap-1" onClick={(e) => e.stopPropagation()}
+        >
           {/* [NEW] Moved isShared Icon here */}
           {word.isShared && (
             <TooltipProvider>
@@ -182,39 +174,21 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
             </TooltipProvider>
           )}
 
-          <Popover>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6 rounded-full text-muted-foreground/70 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <Info size={14} />
-                    </Button>
-                  </PopoverTrigger>
-                </TooltipTrigger>
-                <TooltipContent side="right" align="center">
-                  <p className="text-xs">View details</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-
-            <PopoverContent
-              align="center"
-              side="right"
-              className="w-max p-4 shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <VocabularyDetailContent
-                item={word}
-                topic={currentTopic || undefined}
-              />
-            </PopoverContent>
-          </Popover>
+          <VocabularyDetailPopup
+            item={word}
+            topic={currentTopic || undefined}
+            side="right"
+            align="center"
+            trigger={
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 rounded-full text-muted-foreground/70 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950"
+              >
+                <Info size={14} />
+              </Button>
+            }
+          />
 
           <div className="absolute -right-1 -top-2">
             {word.isPinned && (
@@ -228,20 +202,20 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
 
         {/* --- BOTTOM RIGHT ACTION PANEL --- */}
         <div
-          className="absolute right-1 bottom-0 flex items-center gap-1
+          className="absolute right-0 bottom-0 flex items-center gap-1
                   bg-popover/95 backdrop-blur-sm shadow-md border border-border rounded-full
-                  opacity-0 translate-x-2 scale-90 pointer-events-none
-                  group-hover/actions:opacity-100 group-hover/actions:translate-x-0 group-hover/actions:scale-100 group-hover/actions:pointer-events-auto
-                  transition-all duration-300 ease-out origin-bottom-right z-20"
+                  opacity-100 translate-x-0 scale-100 pointer-events-auto
+                  md:opacity-0 md:translate-x-2 md:scale-90 md:pointer-events-none
+                  md:group-hover/actions:opacity-100 md:group-hover/actions:translate-x-0 md:group-hover/actions:scale-100 md:group-hover/actions:pointer-events-auto
+                  transition-all duration-300 ease-out origin-bottom-right z-2"
         >
           <Button
             variant="ghost"
             size="icon"
-            className={`h-7 w-7 rounded-full transition-colors ${
-              word.isLearned
-                ? "text-orange-400 dark:text-orange-500 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950"
-                : "text-muted-foreground hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-950"
-            }`}
+            className={`h-7 w-7 rounded-full transition-colors ${word.isLearned
+              ? "text-orange-400 dark:text-orange-500 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-950"
+              : "text-muted-foreground hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-950"
+              }`}
             onClick={(e) => {
               e.stopPropagation();
               onToggleLearned(word.id, word.isLearned || false);
@@ -280,11 +254,10 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
           <Button
             variant="ghost"
             size="icon"
-            className={`h-7 w-7 rounded-full transition-colors ${
-              word.isPinned
-                ? "text-orange-500 bg-orange-50 dark:bg-orange-950/30"
-                : "text-muted-foreground hover:text-orange-600 hover:bg-orange-50"
-            }`}
+            className={`h-7 w-7 rounded-full transition-colors ${word.isPinned
+              ? "text-orange-500 bg-orange-50 dark:bg-orange-950/30"
+              : "text-muted-foreground hover:text-orange-600 hover:bg-orange-50"
+              }`}
             onClick={(e) => {
               e.stopPropagation();
               onUpdate(word.id, { isPinned: !word.isPinned });

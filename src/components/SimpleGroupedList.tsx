@@ -4,11 +4,11 @@ import React, { useMemo, useRef, useState } from "react";
 type FlatItem =
   | { type: "group"; groupIndex: number; originalIndex: number }
   | {
-      type: "item";
-      groupIndex: number;
-      itemIndex: number;
-      originalIndex: number;
-    };
+    type: "item";
+    groupIndex: number;
+    itemIndex: number;
+    originalIndex: number;
+  };
 
 interface SimpleGroupedListProps {
   groupCounts: number[];
@@ -113,7 +113,7 @@ export const SimpleGroupedList: React.FC<SimpleGroupedListProps> = ({
     <div
       ref={containerRef}
       onScroll={handleScroll}
-      className={`overflow-y-auto h-full w-full relative ${className || ""}`}
+      className={`overflow-y-auto overflow-x-hidden h-full w-full relative ${className || ""}`}
     >
       <div style={{ height: totalHeight, position: "relative" }}>
         {/* THAY ĐỔI: Sử dụng padding thay vì transform để không làm hỏng sticky */}
@@ -140,10 +140,10 @@ export const SimpleGroupedList: React.FC<SimpleGroupedListProps> = ({
                 {isGroup
                   ? groupContent(item.groupIndex)
                   : itemContent(
-                      item.originalIndex,
-                      item.groupIndex,
-                      item.itemIndex
-                    )}
+                    item.originalIndex,
+                    item.groupIndex,
+                    item.itemIndex
+                  )}
               </div>
             );
           })}

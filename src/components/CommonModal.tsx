@@ -51,7 +51,7 @@ export const CommonModal: React.FC<CommonModalProps> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="!max-w-max !gap-2"
+        className="!max-w-[95vw] md:!max-w-max !gap-2"
         // Chặn sự kiện đóng khi tương tác ra ngoài nếu flag là false
         onInteractOutside={(e) => {
           if (!closeOnInteractOutside) {

@@ -35,7 +35,7 @@ import React, { useMemo, useState } from "react";
 import { EditVocabularyModal } from "../common/EditVocabularyModal";
 import { PartSpeech } from "../common/PartSpeech";
 import { Phonetics } from "../common/Phonetic";
-import { VocabularyDetailContent } from "../common/VocabularyDetailContent";
+import { VocabularyDetailPopup } from "../common/VocabularyDetailPopup";
 import { WordTypeIndicator } from "../common/WordTypeIndicator";
 import { FlashcardCommand } from "./FlashcardSection";
 
@@ -174,11 +174,10 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
           className={`
           relative w-full h-full flex flex-col items-center justify-center p-2 text-center shadow-lg border-2 overflow-hidden
           transition-all duration-500 ease-in-out
-          ${
-            isFlipped
+          ${isFlipped
               ? "bg-card border-blue-200 dark:border-blue-800 hover:border-blue-400 hover:dark:border-blue-500"
               : "bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 dark:from-purple-950 dark:via-indigo-950 dark:to-blue-950 border-purple-500/50 dark:border-purple-400/30 shadow-2xl shadow-purple-500/20 dark:shadow-purple-400/10"
-          }
+            }
         `}
         >
           {/* --- BACK SIDE (ÚP) --- */}
@@ -201,35 +200,29 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                   {renderTopic()}
 
                   {/* View Details */}
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <div
-                        className="p-1 rounded-full hover:bg-background hover:text-blue-500 transition-all cursor-pointer text-muted-foreground"
-                        onClick={(e) => e.stopPropagation()}
-                        title="View details"
-                      >
-                        <Info size={14} />
-                      </div>
-                    </PopoverTrigger>
-                    <PopoverContent
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <VocabularyDetailPopup
+                      item={item}
+                      topic={currentTopic || undefined}
                       side="right"
                       align="center"
-                      className="w-max p-4 shadow-2xl"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <VocabularyDetailContent
-                        item={item}
-                        topic={currentTopic || undefined}
-                      />
-                    </PopoverContent>
-                  </Popover>
+                      trigger={
+                        <div
+                          className="p-1 rounded-full hover:bg-background hover:text-blue-500 transition-all cursor-pointer text-muted-foreground"
+                          title="View details"
+                        >
+                          <Info size={14} />
+                        </div>
+                      }
+                    />
+                  </div>
                 </div>
               </div>
 
               {/* FLag */}
               <div
                 className={cn(
-                  "z-50 shadow-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center justify-evenly gap-2 bg-secondary/50 rounded-full px-1 py-0.5 border border-border/50",
+                  "z-50 shadow-lg backdrop-blur-sm opacity-100 md:opacity-0 md:group-hover:opacity-100 flex items-center justify-evenly gap-2 bg-secondary/50 rounded-full px-1 py-0.5 border border-border/50",
                   "duration-300 absolute top-0 left-1/2 -translate-x-1/2 ",
                 )}
               >
@@ -282,7 +275,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                         </div>
                       </PopoverTrigger>
                       <PopoverContent
-                        className="w-100 p-3 bg-popover/95 backdrop-blur shadow-xl text-sm"
+                        className="max-w-[90vh] p-3 bg-popover/95 backdrop-blur shadow-xl text-sm"
                         side="top"
                         onClick={(e) => e.stopPropagation()}
                       >
@@ -327,7 +320,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
               </div>
 
               {/* [UPDATED] 3. BOTTOM ACTIONS: ALL BUTTONS */}
-              <div className="backdrop-blur-sm opacity-0 duration-300 group-hover:opacity-100 absolute bottom-0 left-0 w-full z-20">
+              <div className="backdrop-blur-sm opacity-100 md:opacity-0 md:group-hover:opacity-100 duration-300 absolute bottom-0 left-0 w-full z-20">
                 <div className="flex items-center justify-between gap-0.5 bg-secondary/50 rounded-full p-0.5 border border-border/50 shadow-sm mx-auto w-full">
                   {/* Speak */}
                   <Speaker item={item} />
@@ -347,11 +340,10 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
 
                   {/* Learned */}
                   <div
-                    className={`p-1 rounded-full transition-colors cursor-pointer ${
-                      !item.isLearned
-                        ? "text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900"
-                        : "text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900"
-                    }`}
+                    className={`p-1 rounded-full transition-colors cursor-pointer ${!item.isLearned
+                      ? "text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900"
+                      : "text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900"
+                      }`}
                     onClick={handleMarkAsLearned}
                     title={
                       item.isLearned ? "Mark as unlearned" : "Mark as learned"

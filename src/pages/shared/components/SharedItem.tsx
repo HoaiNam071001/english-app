@@ -1,17 +1,12 @@
 import { Button } from "@/components/ui/button";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Phonetics } from "@/pages/home/components/common/Phonetic";
-import { VocabularyDetailContent } from "@/pages/home/components/common/VocabularyDetailContent";
+import { VocabularyDetailPopup } from "@/pages/home/components/common/VocabularyDetailPopup";
 import { VocabularyItem } from "@/types";
 import {
   AlertTriangle, // Import thêm icon này
@@ -141,8 +136,10 @@ export const SharedItem: React.FC<SharedItemProps> = ({
       {/* Action Buttons Toolbar - ABSOLUTE OVERLAY */}
       <div
         className="absolute right-2 bottom-2 flex items-center gap-1
-                   opacity-0 group-hover/actions:opacity-100 transition-all duration-200
-                   bg-popover/90 backdrop-blur-md shadow-md border rounded-full z-10 translate-y-2 group-hover/actions:translate-y-0 px-1 py-0.5"
+                   opacity-100 translate-y-0
+                   md:opacity-0 md:translate-y-2 md:group-hover/actions:opacity-100 md:group-hover/actions:translate-y-0
+                   transition-all duration-200
+                   bg-popover/90 backdrop-blur-md shadow-md border rounded-full z-10 px-1 py-0.5"
       >
         <Button
           variant="ghost"
@@ -153,8 +150,11 @@ export const SharedItem: React.FC<SharedItemProps> = ({
           {currentRevealed ? <EyeOff size={14} /> : <Eye size={14} />}
         </Button>
 
-        <Popover>
-          <PopoverTrigger asChild>
+        <VocabularyDetailPopup
+          item={word}
+          side="top"
+          align="center"
+          trigger={
             <Button
               variant="ghost"
               size="icon"
@@ -163,16 +163,8 @@ export const SharedItem: React.FC<SharedItemProps> = ({
             >
               <Info size={14} />
             </Button>
-          </PopoverTrigger>
-          <PopoverContent
-            side="top"
-            align="center"
-            className="w-max p-4 shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <VocabularyDetailContent item={word} />
-          </PopoverContent>
-        </Popover>
+          }
+        />
 
         {!hideImportAction && (
           <TooltipProvider>
