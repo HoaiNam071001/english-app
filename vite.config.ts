@@ -21,7 +21,7 @@ export default defineConfig({
         short_name: "English Master",
         description:
           "Smart English vocabulary learning app with Flashcards and interactive exercises.",
-        theme_color: "#5058ff",
+        theme_color: "#1b2328",
         background_color: "#ffffff", // Splash screen nên để trắng để tiệp với logo của bạn
         display: "standalone",
         orientation: "portrait",
