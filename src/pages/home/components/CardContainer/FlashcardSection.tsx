@@ -527,7 +527,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
           </div>
         </div>
       ) : (
-        <div className="flex-1 overflow-y-auto py-3 md:p-3 scrollbar-thin">
+        <div className="flex-1 overflow-y-auto py-3 md:p-3 -mx-4 md:mx-0 scrollbar-thin">
           <div className="flex flex-wrap gap-3 justify-center content-start pb-8">
             {displayCards.map((item) => (
               <VocabularyCard
