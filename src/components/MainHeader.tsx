@@ -92,7 +92,7 @@ export const MainHeader = () => {
 
   const getNavItemClasses = (
     isActive: boolean,
-    variant: "default" | "admin"
+    variant: "default" | "admin",
   ) => {
     const baseClasses =
       "flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-all";
@@ -119,10 +119,15 @@ export const MainHeader = () => {
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center justify-between mx-auto max-w-8xl px-3 md:px-4">
         {/* Logo - Mobile: Visible, Desktop: Visible */}
-        <div className="flex items-center">
+        <div className="flex items-center mr-2">
           <Link to={ROUTES.HOME} className="flex items-center space-x-2">
-            <span className="font-bold text-base md:text-lg bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-500">
-              VocabManager
+            <img className="w-6 dark:hidden" src={"/public/logo.svg"} />
+            <img
+              className="w-6 hidden dark:inline"
+              src={"/public/logo-dark.svg"}
+            />
+            <span className="font-bold text-base md:text-lg bg-clip-text text-transparent bg-blue-600">
+              English Master
             </span>
           </Link>
         </div>
