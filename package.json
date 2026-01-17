@@ -35,7 +35,8 @@
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.11.0",
     "skeleton-styler": "^4.6.3",
-    "tailwind-merge": "^3.4.0"
+    "tailwind-merge": "^3.4.0",
+    "workbox-window": "^7.4.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
