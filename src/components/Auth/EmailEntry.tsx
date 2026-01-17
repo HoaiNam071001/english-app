@@ -124,7 +124,7 @@ const EmailEntry = () => {
                               {acc.email}
                             </span>
                             {isActiveSession ? (
-                              <span className="text-[10px] text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/40 px-1.5 rounded-full ml-1 font-medium flex items-center gap-0.5 w-fit">
+                              <span className="text-[10px] hidden md:inline text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/40 px-1.5 rounded-full ml-1 font-medium flex items-center gap-0.5 w-fit">
                                 Current
                               </span>
                             ) : (
