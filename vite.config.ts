@@ -10,12 +10,37 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
-      registerType: "autoUpdate",
+      registerType: "autoUpdate", // Tự động cập nhật app khi có bản mới
       workbox: {
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
       },
+      includeAssets: ["vite.svg"],
+      manifest: {
+        name: "My React App",
+        short_name: "ReactApp",
+        description: "Ứng dụng React PWA của tôi",
+        theme_color: "#ffffff",
+        background_color: "#ffffff",
+        display: "standalone",
+        scope: "/",
+        start_url: "/",
+        icons: [
+          {
+            src: "vite.svg", // Đường dẫn tính từ thư mục public
+            sizes: "any", // SVG có thể co giãn nên dùng "any"
+            type: "image/svg+xml",
+            purpose: "any",
+          },
+          {
+            src: "vite.svg",
+            sizes: "512x512", // Khai báo kích thước giả định để trình duyệt chấp nhận
+            type: "image/svg+xml",
+            purpose: "maskable", // Giúp icon hiển thị tốt trên Android
+          },
+        ],
+      },
       devOptions: {
-        enabled: true, // Bật cái này để test PWA ngay ở localhost (npm run dev)
+        enabled: true,
       },
     }),
   ],

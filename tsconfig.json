@@ -28,7 +28,9 @@
     "strict": false,
     "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": false, // (Tiện tay) Tắt cảnh báo khi khai báo biến mà không dùng
-    "noUnusedParameters": false
+    "noUnusedParameters": false,
+
+    "types": ["node", "vite/client", "vite-plugin-pwa/client"]
   },
   "include": ["src", "vite-env.d.ts"]
 }
