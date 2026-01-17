@@ -6,6 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import React from "react";
 
@@ -30,6 +31,7 @@ interface CommonModalProps {
   cancelText?: string;
   loading?: boolean;
   disableConfirm?: boolean;
+  contentClassName?: string;
 }
 
 export const CommonModal: React.FC<CommonModalProps> = ({
@@ -47,6 +49,7 @@ export const CommonModal: React.FC<CommonModalProps> = ({
   cancelText = "Cancel",
   loading = false,
   disableConfirm = false,
+  contentClassName = "",
 }) => {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -69,7 +72,7 @@ export const CommonModal: React.FC<CommonModalProps> = ({
           )}
         </DialogHeader>
 
-        <div className="">{children}</div>
+        <div className={cn("max-w-full", contentClassName)}>{children}</div>
 
         {footer ? (
           footer

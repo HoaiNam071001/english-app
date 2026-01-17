@@ -144,30 +144,37 @@ h1 {
   }
 }
 @layer base {
-  /* Hỗ trợ Firefox */
+  /* Cấu hình mặc định cho Desktop */
   * {
     scrollbar-width: thin;
     scrollbar-color: var(--muted-foreground) var(--muted);
   }
 
-  /* Hỗ trợ Chrome, Edge, Safari (Webkit) */
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
 
   ::-webkit-scrollbar-track {
-    background: var(--muted); /* Sử dụng màu nền nhạt của theme */
+    background: var(--muted);
     border-radius: var(--radius);
   }
 
   ::-webkit-scrollbar-thumb {
-    background: var(--muted-foreground); /* Màu nút kéo */
+    background: var(--muted-foreground);
     border-radius: var(--radius);
-    border: 2px solid var(--muted); /* Tạo khoảng trống giúp thumb trông nhỏ gọn hơn */
+    border: 2px solid var(--muted);
   }
 
-  ::-webkit-scrollbar-thumb:hover {
-    background: var(--foreground); /* Nổi bật hơn khi hover */
+  /* Ẩn thanh cuộn trên Mobile (thường là dưới 768px hoặc thiết bị có màn hình cảm ứng) */
+  @media (max-width: 768px) {
+    * {
+      -ms-overflow-style: none; /* IE và Edge cũ */
+      scrollbar-width: none; /* Firefox */
+    }
+
+    *::-webkit-scrollbar {
+      display: none; /* Chrome, Safari, Opera */
+    }
   }
 }

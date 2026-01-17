@@ -130,8 +130,9 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
           title="Topics & Vocabulary"
           closeOnInteractOutside={true}
           footer={null}
+          contentClassName={"overflow-hidden"}
         >
-          <div className="w-[80vw] max-w-md h-[70vh] flex flex-col overflow-hidden">
+          <div className="w-full h-[70vh] flex flex-col overflow-hidden">
             <VocabularySidebarContent {...sidebarContentProps} />
           </div>
         </CommonModal>
