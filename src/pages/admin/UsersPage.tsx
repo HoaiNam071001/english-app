@@ -270,7 +270,7 @@ const UsersPage = () => {
                             {formatDate(user.createdAt)}
                           </span>
                           <span className="sm:hidden whitespace-nowrap">
-                            {formatDate(user.createdAt, true)}
+                            {formatDate(user.createdAt)}
                           </span>
                         </div>
                         {user.lastLoginAt && (
@@ -285,7 +285,7 @@ const UsersPage = () => {
                                   {formatDate(user.lastLoginAt)}
                                 </span>
                                 <span className="sm:hidden">
-                                  {formatDate(user.lastLoginAt, true)}
+                                  {formatDate(user.lastLoginAt)}
                                 </span>
                               </span>
                             </div>
