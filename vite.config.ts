@@ -15,30 +15,30 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         globPatterns: ["**/*.{js,css,html,ico,png,svg,mp3}"], // Thêm mp3 nếu có
       },
-      includeAssets: ["vite.svg"],
+      includeAssets: ["logo-app.svg", "logo-app.png"],
       manifest: {
         name: "English Mastery: Daily Vocabulary",
-        short_name: "EnglishMaster",
+        short_name: "English Master",
         description:
           "Smart English vocabulary learning app with Flashcards and interactive exercises.",
         theme_color: "#5058ff",
-        background_color: "#ffffff",
+        background_color: "#ffffff", // Splash screen nên để trắng để tiệp với logo của bạn
         display: "standalone",
         orientation: "portrait",
         scope: "/",
         start_url: "/",
         icons: [
           {
-            src: "logo.svg",
+            src: "logo-app.svg",
             sizes: "any",
             type: "image/svg+xml",
-            purpose: "any",
+            purpose: "any", // Dùng cho trình duyệt và các nơi không yêu cầu bo góc
           },
           {
-            src: "logo.png",
+            src: "logo-app.png",
             sizes: "512x512",
             type: "image/png",
-            purpose: "maskable",
+            purpose: "maskable", // QUAN TRỌNG: Dùng cho màn hình chính điện thoại
           },
         ],
         categories: ["education", "learning"],
