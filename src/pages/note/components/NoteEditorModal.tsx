@@ -65,8 +65,8 @@ export const NoteEditorModal: React.FC<NoteEditorModalProps> = ({
             {isViewMode
               ? "View Details"
               : note
-              ? "Edit Note"
-              : "Create New Note"}
+                ? "Edit Note"
+                : "Create New Note"}
           </span>
         </div>
       }
@@ -91,7 +91,7 @@ export const NoteEditorModal: React.FC<NoteEditorModalProps> = ({
         </div>
       }
     >
-      <div className="flex flex-col gap-5 mt-1 w-[700px]">
+      <div className="flex flex-col gap-5 mt-1 w-full md:w-[700px]">
         {/* INFO BAR: Chỉ hiện khi có note (Edit/View) */}
         {note && (
           <div className="flex flex-wrap gap-3 select-none">
