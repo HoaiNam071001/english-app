@@ -1,10 +1,21 @@
 import { SimpleTooltip } from "@/components/SimpleTooltip";
 import { Button } from "@/components/ui/button";
+import { STORAGE_KEY } from "@/constants";
 import { useConfirm } from "@/hooks/useConfirm";
+import useLocalStorage from "@/hooks/useLocalStorage";
 import { useTabSession } from "@/hooks/useTabSession";
 import { AddReport, TabSession, TopicItem, VocabularyItem } from "@/types";
 import { isToday } from "@/utils";
-import { ChevronLeft, ChevronRight, ChevronsUpDown, LayoutList, List, PanelLeftClose, Plus, RotateCcw } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsUpDown,
+  LayoutList,
+  List,
+  PanelLeftClose,
+  Plus,
+  RotateCcw,
+} from "lucide-react";
 import React, {
   forwardRef,
   useEffect,
@@ -31,7 +42,7 @@ interface CardContainerProps {
   onUpdateWord: (id: string, updates: Partial<VocabularyItem>) => void;
   onDeleteWord: (id: string) => void;
   handleAddVocabulary: (
-    entries: Partial<VocabularyItem[]>
+    entries: Partial<VocabularyItem[]>,
   ) => Promise<AddReport>;
   onSidebarToggle?: () => void;
   isSidebarOpen?: boolean;
@@ -53,7 +64,7 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
       isSidebarOpen = true,
       onSidebarModalOpen,
     },
-    ref
+    ref,
   ) => {
     const {
       tabs,
@@ -64,11 +75,20 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
       resetSession,
       generateNewTab,
     } = useTabSession();
+    const { getStorage, setStorage } = useLocalStorage();
 
     const [editingTabId, setEditingTabId] = useState<string | null>(null);
-    const [isCollapsed, setIsCollapsed] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(
+      getStorage(STORAGE_KEY.MOBILE_HOME_COLLAPSE_ACTION) || false,
+    );
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const hasInitialized = useRef(false);
+
+    useEffect(() => {
+      if (isCollapsed !== getStorage(STORAGE_KEY.MOBILE_HOME_COLLAPSE_ACTION)) {
+        setStorage(STORAGE_KEY.MOBILE_HOME_COLLAPSE_ACTION, isCollapsed);
+      }
+    }, [isCollapsed]);
 
     // Optimization Map
     const wordMap = useMemo(() => {
@@ -84,11 +104,11 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
     // Hàm Init mặc định
     const initDefaultSession = () => {
       const todayWords = allWords.filter(
-        (w) => isToday(w.createdAt) && !w.isLearned
+        (w) => isToday(w.createdAt) && !w.isLearned,
       );
       const newTab = generateNewTab(
         1,
-        todayWords.map((w) => w.id)
+        todayWords.map((w) => w.id),
       );
       setTabs([newTab]);
       setActiveTabId(newTab.id);
@@ -219,7 +239,7 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
       const trimmed = newTitle.trim();
       if (trimmed) {
         setTabs((prev) =>
-          prev.map((t) => (t.id === id ? { ...t, title: trimmed } : t))
+          prev.map((t) => (t.id === id ? { ...t, title: trimmed } : t)),
         );
       }
       setEditingTabId(null);
@@ -237,7 +257,7 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
 
     const updateActiveTabState = (updates: Partial<TabSession>) => {
       setTabs((prev) =>
-        prev.map((t) => (t.id === activeTabId ? { ...t, ...updates } : t))
+        prev.map((t) => (t.id === activeTabId ? { ...t, ...updates } : t)),
       );
     };
 
@@ -265,7 +285,7 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
     return (
       <div className="flex flex-col h-full gap-0">
         {/* --- TOP ACTION BAR (Mobile only) --- */}
-        <div className="flex items-center justify-between px-2 py-1.5 border-b bg-background/95 backdrop-blur shrink-0 md:hidden">
+        <div className="flex items-center justify-between md:px-2 py-1.5 border-b bg-background/95 backdrop-blur shrink-0 md:hidden">
           <div className="flex items-center gap-1.5">
             {/* Sidebar Toggle Button - Mobile: List to open modal */}
             {onSidebarModalOpen && (
@@ -292,7 +312,9 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
         </div>
 
         {/* --- TAB BAR CONTAINER --- */}
-        <div className={`flex items-center border-b bg-background/95 backdrop-blur gap-0.5 md:gap-1 h-[46px] z-10 shrink-0 ${isCollapsed ? "hidden md:flex" : ""}`}>
+        <div
+          className={`flex items-center border-b bg-background/95 backdrop-blur gap-0.5 md:gap-1 h-[46px] z-10 shrink-0 ${isCollapsed ? "hidden md:flex" : ""}`}
+        >
           {/* Sidebar Toggle Button - Desktop: Toggle sidebar (in tab bar) */}
           {onSidebarToggle && (
             <div className="hidden md:flex items-center px-1">
@@ -437,7 +459,7 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
         </div>
       </div>
     );
-  }
+  },
 );
 
 CardContainer.displayName = "CardContainer";
