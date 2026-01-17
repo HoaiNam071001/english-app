@@ -20,8 +20,7 @@ import {
   Eye,
   EyeOff,
   Filter,
-  FilterX,
-  Globe, // Đổi icon sang Globe cho hợp ngữ cảnh Shared
+  FilterX, // Đổi icon sang Globe cho hợp ngữ cảnh Shared
   Loader2,
   Search,
   SquareDashedBottom,
@@ -94,7 +93,7 @@ export const SharedContainer = () => {
 
   const sortedDateKeys = useMemo(
     () => Object.keys(groupedItems).sort((a, b) => b.localeCompare(a)),
-    [groupedItems]
+    [groupedItems],
   );
 
   const loadData = (isRefresh: boolean, keyword: string) => {
@@ -137,7 +136,7 @@ export const SharedContainer = () => {
 
   const handleConfirmImport = async (
     itemsToAdd: VocabularyItem[],
-    itemsToUpdate: { id: string; updates: Partial<VocabularyItem> }[]
+    itemsToUpdate: { id: string; updates: Partial<VocabularyItem> }[],
   ) => {
     try {
       let addedCount = 0;
@@ -153,7 +152,7 @@ export const SharedContainer = () => {
       }
       if (addedCount > 0 || updatedCount > 0) {
         toast.success(
-          `Import successful: ${addedCount} added, ${updatedCount} updated.`
+          `Import successful: ${addedCount} added, ${updatedCount} updated.`,
         );
       } else {
         toast.info("No changes were made.");
@@ -238,21 +237,16 @@ export const SharedContainer = () => {
           {/* ROW 1: Title & Search */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             {/* Title Section */}
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg text-blue-600 dark:text-blue-400">
-                <Globe size={20} />
-              </div>
-              <div>
-                <h2 className="text-lg font-bold leading-tight flex items-center gap-2">
-                  Public Vocabulary Library
-                  <span className="inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 rounded-full dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800">
-                    {totalCount} words
-                  </span>
-                </h2>
-                <p className="text-xs text-muted-foreground">
-                  Browse collections shared by the community
-                </p>
-              </div>
+            <div>
+              <h2 className="text-md font-bold leading-tight flex gap-2">
+                Public Vocabulary Library
+                <span className="ml-auto inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 rounded-full dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800">
+                  {totalCount} words
+                </span>
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                Browse collections shared by the community
+              </p>
             </div>
 
             {/* Search Section */}
@@ -361,7 +355,7 @@ export const SharedContainer = () => {
                     className="h-8 gap-2 animate-in fade-in slide-in-from-left-2 bg-blue-600 hover:bg-blue-700 text-white"
                     onClick={() => {
                       const selectedItems = displayItems.filter((i) =>
-                        selectedIds.has(i.id)
+                        selectedIds.has(i.id),
                       );
                       handlePreImport(selectedItems);
                     }}

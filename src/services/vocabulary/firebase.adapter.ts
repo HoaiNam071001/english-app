@@ -19,6 +19,7 @@ import {
   where,
   writeBatch,
 } from "firebase/firestore";
+import _ from "lodash";
 import { IVocabularyService } from "./types";
 
 export interface PaginatedResponse {
@@ -34,7 +35,7 @@ export class FirebaseVocabularyService implements IVocabularyService {
     const q = query(
       collection(db, DataTable.Vocabulary),
       where("userId", "==", this.userId),
-      orderBy("createdAt", "desc")
+      orderBy("createdAt", "desc"),
     );
 
     const snapshot = await getDocs(q);
@@ -49,7 +50,7 @@ export class FirebaseVocabularyService implements IVocabularyService {
 
   async add(
     newEntries: Partial<VocabularyItem>[],
-    currentItems: VocabularyItem[]
+    currentItems: VocabularyItem[],
   ): Promise<AddReport> {
     const existingSet = new Set(currentItems.map((w) => w.normalized));
     const currentBatchSet = new Set<string>();
@@ -68,7 +69,7 @@ export class FirebaseVocabularyService implements IVocabularyService {
         skippedWords.push(entry.text!);
       } else {
         const newDocRef = doc(collection(db, DataTable.Vocabulary));
-        const docData = {
+        const rawData = {
           ...entry,
           normalized: normalized,
           example: entry.example || null,
@@ -78,7 +79,7 @@ export class FirebaseVocabularyService implements IVocabularyService {
           updatedAt: serverTimestamp(),
           isLearned: false,
         };
-
+        const docData = _.pickBy(rawData, _.identity);
         batch.set(newDocRef, docData);
 
         currentBatchSet.add(entry.normalized!);
@@ -114,7 +115,7 @@ export class FirebaseVocabularyService implements IVocabularyService {
 
   async bulkUpdate(
     ids: string[],
-    updates: Partial<VocabularyItem>
+    updates: Partial<VocabularyItem>,
   ): Promise<void> {
     const batch = writeBatch(db);
     ids.forEach((id) => {
@@ -129,13 +130,13 @@ export class FirebaseVocabularyService implements IVocabularyService {
   async fetchSharedPage(
     pageSize: number,
     lastDoc: QueryDocumentSnapshot<DocumentData> | null = null,
-    keyword: string = ""
+    keyword: string = "",
   ): Promise<PaginatedResponse> {
     const colRef = collection(db, DataTable.Vocabulary);
     let baseQuery = query(
       colRef,
       where("isShared", "==", true),
-      where("userId", "!=", this.userId)
+      where("userId", "!=", this.userId),
     );
 
     if (keyword.trim()) {
@@ -143,7 +144,7 @@ export class FirebaseVocabularyService implements IVocabularyService {
       baseQuery = query(
         baseQuery,
         where("normalized", ">=", searchStr),
-        where("normalized", "<=", searchStr + "\uf8ff")
+        where("normalized", "<=", searchStr + "\uf8ff"),
       );
     }
 
@@ -158,7 +159,7 @@ export class FirebaseVocabularyService implements IVocabularyService {
         baseQuery,
         orderBy("normalized"),
         orderBy("createdAt", "desc"),
-        limit(pageSize)
+        limit(pageSize),
       );
     } else {
       q = query(baseQuery, orderBy("createdAt", "desc"), limit(pageSize));

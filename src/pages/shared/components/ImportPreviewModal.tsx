@@ -30,7 +30,7 @@ interface ImportPreviewModalProps {
   conflicts: ConflictItem[];
   onConfirm: (
     itemsToAdd: VocabularyItem[],
-    itemsToUpdate: { id: string; updates: Partial<VocabularyItem> }[]
+    itemsToUpdate: { id: string; updates: Partial<VocabularyItem> }[],
   ) => void;
 }
 
@@ -48,7 +48,7 @@ export const ImportPreviewModal: React.FC<ImportPreviewModalProps> = ({
 
   // [NEW] State chọn items mới (Mặc định chọn hết)
   const [selectedNewIds, setSelectedNewIds] = useState<Set<string>>(
-    () => new Set(newItems.map((i) => i.id))
+    () => new Set(newItems.map((i) => i.id)),
   );
 
   // Reset state khi danh sách newItems thay đổi
@@ -59,7 +59,7 @@ export const ImportPreviewModal: React.FC<ImportPreviewModalProps> = ({
   // --- LOGIC RESOLVE CONFLICT ---
   const handleResolutionChange = (
     normalized: string,
-    value: ResolutionType
+    value: ResolutionType,
   ) => {
     setResolutions((prev) => ({ ...prev, [normalized]: value }));
   };
@@ -152,7 +152,7 @@ export const ImportPreviewModal: React.FC<ImportPreviewModalProps> = ({
         </div>
       }
     >
-      <div className="flex flex-col gap-2 h-[70vh] overflow-y-auto px-1 pb-4 w-[1000px] mt-2">
+      <div className="flex flex-col gap-2 h-[70vh] overflow-y-auto px-1 pb-4 md:w-[1000px] mt-2">
         {/* SUMMARY HEADER */}
         <div className="bg-muted/40 p-3 rounded-lg border text-sm flex gap-6 items-center sticky top-0 z-20 backdrop-blur-md bg-background/80">
           <div className="flex items-center gap-2">
@@ -247,7 +247,7 @@ export const ImportPreviewModal: React.FC<ImportPreviewModalProps> = ({
                           onToggleSelect={() =>
                             handleResolutionChange(
                               key,
-                              ResolutionType.OVERWRITE
+                              ResolutionType.OVERWRITE,
                             )
                           }
                         />
