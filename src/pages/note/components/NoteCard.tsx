@@ -55,7 +55,7 @@ export const NoteCard = ({
     <div className="flex gap-1">
       {/* Desktop Hover Actions */}
       <div
-        className={`opacity-0 group-hover:opacity-100 transition-opacity flex gap-1 backdrop-blur-sm p-1 border rounded-lg bg-background/50`}
+        className={`hidden md:flex opacity-0 group-hover:opacity-100 transition-opacity gap-1 backdrop-blur-sm p-1 border rounded-lg bg-background/50`}
       >
         <Button
           variant="ghost"
@@ -158,7 +158,7 @@ export const NoteCard = ({
         <div
           className={cn(
             "text-sm overflow-hidden border rounded-lg bg-background animate-in fade-in zoom-in-95 duration-200",
-            isGrid ? "h-[80px]" : "min-h-[60px]"
+            isGrid ? "h-[80px]" : "min-h-[60px]",
           )}
         >
           {note.content ? (
