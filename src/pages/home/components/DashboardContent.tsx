@@ -35,7 +35,7 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
   } = useVocabulary();
   const { fetch: fetchWordTypes } = useWordTypes();
   const [mappingActiveWords, setMappingActiveWords] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
 
   const onFetch = async () => {
@@ -59,7 +59,7 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
   const handleRemoveWordsToPractice = (words: VocabularyItem[]) => {
     if (cardContainerRef.current) {
       cardContainerRef.current.removeWordsToSession(
-        words?.map((e) => e.id) || []
+        words?.map((e) => e.id) || [],
       );
     }
   };
@@ -68,7 +68,6 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
     if (!selectedTopicId || selectedTopicId === ALL_TOPIC_KEY) return allWords;
     return allWords.filter((w) => w.topicId === selectedTopicId);
   }, [allWords, selectedTopicId]);
-
 
   const handleAddVocabularyWithTopic = async (entries: VocabularyItem[]) => {
     const entriesWithTopic = entries.map((e) => ({
@@ -138,7 +137,7 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
         </CommonModal>
 
         {/* MAIN CONTENT AREA */}
-        <div className="relative flex-1 transition-all duration-300 min-w-0 h-[80vh]">
+        <div className="relative flex-1 transition-all duration-300 min-w-0 h-[90vh] md:h-[80vh]">
           <CardContainer
             ref={cardContainerRef}
             allWords={allWords}
