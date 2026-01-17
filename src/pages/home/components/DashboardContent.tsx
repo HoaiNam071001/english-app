@@ -131,7 +131,7 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
           closeOnInteractOutside={true}
           footer={null}
         >
-          <div className="w-[90vw] max-w-md h-[70vh] flex flex-col overflow-hidden">
+          <div className="w-[80vw] max-w-md h-[70vh] flex flex-col overflow-hidden">
             <VocabularySidebarContent {...sidebarContentProps} />
           </div>
         </CommonModal>
