@@ -121,11 +121,8 @@ export const MainHeader = () => {
         {/* Logo - Mobile: Visible, Desktop: Visible */}
         <div className="flex items-center mr-2">
           <Link to={ROUTES.HOME} className="flex items-center space-x-2">
-            <img className="w-6 dark:hidden" src={"/public/logo.svg"} />
-            <img
-              className="w-6 hidden dark:inline"
-              src={"/public/logo-dark.svg"}
-            />
+            <img className="w-6 dark:hidden" src={"/logo.svg"} />
+            <img className="w-6 hidden dark:inline" src={"/logo-dark.svg"} />
             <span className="font-bold text-base md:text-lg bg-clip-text text-transparent bg-blue-600">
               English Master
             </span>
