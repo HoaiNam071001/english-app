@@ -84,7 +84,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
 
   if (showDeleteConfirm) {
     return (
-      <div className="space-y-3 w-72">
+      <div className="space-y-3 md:w-72">
         <h4 className="font-medium text-sm text-destructive">
           Confirm deletion?
         </h4>
@@ -130,17 +130,15 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
 
   // Màn hình EDIT CHÍNH
   return (
-    <div className="w-[500px] min-h-[500px] max-h-[600px] pr-1 flex flex-col">
+    <div className="md:w-[500px] md:min-h-[500px] max-h-[600px] flex flex-col">
       <div className="flex-1 overflow-auto gap-3 flex flex-col my-2">
         {/* WORD & FIND */}
-        <div className="flex gap-3">
+        <div className="flex flex-col md:flex-row gap-3">
           {/* Ảnh minh họa - Xếp bên trái */}
-          <div className="space-y-1">
-            <ImageIllustration
-              url={form.imageUrl || ""}
-              onApply={(newUrl) => setForm({ ...form, imageUrl: newUrl })}
-            />
-          </div>
+          <ImageIllustration
+            url={form.imageUrl || ""}
+            onApply={(newUrl) => setForm({ ...form, imageUrl: newUrl })}
+          />
 
           {/* Word Input - Chiếm phần còn lại */}
           <div className="flex-1 space-y-1">
@@ -192,7 +190,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {/* PART OF SPEECH */}
           <div className="space-y-1">
             <Label className="text-xs text-muted-foreground">

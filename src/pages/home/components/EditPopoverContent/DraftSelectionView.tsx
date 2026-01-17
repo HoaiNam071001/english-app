@@ -26,14 +26,14 @@ export const DraftSelectionView = ({
   // --- STATE ---
   const [selPhonetics, setSelPhonetics] = useState<boolean>(!origin.phonetics);
   const [selPos, setSelPos] = useState<PartOfSpeech[]>(
-    origin.partOfSpeech?.length ? [] : draft.partOfSpeech || []
+    origin.partOfSpeech?.length ? [] : draft.partOfSpeech || [],
   );
   const [selNoteIndices, setSelNoteIndices] = useState<number[]>([]);
 
   // --- HANDLERS ---
   const togglePos = (pos: PartOfSpeech) => {
     setSelPos((prev) =>
-      prev.includes(pos) ? prev.filter((p) => p !== pos) : [...prev, pos]
+      prev.includes(pos) ? prev.filter((p) => p !== pos) : [...prev, pos],
     );
   };
 
@@ -53,7 +53,7 @@ export const DraftSelectionView = ({
     // Logic Note
     if (draft.enMeanings && selNoteIndices.length > 0) {
       const selectedMeanings = draft.enMeanings.filter((_, i) =>
-        selNoteIndices.includes(i)
+        selNoteIndices.includes(i),
       );
       finalData.example = formatNoteForSave(selectedMeanings);
     }
@@ -62,7 +62,7 @@ export const DraftSelectionView = ({
   };
 
   return (
-    <div className="w-[500px] min-h-[500px] max-h-[600px] flex flex-col h-full animate-in slide-in-from-right-4 duration-200 bg-background">
+    <div className="md:w-[500px] md:min-h-[500px] max-h-[600px] flex flex-col h-full animate-in slide-in-from-right-4 duration-200 bg-background">
       {/* HEADER */}
       <div className="flex items-center gap-2 pb-2 border-b mb-2">
         <Button
@@ -77,7 +77,7 @@ export const DraftSelectionView = ({
       </div>
 
       {/* BODY */}
-      <div className="flex-1 overflow-y-auto space-y-4 pr-2">
+      <div className="flex-1 overflow-y-auto space-y-4">
         <p className="text-[10px] text-muted-foreground">
           Select individual fields to override your current data.
         </p>

@@ -30,7 +30,7 @@ export const ImageIllustration = ({
 
       if (isBase64) {
         toast.error(
-          "Base64 format is not allowed. Please use a direct image URL."
+          "Base64 format is not allowed. Please use a direct image URL.",
         );
         setTempUrl(url); // Reset về URL cũ nếu lỗi
         return;
@@ -45,7 +45,7 @@ export const ImageIllustration = ({
 
   return (
     <div
-      className="relative w-28 h-28 rounded-md border bg-muted overflow-hidden group shadow-sm flex-shrink-0"
+      className="relative h-relative w-30 h-30 rounded-md border bg-muted overflow-hidden group shadow-sm flex-shrink-0 rounded-md border bg-muted overflow-hidden group shadow-sm flex-shrink-0"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => {
         setIsHovered(false);
