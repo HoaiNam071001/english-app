@@ -17,14 +17,14 @@ export default defineConfig({
       },
       includeAssets: ["vite.svg"],
       manifest: {
-        name: "English Mastery: Học Từ Vựng Mỗi Ngày",
-        short_name: "Học Tiếng Anh",
+        name: "English Mastery: Daily Vocabulary",
+        short_name: "EnglishMaster",
         description:
-          "Ứng dụng học từ vựng tiếng Anh thông minh với Flashcard và bài tập tương tác.",
-        theme_color: "#5058ff", // Màu xanh đậm (Primary Color) giúp App trông uy tín
-        background_color: "#ffffff", // Màu nền trắng cho Splash Screen
+          "Smart English vocabulary learning app with Flashcards and interactive exercises.",
+        theme_color: "#5058ff",
+        background_color: "#ffffff",
         display: "standalone",
-        orientation: "portrait", // Khóa xoay màn hình dọc (phù hợp với app học tập)
+        orientation: "portrait",
         scope: "/",
         start_url: "/",
         icons: [
@@ -35,13 +35,12 @@ export default defineConfig({
             purpose: "any",
           },
           {
-            src: "logo.png", // Bạn nên dùng tool để convert logo.svg sang logo.png (512x512)
+            src: "logo.png",
             sizes: "512x512",
             type: "image/png",
-            purpose: "maskable", // Giúp icon tự bo tròn đẹp trên Android
+            purpose: "maskable",
           },
         ],
-        // Thêm categories giúp Store nhận diện nội dung app (tùy chọn)
         categories: ["education", "learning"],
       },
       devOptions: {
