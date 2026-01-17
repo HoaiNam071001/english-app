@@ -25,7 +25,7 @@ export const MainLayout = () => {
     if (!isFirebaseReady) return;
     const timer = setTimeout(() => {
       setIsDelaying(false);
-    }, 500);
+    }, 1000);
 
     return () => clearTimeout(timer);
   }, [isFirebaseReady]);

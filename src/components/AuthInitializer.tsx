@@ -24,7 +24,6 @@ export const AuthInitializer = () => {
       if (!isFirebaseReady) {
         dispatch(setFirebaseReady(true));
       }
-      console.log("ád", currentUser);
       if (currentUser && currentUser.email) {
         const serializableUser = {
           uid: currentUser.uid,

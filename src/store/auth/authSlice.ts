@@ -199,9 +199,14 @@ const authSlice = createSlice({
       .addCase(syncUserToFirestore.fulfilled, (state, action) => {
         state.userProfile = action.payload;
         state.error = null;
+        state.loading = false;
+      })
+      .addCase(syncUserToFirestore.pending, (state, action) => {
+        state.loading = true;
       })
       .addCase(syncUserToFirestore.rejected, (state, action) => {
         state.error = action.payload as string;
+        state.loading = false;
       })
       .addCase(loginWithGoogle.pending, (state) => {
         state.loading = true;
