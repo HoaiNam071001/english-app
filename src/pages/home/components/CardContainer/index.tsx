@@ -362,7 +362,7 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
               />
             ))}
 
-            <div className="sticky right-0 bg-background h-full flex items-center px-0.5">
+            <div className="sticky right-0 bg-background z-10 h-full flex items-center px-0.5">
               <SimpleTooltip content={"New Tab"}>
                 <Button
                   variant="ghost"
