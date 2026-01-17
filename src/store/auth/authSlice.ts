@@ -26,6 +26,7 @@ interface AuthState {
   loading: boolean;
   error: string | null;
   isGuest: boolean;
+  isFirebaseReady: boolean;
 }
 
 // --- HELPER ---
@@ -45,7 +46,7 @@ const saveAccountToStorage = (user: SerializableUser) => {
       if (accounts.length > 5) accounts.pop();
       localStorage.setItem(
         STORAGE_KEY.SAVED_ACCOUNTS,
-        JSON.stringify(accounts)
+        JSON.stringify(accounts),
       );
     }
   } catch (e) {
@@ -71,7 +72,7 @@ export const syncUserToFirestore = createAsyncThunk<
       await setDoc(
         userRef,
         { lastLoginAt: Date.now(), photoURL: currentUser.photoURL },
-        { merge: true }
+        { merge: true },
       );
     } else {
       profile = {
@@ -151,6 +152,7 @@ export const logout = createAsyncThunk<
 
 // --- SLICE ---
 const initialState: AuthState = {
+  isFirebaseReady: false,
   user: null,
   userProfile: null,
   loading: true,
@@ -166,6 +168,9 @@ const authSlice = createSlice({
       state.user = action.payload;
       if (action.payload) saveAccountToStorage(action.payload);
       else state.userProfile = null;
+    },
+    setFirebaseReady: (state, action: PayloadAction<boolean>) => {
+      state.isFirebaseReady = action.payload;
     },
     setLoading: (state, action: PayloadAction<boolean>) => {
       state.loading = action.payload;
@@ -184,7 +189,7 @@ const authSlice = createSlice({
         accounts = accounts.filter((acc) => acc.email !== action.payload);
         localStorage.setItem(
           STORAGE_KEY.SAVED_ACCOUNTS,
-          JSON.stringify(accounts)
+          JSON.stringify(accounts),
         );
       }
     },
@@ -222,6 +227,7 @@ const authSlice = createSlice({
 export const {
   setUser,
   setLoading,
+  setFirebaseReady,
   setIsGuest,
   switchAccount,
   removeSavedAccount,

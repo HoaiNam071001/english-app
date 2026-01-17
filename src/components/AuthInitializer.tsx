@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import { auth, db } from "@/firebaseConfig";
 import {
+  setFirebaseReady,
   setLoading,
   setUser,
   syncUserToFirestore,
@@ -13,12 +14,17 @@ import { useEffect } from "react";
 
 export const AuthInitializer = () => {
   const dispatch = useAppDispatch();
-  const { user, isGuest } = useAppSelector((state) => state.auth);
+  const { user, isGuest, isFirebaseReady } = useAppSelector(
+    (state) => state.auth,
+  );
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       dispatch(setLoading(true));
-
+      if (!isFirebaseReady) {
+        dispatch(setFirebaseReady(true));
+      }
+      console.log("ád", currentUser);
       if (currentUser && currentUser.email) {
         const serializableUser = {
           uid: currentUser.uid,

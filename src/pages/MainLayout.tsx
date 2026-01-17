@@ -7,6 +7,7 @@ import { StatusGuard } from "@/components/Auth/StatusGuard";
 import { ROUTES } from "@/constants";
 import { useAuth } from "@/hooks/useAuth";
 import UsersPage from "@/pages/admin/UsersPage";
+import { useAppSelector } from "@/store/hooks";
 import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AppLayout } from "./AppLayout";
@@ -16,16 +17,18 @@ import SharedPage from "./shared";
 
 export const MainLayout = () => {
   const { loading } = useAuth();
+  const { isFirebaseReady } = useAppSelector((state) => state.auth);
 
   const [isDelaying, setIsDelaying] = useState(true);
 
   useEffect(() => {
+    if (!isFirebaseReady) return;
     const timer = setTimeout(() => {
       setIsDelaying(false);
-    }, 1000);
+    }, 500);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [isFirebaseReady]);
 
   if (loading || isDelaying) {
     return (
