@@ -156,7 +156,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
 
       <div
         onClick={handleCardClick}
-        className="relative cursor-pointer perspective-1000 group w-40 h-50 transition-all duration-300"
+        className="relative cursor-pointer perspective-1000 group w-38 md:w-40 h-50 transition-all duration-300"
       >
         {isFlipped && item.isPinned && (
           <div
