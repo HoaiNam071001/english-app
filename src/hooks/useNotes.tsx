@@ -49,7 +49,7 @@ export const useNotes = () => {
           PAGE_SIZE,
           currentLastDoc,
           searchKey,
-          currentOffset
+          currentOffset,
         );
 
         if (isLoadMore) {
@@ -67,7 +67,7 @@ export const useNotes = () => {
         setLoading(false);
       }
     },
-    [service, lastDoc]
+    [service],
   );
 
   // --- ACTIONS ---
@@ -87,7 +87,7 @@ export const useNotes = () => {
   const updateNote = async (id: string, updates: Partial<NoteModel>) => {
     const now = Date.now();
     setNotes((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, ...updates, updatedAt: now } : n))
+      prev.map((n) => (n.id === id ? { ...n, ...updates, updatedAt: now } : n)),
     );
 
     try {

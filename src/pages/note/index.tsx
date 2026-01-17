@@ -36,10 +36,10 @@ const NotePage = () => {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [layout, setLayout] = useState<LayoutType>(
-    getStorage(STORAGE_KEY.NOTE_LAYOUT) || "grid"
+    getStorage(STORAGE_KEY.NOTE_LAYOUT) || "grid",
   );
   const [isGrouped, setIsGrouped] = useState(
-    getStorage(STORAGE_KEY.NOTE_GROUPED) || false
+    getStorage(STORAGE_KEY.NOTE_GROUPED) || false,
   );
   const { confirm } = useConfirm();
   // Hook Data
