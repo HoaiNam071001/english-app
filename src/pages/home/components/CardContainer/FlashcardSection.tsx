@@ -101,8 +101,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
       onMeaningIdsChange(new Set(displayCards.map((card) => card.id)));
     } else if (type === FlashcardCommandType.HIDE_MEANING_ALL) {
       onMeaningIdsChange(new Set());
-    } 
-    else if (type === FlashcardCommandType.SHOW_IMAGE_ALL) {
+    } else if (type === FlashcardCommandType.SHOW_IMAGE_ALL) {
       onImageIdsChange(new Set());
     } else if (type === FlashcardCommandType.HIDE_IMAGE_ALL) {
       onImageIdsChange(new Set(displayCards.map((card) => card.id)));
@@ -192,7 +191,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
     setDisplayCards(
       direction === "top"
         ? [...flipped, ...unflipped]
-        : [...unflipped, ...flipped]
+        : [...unflipped, ...flipped],
     );
   };
 
@@ -202,7 +201,9 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
   return (
     <div className="w-full h-full flex flex-col bg-muted/10 overflow-hidden">
       {/* Toolbar */}
-      <div className={`flex items-center justify-between gap-1.5 px-2 py-2 border-b bg-background/80 backdrop-blur-sm shrink-0 overflow-x-auto ${isToolbarCollapsed ? "hidden md:flex" : ""}`}>
+      <div
+        className={`flex items-center justify-between gap-1.5 px-2 py-2 border-b bg-background/80 backdrop-blur-sm shrink-0 overflow-x-auto ${isToolbarCollapsed ? "hidden md:flex" : ""}`}
+      >
         {/* Left: Cards count & Add control */}
         <div className="flex items-center gap-1.5 flex-1 min-w-0 shrink-0">
           <div className="text-sm font-semibold text-muted-foreground flex items-center gap-1.5 shrink-0">
@@ -353,12 +354,16 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
               <DropdownMenuLabel className="text-xs">Actions</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                onClick={() => sendCommand(FlashcardCommandType.SHOW_MEANING_ALL)}
+                onClick={() =>
+                  sendCommand(FlashcardCommandType.SHOW_MEANING_ALL)
+                }
               >
                 <Eye className="mr-2 h-3.5 w-3.5" /> Show All Meanings
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => sendCommand(FlashcardCommandType.HIDE_MEANING_ALL)}
+                onClick={() =>
+                  sendCommand(FlashcardCommandType.HIDE_MEANING_ALL)
+                }
               >
                 <EyeOff className="mr-2 h-3.5 w-3.5" /> Hide All Meanings
               </DropdownMenuItem>
@@ -522,7 +527,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
           </div>
         </div>
       ) : (
-        <div className="flex-1 overflow-y-auto p-3 scrollbar-thin">
+        <div className="flex-1 overflow-y-auto md:p-3 scrollbar-thin">
           <div className="flex flex-wrap gap-3 justify-center content-start pb-8">
             {displayCards.map((item) => (
               <VocabularyCard
@@ -532,7 +537,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
                 command={command}
                 isFlipped={flippedIds.has(item.id)}
                 showMeaning={meaningIds.has(item.id)}
-                hideImage={imageIds.has(item.id)} 
+                hideImage={imageIds.has(item.id)}
                 onLearned={onMarkLearned}
                 remove={(id) => {
                   const newDisplay = displayCards.filter((w) => w.id !== id);

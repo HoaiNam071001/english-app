@@ -156,7 +156,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
 
       <div
         onClick={handleCardClick}
-        className="relative cursor-pointer perspective-1000 group w-full sm:w-40 h-50 transition-all duration-300"
+        className="relative cursor-pointer perspective-1000 group w-40 h-50 transition-all duration-300"
       >
         {isFlipped && item.isPinned && (
           <div
@@ -230,7 +230,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
               <div
                 className={cn(
                   "z-50 shadow-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 flex items-center justify-evenly gap-2 bg-secondary/50 rounded-full px-1 py-0.5 border border-border/50",
-                  "duration-300 absolute top-0 left-1/2 -translate-x-1/2 "
+                  "duration-300 absolute top-0 left-1/2 -translate-x-1/2 ",
                 )}
               >
                 {/* Toggle Meaning */}
@@ -312,7 +312,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
                       `inline-block truncate w-full text-[12px] leading-normal text-muted-foreground italic transition-all duration-300`,
                       showMeaning
                         ? "opacity-100 blur-0"
-                        : "opacity-30 blur-md select-none grayscale"
+                        : "opacity-30 blur-md select-none grayscale",
                     )}
                   >
                     {item.meaning}
@@ -392,7 +392,7 @@ export default VocabularyCard;
 const Speaker = ({ item }: { item: VocabularyItem }) => {
   const audioSourceType = useMemo(() => {
     const usAudio = item.phonetics?.find(
-      (p) => p.audio && p.accent === AccentType.US
+      (p) => p.audio && p.accent === AccentType.US,
     );
     if (usAudio?.audio) return AccentType.US;
     const otherAudio = item.phonetics?.find((p) => p.audio);
@@ -420,13 +420,13 @@ const Speaker = ({ item }: { item: VocabularyItem }) => {
   const handleSpeak = (e: React.MouseEvent) => {
     e.stopPropagation();
     const usAudio = item.phonetics?.find(
-      (p) => p.audio && p.accent === AccentType.US
+      (p) => p.audio && p.accent === AccentType.US,
     );
     const otherAudio = item.phonetics?.find((p) => p.audio);
     playAudio(
       usAudio?.audio || otherAudio?.audio,
       item.text,
-      usAudio?.accent || otherAudio?.accent
+      usAudio?.accent || otherAudio?.accent,
     );
   };
   return (
