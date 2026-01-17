@@ -99,7 +99,7 @@ export const TabItem = ({
       {!disableClose && (
         <div
           onClick={onClose}
-          className="opacity-0 group-hover:opacity-100 p-0.5 rounded-full hover:bg-destructive/10 hover:text-destructive transition-all flex-shrink-0"
+          className="md:opacity-0 md:group-hover:opacity-100 p-0.5 rounded-full md:hover:bg-destructive/10 md:hover:text-destructive transition-all flex-shrink-0"
         >
           <X size={12} />
         </div>
