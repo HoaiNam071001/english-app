@@ -14,8 +14,8 @@ interface VocabularySidebarContentProps {
   filteredWords: VocabularyItem[];
   mappingActiveWords: Set<string>;
   onSelectTopic: (id: string | null) => void;
-  onAddTopic: (label: string) => void;
-  onUpdateTopic: (id: string, label: string) => void;
+  onAddTopic: (item: Partial<TopicItem>) => void;
+  onUpdateTopic: (id: string, item: Partial<TopicItem>) => void;
   onDeleteTopic: (id: string) => void;
   onBulkUpdate: (wordIds: string[], updates: Partial<VocabularyItem>) => void;
   onAddToPractice: (word: VocabularyItem) => void;
@@ -25,7 +25,9 @@ interface VocabularySidebarContentProps {
   onDelete: (id: string) => void;
   onToggleLearned: (id: string, isLearned: boolean) => void;
   onBulkMarkLearned: (wordIds: string[], isLearned: boolean) => void;
-  batchUpdateWords: (updates: Array<{ id: string; updates: Partial<VocabularyItem> }>) => void;
+  batchUpdateWords: (
+    updates: Array<{ id: string; updates: Partial<VocabularyItem> }>,
+  ) => void;
   onRemoveFromPractice: (word: VocabularyItem) => void;
 }
 
@@ -52,7 +54,7 @@ export const VocabularySidebarContent = ({
 }: VocabularySidebarContentProps) => {
   const currentTopic = useMemo(
     () => topics.find((t) => t.id === selectedTopicId),
-    [topics, selectedTopicId]
+    [topics, selectedTopicId],
   );
 
   return (
@@ -106,4 +108,3 @@ export const VocabularySidebarContent = ({
     </>
   );
 };
-

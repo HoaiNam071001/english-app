@@ -22,7 +22,7 @@ import {
   ShieldCheck,
   UserCheck,
   User as UserIcon,
-  X
+  X,
 } from "lucide-react";
 
 // --- 1. HELPER COMPONENTS & FUNCTIONS ---
@@ -34,7 +34,8 @@ const formatDate = (timestamp?: number, short = false) => {
     return date.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
-      year: date.getFullYear() !== new Date().getFullYear() ? "numeric" : undefined,
+      year:
+        date.getFullYear() !== new Date().getFullYear() ? "numeric" : undefined,
     });
   }
   return new Date(timestamp).toLocaleString("en-US", {
@@ -50,10 +51,11 @@ const RoleBadge = ({ role }: { role: UserRole }) => {
   const isAdmin = role === UserRole.ADMIN;
   return (
     <span
-      className={`inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded font-semibold border ${isAdmin
-        ? "bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800"
-        : "bg-muted text-muted-foreground border-border"
-        }`}
+      className={`inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded font-semibold border ${
+        isAdmin
+          ? "bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800"
+          : "bg-muted text-muted-foreground border-border"
+      }`}
     >
       {isAdmin ? (
         <Shield size={9} className="fill-purple-200 dark:fill-purple-400" />
@@ -144,19 +146,21 @@ const UsersPage = () => {
                   <div className="hidden md:flex items-center gap-1">
                     {(user.status === UserStatus.PENDING ||
                       user.status === UserStatus.REJECTED) && (
-                        <Button
-                          size="sm"
-                          className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 h-7 px-2.5 text-xs"
-                          onClick={() => approveUser(user.id)}
-                        >
-                          {user.status === UserStatus.REJECTED ? (
-                            <RefreshCw size={11} className="mr-1" />
-                          ) : (
-                            <Check size={11} className="mr-1" />
-                          )}
-                          {user.status === UserStatus.REJECTED ? "Reopen" : "Approve"}
-                        </Button>
-                      )}
+                      <Button
+                        size="sm"
+                        className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 h-7 px-2.5 text-xs"
+                        onClick={() => approveUser(user.id)}
+                      >
+                        {user.status === UserStatus.REJECTED ? (
+                          <RefreshCw size={11} className="mr-1" />
+                        ) : (
+                          <Check size={11} className="mr-1" />
+                        )}
+                        {user.status === UserStatus.REJECTED
+                          ? "Reopen"
+                          : "Approve"}
+                      </Button>
+                    )}
 
                     {user.role !== UserRole.ADMIN &&
                       (user.status === UserStatus.PENDING ||
@@ -172,26 +176,29 @@ const UsersPage = () => {
                           ) : (
                             <X size={11} className="mr-1" />
                           )}
-                          {user.status === UserStatus.APPROVED ? "Block" : "Reject"}
+                          {user.status === UserStatus.APPROVED
+                            ? "Block"
+                            : "Reject"}
                         </Button>
                       )}
                   </div>
 
                   {/* Mobile Actions Dropdown */}
-                  {user.role !== UserRole.ADMIN && <div className="md:hidden">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 text-muted-foreground"
-                        >
-                          <MoreVertical size={14} />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-48">
-                        {(user.status === UserStatus.PENDING ||
-                          user.status === UserStatus.REJECTED) && (
+                  {user.role !== UserRole.ADMIN && (
+                    <div className="md:hidden">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 text-muted-foreground"
+                          >
+                            <MoreVertical size={14} />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                          {(user.status === UserStatus.PENDING ||
+                            user.status === UserStatus.REJECTED) && (
                             <DropdownMenuItem
                               onClick={() => approveUser(user.id)}
                               className="text-green-600 dark:text-green-400 cursor-pointer"
@@ -207,8 +214,7 @@ const UsersPage = () => {
                             </DropdownMenuItem>
                           )}
 
-                        {user.role !== UserRole.ADMIN &&
-                          (user.status === UserStatus.PENDING ||
+                          {(user.status === UserStatus.PENDING ||
                             user.status === UserStatus.APPROVED) && (
                             <>
                               {user.status === UserStatus.PENDING && (
@@ -229,9 +235,10 @@ const UsersPage = () => {
                               </DropdownMenuItem>
                             </>
                           )}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  )}
                 </div>
 
                 {/* Main Content */}
@@ -268,7 +275,9 @@ const UsersPage = () => {
                         </div>
                         {user.lastLoginAt && (
                           <>
-                            <span className="hidden sm:inline whitespace-nowrap">•</span>
+                            <span className="hidden sm:inline whitespace-nowrap">
+                              •
+                            </span>
                             <div className="flex items-center gap-1">
                               <Clock size={10} className="shrink-0" />
                               <span className="text-blue-600 dark:text-blue-400">
