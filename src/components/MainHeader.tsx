@@ -6,7 +6,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ROUTES } from "@/constants";
+import { HEADER_HEIGHT, ROUTES } from "@/constants";
 import { useAuth } from "@/hooks/useAuth";
 import { UserRole } from "@/types";
 import {
@@ -116,8 +116,13 @@ export const MainHeader = () => {
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-14 items-center justify-between mx-auto max-w-8xl px-3 md:px-4">
+    <header
+      style={{
+        height: HEADER_HEIGHT,
+      }}
+      className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+    >
+      <div className="container flex h-full items-center justify-between mx-auto max-w-8xl px-3 md:px-4">
         {/* Logo - Mobile: Visible, Desktop: Visible */}
         <div className="flex items-center mr-2">
           <Link to={ROUTES.HOME} className="flex items-center space-x-2">

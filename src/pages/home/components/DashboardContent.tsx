@@ -1,7 +1,9 @@
 import { CommonModal } from "@/components/CommonModal";
+import { HEADER_HEIGHT } from "@/constants";
 import { useTopics } from "@/hooks/useTopics";
 import { useVocabulary } from "@/hooks/useVocabulary";
 import { useWordTypes } from "@/hooks/useWordTypes";
+import { cn } from "@/lib/utils";
 import { UserProfile, VocabularyItem } from "@/types";
 import { useEffect, useMemo, useRef, useState } from "react";
 import CardContainer, { CardContainerRef } from "./CardContainer";
@@ -105,55 +107,54 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
   };
 
   return (
-    <div className="flex flex-col">
-      {/* MAIN LAYOUT */}
-      <div className="flex flex-1 gap-2 relative overflow-hidden">
-        {/* SIDEBAR AREA - Desktop: Sidebar, Mobile: Hidden (use modal instead) */}
-        <div
-          className={`
-              h-[80vh] transition-all duration-300 ease-in-out border-r bg-card flex flex-col
-              hidden md:flex
-              ${
-                isSidebarOpen
-                  ? "w-80 md:w-1/4 opacity-100 translate-x-0"
-                  : "w-0 opacity-0 -translate-x-full mr-0 overflow-hidden border-none"
-              }
-          `}
-        >
+    <div
+      className="flex flex-1 gap-2 relative overflow-hidden mt-1"
+      style={{
+        height: `calc(100vh - ${HEADER_HEIGHT + 50}px)`,
+      }}
+    >
+      {/* SIDEBAR AREA - Desktop: Sidebar, Mobile: Hidden (use modal instead) */}
+      <div
+        className={cn(
+          `h-full transition-all duration-300 ease-in-out border-r bg-card flex-col hidden md:flex`,
+          isSidebarOpen
+            ? "w-80 md:w-1/4 opacity-100 translate-x-0"
+            : "w-0 opacity-0 -translate-x-full mr-0 overflow-hidden border-none",
+        )}
+      >
+        <VocabularySidebarContent {...sidebarContentProps} />
+      </div>
+
+      {/* SIDEBAR MODAL - Mobile only */}
+      <CommonModal
+        open={isSidebarModalOpen}
+        onOpenChange={setIsSidebarModalOpen}
+        title="Topics & Vocabulary"
+        closeOnInteractOutside={true}
+        footer={null}
+        contentClassName={"overflow-hidden"}
+      >
+        <div className="w-full h-[70vh] flex flex-col overflow-hidden">
           <VocabularySidebarContent {...sidebarContentProps} />
         </div>
+      </CommonModal>
 
-        {/* SIDEBAR MODAL - Mobile only */}
-        <CommonModal
-          open={isSidebarModalOpen}
-          onOpenChange={setIsSidebarModalOpen}
-          title="Topics & Vocabulary"
-          closeOnInteractOutside={true}
-          footer={null}
-          contentClassName={"overflow-hidden"}
-        >
-          <div className="w-full h-[70vh] flex flex-col overflow-hidden">
-            <VocabularySidebarContent {...sidebarContentProps} />
-          </div>
-        </CommonModal>
-
-        {/* MAIN CONTENT AREA */}
-        <div className="relative flex-1 transition-all duration-300 min-w-0 h-[90vh] md:h-[80vh]">
-          <CardContainer
-            ref={cardContainerRef}
-            allWords={allWords}
-            isLoaded={isLoaded}
-            topics={topics}
-            onActiveChanged={setMappingActiveWords}
-            onMarkLearned={markAsLearned}
-            onUpdateWord={updateWord}
-            onDeleteWord={deleteWord}
-            handleAddVocabulary={handleAddVocabularyWithTopic}
-            onSidebarToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-            isSidebarOpen={isSidebarOpen}
-            onSidebarModalOpen={() => setIsSidebarModalOpen(true)}
-          />
-        </div>
+      {/* MAIN CONTENT AREA */}
+      <div className="relative flex-1 transition-all duration-300 min-w-0 h-full">
+        <CardContainer
+          ref={cardContainerRef}
+          allWords={allWords}
+          isLoaded={isLoaded}
+          topics={topics}
+          onActiveChanged={setMappingActiveWords}
+          onMarkLearned={markAsLearned}
+          onUpdateWord={updateWord}
+          onDeleteWord={deleteWord}
+          handleAddVocabulary={handleAddVocabularyWithTopic}
+          onSidebarToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+          isSidebarOpen={isSidebarOpen}
+          onSidebarModalOpen={() => setIsSidebarModalOpen(true)}
+        />
       </div>
     </div>
   );
