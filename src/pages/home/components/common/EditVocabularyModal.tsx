@@ -25,7 +25,7 @@ export const EditVocabularyModal: React.FC<EditVocabularyModalProps> = ({
       title={<span className="font-bold text-lg">Edit</span>}
       footer={<></>}
     >
-      <div className="flex justify-center w-full">
+      <div className="w-full">
         <EditPopoverContent
           word={word}
           onSave={onSave}
