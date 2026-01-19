@@ -1,51 +1,12 @@
-import DictionarySearchButton from "@/components/DictionarySearchButton";
-import { DisplayText } from "@/components/DisplayText";
-import { ImagePreview } from "@/components/ImagePreview";
 import { Card } from "@/components/ui/card";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { TOPIC_COLORS } from "@/constants";
-import { cn } from "@/lib/utils";
-import { AccentType, TopicItem, VocabularyItem } from "@/types";
-import { getIconComponent } from "@/utils";
-import { playAudio } from "@/utils/audio";
-import {
-  Check,
-  Eye,
-  EyeOff,
-  ImageIcon,
-  ImageOff,
-  Info,
-  Maximize2,
-  Minimize2,
-  PenLine,
-  Pin,
-  RotateCcw,
-  Volume2,
-  X,
-} from "lucide-react";
+import { TopicItem, VocabularyItem } from "@/types";
+import { AnimatePresence, motion } from "framer-motion";
+import { Pin } from "lucide-react";
 import React, { useMemo, useState } from "react";
 import { EditVocabularyModal } from "../../common/EditVocabularyModal";
-import { PartSpeech } from "../../common/PartSpeech";
-import { Phonetics } from "../../common/Phonetic";
-import { VocabularyDetailPopup } from "../../common/VocabularyDetailPopup";
-import { WordTypeIndicator } from "../../common/WordTypeIndicator";
 import { FlashcardCommand } from "../FlashcardSection";
-import { motion, AnimatePresence } from "framer-motion";
 import { CardBack } from "./CardBack";
-import { Speaker } from "./Speaker";
-import { CardTopMeta } from "./CardTopMeta";
-import { CardFlagControls } from "./CardFlagControls";
-import { CardMainContent } from "./CardMainContent";
 import { CardFront } from "./CardFront";
 
 // --- TYPES ---
@@ -144,7 +105,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
       {/* ✨ 2. PHẦN HIỂN THỊ ZOOM (LỚP PHỦ) */}
       <AnimatePresence>
         {isExpanded && (
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[10] flex items-center justify-center p-4">
             {/* Background mờ */}
             <motion.div
               initial={{ opacity: 0 }}
@@ -157,7 +118,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
             {/* Thẻ to */}
             <motion.div
               layoutId={`card-${item.id}`}
-              className="relative w-full max-w-lg h-[70vh] bg-card rounded-xl shadow-2xl overflow-hidden border-2 border-purple-500 z-10"
+              className="relative w-full max-w-lg h-[70vh] bg-card rounded-xl shadow-2xl overflow-hidden border-2 border-purple-500 z-1"
             >
               <Card className="w-full h-full border-none shadow-none">
                 <CardFront
@@ -209,7 +170,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
 
             <Card
               className={`
-                relative w-full h-full flex flex-col items-center justify-center py-2 px-[2px] text-center shadow-lg border-2 overflow-hidden
+                relative w-full h-full flex flex-col items-center justify-center pt-2 pb-[2px] px-[2px] text-center shadow-lg border-2 overflow-hidden
                 transition-all duration-500 ease-in-out
                 ${
                   isFlipped

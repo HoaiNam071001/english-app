@@ -1,9 +1,9 @@
+import { cn } from "@/lib/utils";
 import { TopicItem, VocabularyItem } from "@/types";
 import { CardBottomActions } from "./CardBottomActions";
 import { CardFlagControls } from "./CardFlagControls";
 import { CardMainContent } from "./CardMainContent";
 import { CardTopMeta } from "./CardTopMeta";
-import { cn } from "@/lib/utils";
 
 interface CardFrontProps {
   item: VocabularyItem;
@@ -41,7 +41,11 @@ export const CardFront: React.FC<CardFrontProps> = ({
   onToggleExpand,
 }) => {
   return (
-    <div className="group flex flex-col h-full w-full relative animate-in fade-in zoom-in-95 duration-500 bg-card/0">
+    <div
+      className={cn(
+        "group flex flex-col h-full w-full relative animate-in fade-in zoom-in-95 duration-500 bg-card/0",
+      )}
+    >
       <CardTopMeta
         item={item}
         currentTopic={currentTopic}
@@ -54,6 +58,7 @@ export const CardFront: React.FC<CardFrontProps> = ({
         item={item}
         showMeaning={showMeaning}
         hideImage={hideImage}
+        isZoomMode={isZoomMode}
         onToggleMeaning={onToggleMeaning}
         onToggleImage={onToggleImage}
       />
@@ -72,6 +77,7 @@ export const CardFront: React.FC<CardFrontProps> = ({
           item={item}
           loading={loading}
           isExpanded={isExpanded}
+          isZoomMode={isZoomMode}
           onUpdate={onUpdate}
           onMarkLearned={onMarkLearned}
           onEditOpen={onEditOpen}

@@ -1,4 +1,9 @@
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { AccentType, VocabularyItem } from "@/types";
 import { playAudio } from "@/utils";
 import { Volume2 } from "lucide-react";
@@ -7,7 +12,7 @@ import { useMemo } from "react";
 export const Speaker: React.FC<{ item: VocabularyItem }> = ({ item }) => {
   const audioSourceType = useMemo(() => {
     const usAudio = item.phonetics?.find(
-      (p) => p.audio && p.accent === AccentType.US
+      (p) => p.audio && p.accent === AccentType.US,
     );
     if (usAudio?.audio) return AccentType.US;
     const otherAudio = item.phonetics?.find((p) => p.audio);
@@ -36,13 +41,13 @@ export const Speaker: React.FC<{ item: VocabularyItem }> = ({ item }) => {
   const handleSpeak = (e: React.MouseEvent) => {
     e.stopPropagation();
     const usAudio = item.phonetics?.find(
-      (p) => p.audio && p.accent === AccentType.US
+      (p) => p.audio && p.accent === AccentType.US,
     );
     const otherAudio = item.phonetics?.find((p) => p.audio);
     playAudio(
       usAudio?.audio || otherAudio?.audio,
       item.text,
-      usAudio?.accent || otherAudio?.accent
+      usAudio?.accent || otherAudio?.accent,
     );
   };
 

@@ -1,10 +1,14 @@
 import { DisplayText } from "@/components/DisplayText";
 import { ImagePreview } from "@/components/ImagePreview";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { VocabularyItem } from "@/types";
 import { PartSpeech } from "../../common/PartSpeech";
 import { Phonetics } from "../../common/Phonetic";
-import { VocabularyItem } from "@/types";
 
 interface CardMainContentProps {
   item: VocabularyItem;
@@ -23,13 +27,18 @@ export const CardMainContent: React.FC<CardMainContentProps> = ({
     <div
       className={cn(
         "flex flex-col items-center w-full h-full overflow-hidden",
-        isZoomMode ? "p-8 gap-2" : "py-4"
+        isZoomMode ? "p-8 gap-2" : "py-4",
       )}
     >
       {/* --- PHẦN TRÊN (50%) --- */}
-      <div className="h-1/2 w-full flex flex-col items-center justify-end pb-1">
+      <div className="h-[55%] w-full flex flex-col items-center justify-end">
         {/* Meta info: Part of speech & Phonetics */}
-        <div className="flex items-center flex-col">
+        <div
+          className={cn(
+            "flex items-center flex-col",
+            isZoomMode ? "gap-1 scale-[200%] mb-10" : "",
+          )}
+        >
           <PartSpeech data={item.partOfSpeech} />
           <Phonetics item={item} />
         </div>
@@ -41,7 +50,7 @@ export const CardMainContent: React.FC<CardMainContentProps> = ({
               <div
                 className={cn(
                   "font-bold text-foreground cursor-help decoration-dashed underline decoration-border underline-offset-4 hover:text-blue-600 dark:hover:text-blue-400 transition-colors text-center w-full px-2",
-                  isZoomMode ? "text-3xl my-1" : "text-lg line-clamp-2"
+                  isZoomMode ? "text-5xl my-1" : "text-lg line-clamp-2",
                 )}
                 onClick={(e) => e.stopPropagation()}
               >
@@ -65,7 +74,7 @@ export const CardMainContent: React.FC<CardMainContentProps> = ({
           <div
             className={cn(
               "font-bold text-foreground text-center w-full px-2",
-              isZoomMode ? "text-3xl my-1" : "text-lg line-clamp-2"
+              isZoomMode ? "text-5xl my-1" : "text-lg line-clamp-2",
             )}
             title={item.text}
           >
@@ -75,10 +84,10 @@ export const CardMainContent: React.FC<CardMainContentProps> = ({
       </div>
 
       {/* Divider */}
-      <div className="shrink-0 w-12 h-[2px] bg-border/60 rounded-full"></div>
+      <div className="shrink-0 w-12 h-[1px] bg-border/60 rounded-full"></div>
 
       {/* --- PHẦN DƯỚI (50%) --- */}
-      <div className="h-1/2 w-full flex flex-col items-center justify-start pt-1 gap-1">
+      <div className="h-[45%] w-full flex flex-col items-center justify-start gap-1">
         {/* Meaning */}
         <div className="relative w-full flex justify-center px-2 shrink-0">
           <div
@@ -87,7 +96,9 @@ export const CardMainContent: React.FC<CardMainContentProps> = ({
               showMeaning
                 ? "opacity-100 blur-0"
                 : "opacity-30 blur-md select-none grayscale",
-              isZoomMode ? "text-xl whitespace-normal" : "text-[12px] truncate"
+              isZoomMode
+                ? "text-2xl whitespace-normal"
+                : "text-[12px] truncate",
             )}
           >
             {item.meaning}
@@ -98,11 +109,11 @@ export const CardMainContent: React.FC<CardMainContentProps> = ({
         {!!item.imageUrl && !hideImage && (
           <div className="flex-1 flex items-center justify-center min-h-0 w-full">
             <div className="relative max-h-full">
-               <ImagePreview
+              <ImagePreview
                 url={item.imageUrl}
                 // Tùy chỉnh size ảnh phù hợp với không gian còn lại
-                h={isZoomMode ? 250 : 60} 
-                w={isZoomMode ? 350 : 100}
+                h={isZoomMode ? 250 : 60}
+                w={isZoomMode ? 300 : 100}
               />
             </div>
           </div>

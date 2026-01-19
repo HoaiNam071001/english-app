@@ -15,6 +15,7 @@ interface CardBottomActionsProps {
   item: VocabularyItem;
   loading: boolean;
   isExpanded: boolean;
+  isZoomMode: boolean;
   onUpdate: (id: string, updates: Partial<VocabularyItem>) => void;
   onMarkLearned: (e: React.MouseEvent) => void;
   onEditOpen: () => void;
@@ -25,6 +26,7 @@ export const CardBottomActions: React.FC<CardBottomActionsProps> = ({
   item,
   loading,
   isExpanded,
+  isZoomMode,
   onUpdate,
   onMarkLearned,
   onEditOpen,
@@ -32,14 +34,25 @@ export const CardBottomActions: React.FC<CardBottomActionsProps> = ({
 }) => {
   // CSS class chung cho các nút tròn
   const btnClass =
-    "rounded-full bg-secondary/80 hover:bg-secondary border border-border/50 shadow-sm backdrop-blur-sm transition-all cursor-pointer flex items-center justify-center text-muted-foreground";
+    "rounded-full bg-secondary/80 hover:bg-secondary border border-border/50 shadow-sm backdrop-blur-sm transition-all cursor-pointer flex items-center justify-center text-muted-foreground " +
+    (isZoomMode ? "scale-[200%]" : "");
+
+  const containerClass = cn(
+    "flex flex-col pointer-events-auto",
+    isZoomMode ? "gap-10" : "gap-1",
+  );
 
   return (
-    <div className="absolute bottom-0 left-0 w-full z-20 pointer-events-none flex justify-between items-end">
+    <div
+      className={cn(
+        "absolute bottom-0 left-0 w-full z-20 pointer-events-none flex justify-between items-end",
+        isZoomMode ? "px-5" : "",
+      )}
+    >
       {/* --- LEFT COLUMN: Speaker, Search, Pin --- */}
-      <div className="flex flex-col gap-1 pointer-events-auto">
+      <div className={containerClass}>
         {/* Speaker */}
-        <div className="flex items-center justify-center">
+        <div className={btnClass}>
           <Speaker item={item} />
         </div>
 
@@ -68,7 +81,7 @@ export const CardBottomActions: React.FC<CardBottomActionsProps> = ({
       </div>
 
       {/* --- RIGHT COLUMN: Learned, Edit, Zoom --- */}
-      <div className="flex flex-col gap-1 pointer-events-auto">
+      <div className={containerClass}>
         {/* Learned Button */}
         <div
           className={cn(

@@ -1,9 +1,15 @@
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { cn } from "@/lib/utils";
 import { TopicItem, VocabularyItem } from "@/types";
 import { getIconComponent } from "@/utils";
 import { Info, X } from "lucide-react";
-import { WordTypeIndicator } from "../../common/WordTypeIndicator";
 import { VocabularyDetailPopup } from "../../common/VocabularyDetailPopup";
+import { WordTypeIndicator } from "../../common/WordTypeIndicator";
 
 export interface CardTopMetaProps {
   item: VocabularyItem;
@@ -49,7 +55,12 @@ export const CardTopMeta: React.FC<CardTopMetaProps> = ({
         </div>
       )}
       <WordTypeIndicator typeIds={item.typeIds} />
-      <div className="ml-auto flex gap-1 items-center">
+      <div
+        className={cn(
+          "ml-auto flex gap-1 items-center",
+          isZoomMode ? "scale-[200%] mr-6" : "",
+        )}
+      >
         {renderTopicIcon()}
         {/* Info Button */}
         <div onClick={(e) => e.stopPropagation()}>
