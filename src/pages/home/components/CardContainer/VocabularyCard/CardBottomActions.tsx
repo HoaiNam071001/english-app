@@ -46,7 +46,7 @@ export const CardBottomActions: React.FC<CardBottomActionsProps> = ({
     <div
       className={cn(
         "absolute bottom-0 left-0 w-full z-20 pointer-events-none flex justify-between items-end",
-        isZoomMode ? "px-5" : "",
+        isZoomMode ? "px-5 pb-2" : "",
       )}
     >
       {/* --- LEFT COLUMN: Speaker, Search, Pin --- */}

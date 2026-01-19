@@ -54,7 +54,9 @@ export const CardTopMeta: React.FC<CardTopMetaProps> = ({
           <X size={14} />
         </div>
       )}
-      <WordTypeIndicator typeIds={item.typeIds} />
+      <div className={isZoomMode ? "scale-[150px] ml-4" : ""}>
+        <WordTypeIndicator typeIds={item.typeIds} />
+      </div>
       <div
         className={cn(
           "ml-auto flex gap-1 items-center",

@@ -118,7 +118,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
             {/* Thẻ to */}
             <motion.div
               layoutId={`card-${item.id}`}
-              className="relative w-full max-w-lg h-[70vh] bg-card rounded-xl shadow-2xl overflow-hidden border-2 border-purple-500 z-1"
+              className="relative w-full max-w-md h-[70vh] bg-card rounded-xl shadow-2xl overflow-hidden border-2 border-purple-500 z-1"
             >
               <Card className="w-full h-full border-none shadow-none">
                 <CardFront
