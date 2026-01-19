@@ -105,7 +105,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
       {/* ✨ 2. PHẦN HIỂN THỊ ZOOM (LỚP PHỦ) */}
       <AnimatePresence>
         {isExpanded && (
-          <div className="fixed inset-0 z-[10] flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-[40] flex items-center justify-center p-4">
             {/* Background mờ */}
             <motion.div
               initial={{ opacity: 0 }}
