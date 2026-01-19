@@ -106,13 +106,16 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>Import Vocabulary</DialogTitle>
-          <DialogDescription>
-            Enter words in format: <code>Word: Meaning | Example</code>. <br />
-            Or simple format: <code>Word: Meaning</code>.
+          <DialogDescription className="flex gap-4">
+           <div> Enter words in format: </div>
+           <div>
+             <code className="font-semibold text-blue-500">Word: Meaning | Example</code>. <br />
+              <span className="text-gray-500">Or</span> <code className="font-semibold text-blue-500">Word: Meaning</code>.
+           </div>
           </DialogDescription>
         </DialogHeader>
 
-        <div className="grid gap-4 py-4">
+        <div className="grid gap-4">
           <Textarea
             placeholder={`mean: ý nghĩa | phần giải thích\nHello | He said hello to me\nApple: Quả táo`}
             className="min-h-[300px] max-h-[500px] font-mono text-sm"
