@@ -1,11 +1,14 @@
 import { useToast } from "@/hooks/useToast";
+import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
 export const ImageIllustration = ({
   url,
+  className,
   onApply,
 }: {
   url: string;
+  className?: string;
   onApply: (newUrl: string) => void;
 }) => {
   const [tempUrl, setTempUrl] = useState(url);
@@ -45,7 +48,10 @@ export const ImageIllustration = ({
 
   return (
     <div
-      className="relative h-relative w-30 h-30 rounded-md border bg-muted overflow-hidden group shadow-sm flex-shrink-0 rounded-md border bg-muted overflow-hidden group shadow-sm flex-shrink-0"
+      className={cn(
+        "relative h-relative w-30 h-30 rounded-md border bg-muted overflow-hidden group shadow-sm flex-shrink-0 rounded-md border bg-muted overflow-hidden group shadow-sm flex-shrink-0",
+        className
+      )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => {
         setIsHovered(false);
