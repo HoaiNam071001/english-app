@@ -31,12 +31,12 @@ export const CardMainContent: React.FC<CardMainContentProps> = ({
       )}
     >
       {/* --- PHẦN TRÊN (50%) --- */}
-      <div className="h-[55%] w-full flex flex-col items-center justify-end">
+      <div className="h-[50%] w-full flex flex-col items-center justify-end">
         {/* Meta info: Part of speech & Phonetics */}
         <div
           className={cn(
             "flex items-center flex-col",
-            isZoomMode ? "gap-1 scale-[200%] mb-10" : "",
+            isZoomMode ? "gap-1 scale-[200%] mb-7" : "",
           )}
         >
           <PartSpeech data={item.partOfSpeech} />
@@ -87,18 +87,18 @@ export const CardMainContent: React.FC<CardMainContentProps> = ({
       <div className="shrink-0 w-12 h-[1px] bg-border/60 rounded-full"></div>
 
       {/* --- PHẦN DƯỚI (50%) --- */}
-      <div className="h-[45%] w-full flex flex-col items-center justify-start gap-1">
+      <div className="h-[50%] w-full flex flex-col items-center justify-start gap-1">
         {/* Meaning */}
         <div className="relative w-full flex justify-center px-2 shrink-0">
           <div
             className={cn(
-              "inline-block text-center w-full leading-normal text-muted-foreground italic transition-all duration-300",
+              "inline-block text-center line-clamp-2 w-full leading-normal text-muted-foreground italic transition-all duration-300",
               showMeaning
                 ? "opacity-100 blur-0"
                 : "opacity-30 blur-md select-none grayscale",
               isZoomMode
-                ? "text-2xl whitespace-normal"
-                : "text-[12px] truncate",
+                ? "text-2xl "
+                : "text-[12px] ",
             )}
           >
             {item.meaning}
