@@ -34,7 +34,7 @@ export const CardBottomActions: React.FC<CardBottomActionsProps> = ({
 }) => {
   // CSS class chung cho các nút tròn
   const btnClass =
-    "rounded-full bg-secondary/80 hover:bg-secondary border border-border/50 shadow-sm backdrop-blur-sm transition-all cursor-pointer flex items-center justify-center text-muted-foreground " +
+    "w-fit rounded-full bg-secondary/80 hover:bg-secondary border border-border/50 shadow-sm backdrop-blur-sm transition-all cursor-pointer flex items-center justify-center text-muted-foreground " +
     (isZoomMode ? "scale-[200%]" : "");
 
   const containerClass = cn(

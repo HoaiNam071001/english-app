@@ -1,7 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { TOPIC_COLORS } from "@/constants";
 import { TopicItem, VocabularyItem } from "@/types";
-import { AnimatePresence, motion } from "framer-motion";
 import { Pin } from "lucide-react";
 import React, { useMemo, useState } from "react";
 import { EditVocabularyModal } from "../../common/EditVocabularyModal";
@@ -10,7 +9,8 @@ import { CardBack } from "./CardBack";
 import { CardFront } from "./CardFront";
 
 // --- TYPES ---
-interface VocabularyCardProps {
+// Giữ nguyên các props cũ, thêm onEnterZoomMode để trigger mở card to
+export interface VocabularyCardProps {
   item: VocabularyItem;
   command: FlashcardCommand | null;
   isFlipped: boolean;
@@ -24,6 +24,7 @@ interface VocabularyCardProps {
   onToggleImage: (hideImage: boolean) => void;
   onUpdate: (id: string, updates: Partial<VocabularyItem>) => void;
   onDelete: (id: string) => void;
+  onEnterZoomMode?: (id: string) => void;
 }
 
 const VocabularyCard: React.FC<VocabularyCardProps> = ({
@@ -39,11 +40,12 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
   onToggleImage,
   onUpdate,
   onDelete,
+  onEnterZoomMode,
 }) => {
   const [loading, setLoading] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
 
+  // Tính toán màu sắc topic
   const currentTopic = useMemo(() => {
     if (!item.topicId) return undefined;
     return topics.find((t) => t.id === item.topicId);
@@ -59,7 +61,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
   }, [currentTopic]);
 
   const handleCardClick = () => {
-    if (isEditOpen || isExpanded) return;
+    if (isEditOpen) return;
     onFlip(!isFlipped);
   };
 
@@ -81,14 +83,17 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
     }
   };
 
+  // Khi bấm nút expand ở card nhỏ -> gọi prop ra ngoài
   const handleToggleExpand = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsExpanded(!isExpanded);
+    if (onEnterZoomMode) {
+      onEnterZoomMode(item.id);
+    }
   };
 
   return (
     <>
-      {/* 1. COMPONENT EDIT MODAL RIÊNG BIỆT */}
+      {/* COMPONENT EDIT MODAL */}
       {isEditOpen && (
         <EditVocabularyModal
           open={isEditOpen}
@@ -102,109 +107,58 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
         />
       )}
 
-      {/* ✨ 2. PHẦN HIỂN THỊ ZOOM (LỚP PHỦ) */}
-      <AnimatePresence>
-        {isExpanded && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-            {/* Background mờ */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-              onClick={() => setIsExpanded(false)}
+      {/* THẺ BÌNH THƯỜNG TRONG LIST */}
+      <div className="relative w-38 md:w-40 h-50 group perspective-1000">
+        
+        {/* Pin Icon */}
+        {isFlipped && item.isPinned && (
+          <div
+            className="absolute -top-1 -right-1 z-40 transition-all duration-300 pointer-events-none"
+            title="Pinned"
+          >
+            <Pin
+              size={16}
+              className="text-orange-500 fill-orange-500 rotate-[45deg] drop-shadow-[0_2px_2px_rgba(0,0,0,0.1)]"
             />
-
-            {/* Thẻ to */}
-            <motion.div
-              layoutId={`card-${item.id}`}
-              className="relative w-full max-w-md h-[70vh] bg-card rounded-xl shadow-2xl overflow-hidden border-2 border-purple-500 z-1"
-            >
-              <Card className="w-full h-full border-none shadow-none">
-                <CardFront
-                  item={item}
-                  currentTopic={currentTopic}
-                  topicColorStyle={topicColorStyle}
-                  isZoomMode={true}
-                  showMeaning={showMeaning}
-                  hideImage={hideImage}
-                  loading={loading}
-                  isExpanded={isExpanded}
-                  onRemove={handleRemove}
-                  onToggleMeaning={() => onToggleMeaning(!showMeaning)}
-                  onToggleImage={() => onToggleImage(!hideImage)}
-                  onUpdate={onUpdate}
-                  onMarkLearned={handleMarkAsLearned}
-                  onEditOpen={() => setIsEditOpen(true)}
-                  onToggleExpand={handleToggleExpand}
-                />
-              </Card>
-            </motion.div>
           </div>
         )}
-      </AnimatePresence>
 
-      {/* ✨ 3. THẺ BÌNH THƯỜNG TRONG LIST */}
-      <div className="relative w-38 md:w-40 h-50">
-        {/* Placeholder: giữ chỗ trong danh sách khi thẻ thật bay ra ngoài zoom */}
-        {isExpanded && <div className="w-full h-full opacity-0" />}
+        <Card
+          onClick={handleCardClick}
+          className={`
+            relative w-full h-full flex flex-col items-center justify-center pt-2 pb-[2px] px-[2px] text-center shadow-lg border-2 overflow-hidden cursor-pointer
+            transition-all duration-500 ease-in-out
+            ${
+              isFlipped
+                ? "bg-card border-blue-200 dark:border-blue-800 hover:border-blue-400 hover:dark:border-blue-500"
+                : "bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 dark:from-purple-950 dark:via-indigo-950 dark:to-blue-950 border-purple-500/50 dark:border-purple-400/30 shadow-2xl shadow-purple-500/20 dark:shadow-purple-400/10"
+            }
+          `}
+        >
+          {/* --- BACK SIDE (ÚP) --- */}
+          {!isFlipped && <CardBack handleRemove={handleRemove} />}
 
-        {/* Thẻ chính */}
-        {!isExpanded && (
-          <motion.div
-            layoutId={`card-${item.id}`}
-            onClick={handleCardClick}
-            className="cursor-pointer perspective-1000 group w-full h-full transition-all duration-300 absolute inset-0"
-          >
-            {isFlipped && item.isPinned && (
-              <div
-                className="absolute -top-1 -right-1 z-40 animate-in fade-in zoom-in duration-300 pointer-events-none"
-                title="Pinned"
-              >
-                <Pin
-                  size={16}
-                  className="text-orange-500 fill-orange-500 rotate-[45deg] drop-shadow-[0_2px_2px_rgba(0,0,0,0.1)]"
-                />
-              </div>
-            )}
-
-            <Card
-              className={`
-                relative w-full h-full flex flex-col items-center justify-center pt-2 pb-[2px] px-[2px] text-center shadow-lg border-2 overflow-hidden
-                transition-all duration-500 ease-in-out
-                ${
-                  isFlipped
-                    ? "bg-card border-blue-200 dark:border-blue-800 hover:border-blue-400 hover:dark:border-blue-500"
-                    : "bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 dark:from-purple-950 dark:via-indigo-950 dark:to-blue-950 border-purple-500/50 dark:border-purple-400/30 shadow-2xl shadow-purple-500/20 dark:shadow-purple-400/10"
-                }
-                `}
-            >
-              {/* --- BACK SIDE (ÚP) --- */}
-              {!isFlipped && <CardBack handleRemove={handleRemove} />}
-
-              {/* --- FRONT SIDE (NGỬA) --- */}
-              {isFlipped && (
-                <CardFront
-                  item={item}
-                  currentTopic={currentTopic}
-                  topicColorStyle={topicColorStyle}
-                  isZoomMode={false}
-                  showMeaning={showMeaning}
-                  hideImage={hideImage}
-                  loading={loading}
-                  isExpanded={isExpanded}
-                  onRemove={handleRemove}
-                  onToggleMeaning={() => onToggleMeaning(!showMeaning)}
-                  onToggleImage={() => onToggleImage(!hideImage)}
-                  onUpdate={onUpdate}
-                  onMarkLearned={handleMarkAsLearned}
-                  onEditOpen={() => setIsEditOpen(true)}
-                  onToggleExpand={handleToggleExpand}
-                />
-              )}
-            </Card>
-          </motion.div>
-        )}
+          {/* --- FRONT SIDE (NGỬA) --- */}
+          {isFlipped && (
+            <CardFront
+              item={item}
+              currentTopic={currentTopic}
+              topicColorStyle={topicColorStyle}
+              isZoomMode={false} // Card nhỏ
+              showMeaning={showMeaning}
+              hideImage={hideImage}
+              loading={loading}
+              isExpanded={false}
+              onRemove={handleRemove}
+              onToggleMeaning={() => onToggleMeaning(!showMeaning)}
+              onToggleImage={() => onToggleImage(!hideImage)}
+              onUpdate={onUpdate}
+              onMarkLearned={handleMarkAsLearned}
+              onEditOpen={() => setIsEditOpen(true)}
+              onToggleExpand={handleToggleExpand} // Trigger ra ngoài
+            />
+          )}
+        </Card>
       </div>
     </>
   );

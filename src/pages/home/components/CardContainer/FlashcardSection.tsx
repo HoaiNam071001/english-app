@@ -31,9 +31,11 @@ import {
   RotateCcw,
   Trash2,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { AddCardControl } from "./AddCardControl";
 import VocabularyCard from "./VocabularyCard";
+import { VocabularyCarouselOverlay } from "./VocabularyCarouselOverlay";
+import { keyBy } from 'lodash';
 
 export interface FlashcardSectionProps {
   allWords: VocabularyItem[];
@@ -86,6 +88,11 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
   const [command, setCommand] = useState<FlashcardCommand | null>(null);
   const [isDeleteAllOpen, setIsDeleteAllOpen] = useState(false);
   const { topics } = useTopics();
+  const [zoomedId, setZoomedId] = useState<string | null>(null);
+
+  const cardByIds = useMemo(() => {
+    return keyBy(displayCards, 'id');
+  }, [displayCards]);
 
   // --- Logic Command ---
   const sendCommand = (type: FlashcardCommandType) => {
@@ -554,13 +561,32 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
                 }}
                 onFlip={(val) => handleCardFlipReport(item.id, val)}
                 onToggleMeaning={(val) => handleShowMeaningReport(item.id, val)}
-                onToggleImage={(val) => handleShowImageReport(item.id, val)} // [UPDATED]
+                onToggleImage={(val) => handleShowImageReport(item.id, val)}
                 onUpdate={onUpdateWord}
                 onDelete={onDeleteWord}
+                onEnterZoomMode={(id) => setZoomedId(id)}
               />
             ))}
           </div>
         </div>
+      )}
+
+      {zoomedId && (
+        <VocabularyCarouselOverlay
+          isOpen={!!zoomedId}
+          onClose={() => setZoomedId(null)}
+          items={displayCards}
+          defaultActiveId={zoomedId}
+          topics={topics}
+          onUpdate={onUpdateWord}
+          onDelete={onDeleteWord}
+          onLearned={onMarkLearned}
+          showMeaning={meaningIds.has(zoomedId)} 
+          hideImage={imageIds.has(zoomedId)}
+          setZoomedId={setZoomedId}
+          onToggleMeaning={(val) => handleShowMeaningReport(zoomedId, val)}
+          onToggleImage={(val) => handleShowImageReport(zoomedId, val)}
+        />
       )}
     </div>
   );
