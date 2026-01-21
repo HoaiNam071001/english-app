@@ -17,6 +17,8 @@ import { Loader2, Plus, Trash2, Save, FileText, List } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { useToast } from "@/hooks/useToast"; // Import hook toast của bạn
 import { ImageIllustration } from "@/components/ImageIllustration";
+import useLocalStorage from "@/hooks/useLocalStorage";
+import { STORAGE_KEY } from "@/constants";
 
 // ==========================================
 // 1. SUB-COMPONENT: ROW ITEM (Một dòng nhập liệu)
@@ -337,7 +339,7 @@ const StructuredImportTab: React.FC<StructuredImportTabProps> = ({
           className="gap-2"
         >
           {loading && <Loader2 className="animate-spin" size={16} />}
-          Save Items
+          Save
         </Button>
       </div>
     </div>
@@ -462,7 +464,7 @@ const RawTextImportTab: React.FC<RawTextImportTabProps> = ({
       <div className="flex justify-end mt-auto">
         <Button onClick={handleProcessAndAdd} disabled={loading || !inputText}>
           {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Process & Save
+          Save
         </Button>
       </div>
     </div>
@@ -473,8 +475,8 @@ const RawTextImportTab: React.FC<RawTextImportTabProps> = ({
 // 4. MAIN COMPONENT
 // ==========================================
 enum CreateVolMode {
-  Structured = 'structured',
-  Raw = 'raw'
+  Structured = "structured",
+  Raw = "raw",
 }
 
 interface CreateVocabularyModalProps {
@@ -487,6 +489,15 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
   onSuccess,
 }) => {
   const [open, setOpen] = useState(false);
+  const { getStorage, setStorage } = useLocalStorage();
+  const [defaultTab, setDefaultTab] = useState(
+    getStorage(STORAGE_KEY.HOME_CREATE_MODE) || CreateVolMode.Raw,
+  );
+
+  const onModeChange = (val: CreateVolMode) => {
+    setDefaultTab(val);
+    setStorage(STORAGE_KEY.HOME_CREATE_MODE, val);
+  };
 
   const handleSuccess = () => {
     if (onSuccess) onSuccess();
@@ -508,20 +519,24 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
         </DialogHeader>
 
         <Tabs
-          defaultValue={CreateVolMode.Raw}
+          defaultValue={defaultTab}
           className="w-full flex-1 flex flex-col overflow-hidden"
+          onValueChange={onModeChange}
         >
           <TabsList className="grid w-full grid-cols-2 mb-4">
-            <TabsTrigger value={CreateVolMode.Structured} className="gap-2">
-              <List size={16} /> Structured List
-            </TabsTrigger>
             <TabsTrigger value={CreateVolMode.Raw} className="gap-2">
               <FileText size={16} /> Raw Text
+            </TabsTrigger>
+            <TabsTrigger value={CreateVolMode.Structured} className="gap-2">
+              <List size={16} /> Structured List
             </TabsTrigger>
           </TabsList>
 
           <div className="flex-1 overflow-hidden">
-            <TabsContent value={CreateVolMode.Structured} className="h-[60vh] mt-0">
+            <TabsContent
+              value={CreateVolMode.Structured}
+              className="h-[60vh] mt-0"
+            >
               <StructuredImportTab
                 onAdd={onAddVocabulary}
                 onSuccess={handleSuccess}
