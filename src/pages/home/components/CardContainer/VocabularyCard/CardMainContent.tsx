@@ -113,7 +113,7 @@ export const CardMainContent: React.FC<CardMainContentProps> = ({
                 url={item.imageUrl}
                 // Tùy chỉnh size ảnh phù hợp với không gian còn lại
                 h={isZoomMode ? 250 : 60}
-                w={isZoomMode ? 300 : 100}
+                w={isZoomMode ? 250 : 100}
               />
             </div>
           </div>
