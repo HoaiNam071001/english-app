@@ -15,20 +15,20 @@ import { Label } from "@/components/ui/label";
 import { AddReport, VocabularyItem } from "@/types";
 import { Loader2, Plus, Trash2, Save, FileText, List } from "lucide-react";
 import React, { useState, useEffect } from "react";
-import { useToast } from "@/hooks/useToast"; // Import hook toast của bạn
+import { useToast } from "@/hooks/useToast";
 import { ImageIllustration } from "@/components/ImageIllustration";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { STORAGE_KEY } from "@/constants";
 
 // ==========================================
-// 1. SUB-COMPONENT: ROW ITEM (Một dòng nhập liệu)
+// 1. SUB-COMPONENT: ROW ITEM (Giữ nguyên)
 // ==========================================
 interface VocabularyRowProps {
-  id: string; // Dùng ID tạm để làm key cho React
+  id: string;
   data: Partial<VocabularyItem>;
   onChange: (id: string, field: keyof VocabularyItem, value: string) => void;
   onRemove: (id: string) => void;
-  onSave: (id: string) => Promise<void>; // Hàm save riêng cho từng dòng
+  onSave: (id: string) => Promise<void>;
 }
 
 const VocabularyRow: React.FC<VocabularyRowProps> = ({
@@ -58,7 +58,6 @@ const VocabularyRow: React.FC<VocabularyRowProps> = ({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 flex-1">
         <div className="space-y-2">
-          {/* Word Input */}
           <div className="space-y-1">
             <Label className="text-[10px] text-muted-foreground uppercase font-bold">
               Word
@@ -72,7 +71,6 @@ const VocabularyRow: React.FC<VocabularyRowProps> = ({
             />
           </div>
 
-          {/* Meaning Input */}
           <div className="">
             <Input
               placeholder="Meaning"
@@ -84,7 +82,6 @@ const VocabularyRow: React.FC<VocabularyRowProps> = ({
           </div>
         </div>
 
-        {/* Example Input (Textarea) */}
         <div className="space-y-1">
           <Label className="text-[10px] text-muted-foreground uppercase font-bold">
             Note
@@ -99,7 +96,6 @@ const VocabularyRow: React.FC<VocabularyRowProps> = ({
         </div>
       </div>
 
-      {/* Action Buttons */}
       <div className="flex flex-col gap-2 mt-6">
         <Button
           size="icon"
@@ -131,33 +127,31 @@ const VocabularyRow: React.FC<VocabularyRowProps> = ({
 };
 
 // ==========================================
-// 2. SUB-COMPONENT: STRUCTURED IMPORT TAB (Tab mới)
+// Helper Type
+// ==========================================
+type RowItem = Partial<VocabularyItem> & { _id: string };
+
+// ==========================================
+// 2. SUB-COMPONENT: STRUCTURED IMPORT TAB
+// (Sửa đổi: Nhận rows và setRows từ props)
 // ==========================================
 interface StructuredImportTabProps {
   onAdd: (entries: Partial<VocabularyItem>[]) => Promise<AddReport>;
-  onSuccess: () => void; // Trigger khi cần refresh list bên ngoài
+  onSuccess: () => void;
+  // NEW PROPS: Nhận state từ cha
+  rows: RowItem[];
+  setRows: React.Dispatch<React.SetStateAction<RowItem[]>>;
 }
-
-// Helper type cho row nội bộ có ID
-type RowItem = Partial<VocabularyItem> & { _id: string };
 
 const StructuredImportTab: React.FC<StructuredImportTabProps> = ({
   onAdd,
   onSuccess,
+  rows,
+  setRows,
 }) => {
   const toast = useToast();
   const [loading, setLoading] = useState(false);
 
-  // Dùng _id để làm key, giúp React không bị render sai khi xóa phần tử ở giữa
-  const [rows, setRows] = useState<RowItem[]>([
-    {
-      _id: crypto.randomUUID(),
-      text: "",
-      meaning: "",
-      example: "",
-      imageUrl: "",
-    },
-  ]);
   const isValid = rows?.every((e) => e.text);
 
   const addRow = () => {
@@ -174,7 +168,6 @@ const StructuredImportTab: React.FC<StructuredImportTabProps> = ({
   };
 
   const removeRow = (id: string) => {
-    // Cho phép xóa hết, nếu xóa hết thì tự thêm lại 1 dòng trống
     const newRows = rows.filter((r) => r._id !== id);
     if (newRows.length === 0) {
       setRows([
@@ -201,7 +194,6 @@ const StructuredImportTab: React.FC<StructuredImportTabProps> = ({
     );
   };
 
-  // Xử lý lưu từng dòng riêng biệt
   const handleSaveSingleRow = async (id: string) => {
     const rowToSave = rows.find((r) => r._id === id);
     if (!rowToSave || !rowToSave.text?.trim()) {
@@ -209,7 +201,6 @@ const StructuredImportTab: React.FC<StructuredImportTabProps> = ({
       return;
     }
 
-    // Prepare data
     const entry: Partial<VocabularyItem> = {
       text: rowToSave.text.trim(),
       meaning: rowToSave.meaning?.trim(),
@@ -235,7 +226,6 @@ const StructuredImportTab: React.FC<StructuredImportTabProps> = ({
   };
 
   const handleSave = async () => {
-    // 1. Filter empty rows (rows without text)
     const validRows = rows.filter((r) => r.text && r.text.trim() !== "");
 
     if (validRows.length === 0) {
@@ -243,7 +233,6 @@ const StructuredImportTab: React.FC<StructuredImportTabProps> = ({
       return;
     }
 
-    // 2. Check for duplicates within the current list
     const seen = new Set<string>();
     const duplicates = new Set<string>();
 
@@ -262,7 +251,6 @@ const StructuredImportTab: React.FC<StructuredImportTabProps> = ({
       return;
     }
 
-    // 3. Prepare data
     const entries = validRows.map((r) => ({
       ...r,
       text: r.text!.trim(),
@@ -272,11 +260,11 @@ const StructuredImportTab: React.FC<StructuredImportTabProps> = ({
       normalized: r.text!.trim().toLowerCase(),
     }));
 
-    // 4. Submit
     setLoading(true);
     try {
       const result = await onAdd(entries);
       if (result.added.length > 0) {
+        // Reset về 1 dòng trống sau khi save thành công
         setRows([
           {
             _id: crypto.randomUUID(),
@@ -347,18 +335,23 @@ const StructuredImportTab: React.FC<StructuredImportTabProps> = ({
 };
 
 // ==========================================
-// 3. SUB-COMPONENT: RAW TEXT IMPORT TAB (Tab cũ - Refactored)
+// 3. SUB-COMPONENT: RAW TEXT IMPORT TAB
+// (Sửa đổi: Nhận inputText và setInputText từ props)
 // ==========================================
 interface RawTextImportTabProps {
   onAdd: (entries: Partial<VocabularyItem>[]) => Promise<AddReport>;
   onSuccess: () => void;
+  // NEW PROPS: Nhận state từ cha
+  inputText: string;
+  setInputText: (text: string) => void;
 }
 
 const RawTextImportTab: React.FC<RawTextImportTabProps> = ({
   onAdd,
   onSuccess,
+  inputText,
+  setInputText,
 }) => {
-  const [inputText, setInputText] = useState("");
   const [loading, setLoading] = useState(false);
   const [report, setReport] = useState<AddReport | null>(null);
 
@@ -407,7 +400,7 @@ const RawTextImportTab: React.FC<RawTextImportTabProps> = ({
       const result = await onAdd(newEntries);
       setReport(result);
       if (result.added.length > 0) {
-        setInputText("");
+        setInputText(""); // Clear text khi thành công
         onSuccess();
       }
     } catch (error) {
@@ -472,7 +465,7 @@ const RawTextImportTab: React.FC<RawTextImportTabProps> = ({
 };
 
 // ==========================================
-// 4. MAIN COMPONENT
+// 4. MAIN COMPONENT (Nơi chứa State)
 // ==========================================
 enum CreateVolMode {
   Structured = "structured",
@@ -494,6 +487,25 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
     getStorage(STORAGE_KEY.HOME_CREATE_MODE) || CreateVolMode.Raw,
   );
 
+  // === KEY CHANGE: STATE ĐƯỢC ĐẶT Ở ĐÂY ===
+  // Vì component này không bị unmount khi đóng Dialog (chỉ DialogContent bị unmount),
+  // nên state ở đây sẽ được bảo toàn.
+
+  // 1. State cho Structured Tab
+  const [structuredRows, setStructuredRows] = useState<RowItem[]>([
+    {
+      _id: crypto.randomUUID(),
+      text: "",
+      meaning: "",
+      example: "",
+      imageUrl: "",
+    },
+  ]);
+
+  // 2. State cho Raw Tab
+  const [rawInput, setRawInput] = useState("");
+  // ========================================
+
   const onModeChange = (val: CreateVolMode) => {
     setDefaultTab(val);
     setStorage(STORAGE_KEY.HOME_CREATE_MODE, val);
@@ -501,6 +513,8 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
 
   const handleSuccess = () => {
     if (onSuccess) onSuccess();
+    // Tùy chọn: Nếu muốn đóng dialog sau khi save thành công thì bỏ comment dòng dưới
+    // setOpen(false); 
   };
 
   return (
@@ -521,7 +535,7 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
         <Tabs
           defaultValue={defaultTab}
           className="w-full flex-1 flex flex-col overflow-hidden"
-          onValueChange={onModeChange}
+          onValueChange={(val) => onModeChange(val as CreateVolMode)}
         >
           <TabsList className="grid w-full grid-cols-2 mb-4">
             <TabsTrigger value={CreateVolMode.Raw} className="gap-2">
@@ -540,6 +554,8 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
               <StructuredImportTab
                 onAdd={onAddVocabulary}
                 onSuccess={handleSuccess}
+                rows={structuredRows}
+                setRows={setStructuredRows}
               />
             </TabsContent>
 
@@ -547,6 +563,8 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
               <RawTextImportTab
                 onAdd={onAddVocabulary}
                 onSuccess={handleSuccess}
+                inputText={rawInput}
+                setInputText={setRawInput}
               />
             </TabsContent>
           </div>
