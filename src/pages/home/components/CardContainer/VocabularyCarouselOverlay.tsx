@@ -136,7 +136,7 @@ export const VocabularyCarouselOverlay: React.FC<
           variant="ghost"
           size="icon"
           onClick={handlePrev}
-          className="hidden md:flex rounded-full bg-white/5 text-white hover:bg-white/20 hover:scale-110 transition-all border border-white/10 w-12 h-12 shadow-xl backdrop-blur-md"
+          className="hidden md:flex rounded-full bg-gray-700 text-white hover:bg-white/20 hover:scale-110 transition-all border border-gray-400 w-12 h-12 shadow-xl backdrop-blur-md"
         >
           <ChevronLeft size={32} />
         </Button>
@@ -188,7 +188,7 @@ export const VocabularyCarouselOverlay: React.FC<
           variant="ghost"
           size="icon"
           onClick={handleNext}
-          className="hidden md:flex rounded-full bg-white/5 text-white hover:bg-white/20 hover:scale-110 transition-all border border-white/10 w-12 h-12 shadow-xl backdrop-blur-md"
+          className="hidden md:flex rounded-full bg-gray-700 text-white hover:bg-white/20 hover:scale-110 transition-all border border-gray-400 w-12 h-12 shadow-xl backdrop-blur-md"
         >
           <ChevronRight size={32} />
         </Button>
@@ -198,7 +198,7 @@ export const VocabularyCarouselOverlay: React.FC<
       <Button
         variant="ghost"
         size="icon"
-        className="absolute top-6 right-6 text-white/50 hover:text-white hover:bg-white/10 rounded-full transition-all z-[110]"
+        className="absolute top-6 right-6 text-white hover:text-red-400 bg-purple-700 border border-gray-500 hover:bg-white/10 rounded-full transition-all z-[110]"
         onClick={onClose}
       >
         <X size={24} />
