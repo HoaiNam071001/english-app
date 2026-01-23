@@ -159,8 +159,8 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
       const lowerTerm = debouncedTerm.trim().toLowerCase();
       result = result.filter(
         (word) =>
-          word.text.toLowerCase().includes(lowerTerm) ||
-          word.meaning.toLowerCase().includes(lowerTerm)
+          word.text?.toLowerCase().includes(lowerTerm) ||
+          word.meaning?.toLowerCase().includes(lowerTerm)
       );
     }
 
