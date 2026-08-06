@@ -331,8 +331,11 @@ export const GUEST_INFO = {
 
 export const ROUTES = {
   // Public
-  HOME: "/",
+  LANDING: "/",
   LOGIN: "/login",
+
+  // App (protected)
+  HOME: "/app",
   SHARED: "/shared",
   NOTE: "/note",
 

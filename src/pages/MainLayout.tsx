@@ -12,6 +12,7 @@ import { Loader2 } from "lucide-react";
 import { AppLayout } from "./AppLayout";
 
 import HomePage from "./home";
+const LandingPage = lazy(() => import("./landing"));
 const NotePage = lazy(() => import("./note"));
 const SharedPage = lazy(() => import("./shared"));
 const UsersPage = lazy(() => import("@/pages/admin/UsersPage"));
@@ -47,6 +48,7 @@ export const MainLayout = () => {
       <StatusGuard>
         <Suspense fallback={<PageLoader />}>
           <Routes>
+            <Route path={ROUTES.LANDING} element={<LandingPage />} />
             <Route path={ROUTES.LOGIN} element={<EmailEntry />} />
 
             <Route element={<ProtectedRoute />}>

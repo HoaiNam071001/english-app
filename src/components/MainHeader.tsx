@@ -12,6 +12,7 @@ import { UserRole } from "@/types";
 import {
   Book,
   Globe,
+  House,
   LucideIcon,
   Menu,
   NotebookPen,
@@ -124,7 +125,15 @@ export const MainHeader = () => {
     >
       <div className="container flex h-full items-center justify-between mx-auto max-w-8xl px-3 md:px-4">
         {/* Logo - Mobile: Visible, Desktop: Visible */}
-        <div className="flex items-center mr-2">
+        <div className="flex items-center gap-1 mr-2">
+          <Link
+            to={ROUTES.LANDING}
+            title="Về trang chủ"
+            className="flex items-center justify-center h-8 w-8 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors mr-1"
+          >
+            <House size={18} />
+            <span className="sr-only">Về trang chủ</span>
+          </Link>
           <Link to={ROUTES.HOME} className="flex items-center space-x-2">
             <img className="w-6 dark:hidden" src={"/logo.svg"} />
             <img className="w-6 hidden dark:inline" src={"/logo-dark.svg"} />
