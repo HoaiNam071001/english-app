@@ -13,7 +13,7 @@
   <!-- Full-bleed background keeps the icon attractive under Android masks. -->
   <rect width="512" height="512" rx="1" fill="url(#app-gradient)"/>
   <circle cx="256" cy="250" r="132" fill="white" filter="url(#card-shadow)"/>
-  <circle cx="256" cy="250" r="128" stroke="#FFFFFF" stroke-opacity="0.72" stroke-width="5"/>
+  <circle cx="256" cy="250" r="128" stroke="#5AAEFF" stroke-width="5"/>
 
   <!-- English Master mark, centered inside the maskable safe zone. -->
   <g transform="translate(128 122) scale(1.28)">
