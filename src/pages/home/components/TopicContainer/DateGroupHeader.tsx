@@ -44,7 +44,7 @@ export const DateGroupHeader = React.memo<DateGroupHeaderProps>(
         <div className="flex items-center gap-2">
           <Checkbox
             checked={allSelected}
-            className="h-4 w-4 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+            className="h-4 w-4 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
           />
           <div className="flex items-center gap-1">
             {isPinnedGroup && <Pin size={12} className="fill-current mr-1" />}

@@ -31,7 +31,7 @@ export const UserAvatar = ({
         ${
           isGuest
             ? "bg-orange-100 hover:bg-orange-200 border-orange-300 dark:bg-orange-900/20"
-            : "bg-blue-700"
+            : "bg-primary"
         }
       `}
     >

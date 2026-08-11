@@ -144,15 +144,15 @@ export const VocabularyCarouselOverlay: React.FC<
         {/* 4. Card To - Trung tâm lấp lánh */}
         <div className="flex-1 h-full flex items-center justify-center relative">
           {/* Hiệu ứng hào quang (Glow) phía sau card */}
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-blue-500/20 blur-[120px] rounded-full" />
+          <div className="absolute inset-0 bg-gradient-to-r from-brand-start/15 to-brand-end/15 blur-[120px] rounded-full" />
 
           <div
             className={`
           relative w-full max-w-sm h-[60vh] md:h-[60vh] 
           transition-all duration-500 ease-out transform
           /* Tạo viền Gradient */
-          p-[2px] rounded-[24px] bg-gradient-to-br from-purple-500 via-fuchsia-400 to-cyan-400
-          shadow-[0_0_50px_-12px_rgba(168,85,247,0.5)]
+          p-[2px] rounded-[24px] bg-gradient-to-br from-brand-start via-brand-mid to-brand-end
+          shadow-[0_0_50px_-12px_color-mix(in_srgb,var(--primary)_40%,transparent)]
           ${
             transitionState === "fading"
               ? "opacity-0 scale-95 -translate-x-8 blur-sm"

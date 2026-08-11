@@ -145,7 +145,7 @@ export const ImportPreviewModal: React.FC<ImportPreviewModalProps> = ({
           </Button>
           <Button
             onClick={handleConfirm}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
             Confirm Import ({totalImportCount})
           </Button>

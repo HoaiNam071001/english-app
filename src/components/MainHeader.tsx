@@ -100,15 +100,15 @@ export const MainHeader = () => {
 
     if (!isActive) {
       if (variant === "admin") {
-        return `${baseClasses} text-muted-foreground hover:bg-purple-50 dark:hover:bg-purple-900/10 hover:text-purple-600`;
+        return `${baseClasses} text-muted-foreground hover:bg-primary/10 hover:text-primary`;
       }
       return `${baseClasses} text-muted-foreground hover:bg-muted hover:text-foreground`;
     }
 
     if (variant === "admin") {
-      return `${baseClasses} bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300`;
+      return `${baseClasses} bg-primary/15 text-primary`;
     }
-    return `${baseClasses} bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300`;
+    return `${baseClasses} bg-primary/15 text-primary`;
   };
 
   const handleMobileNavClick = (path: string) => {
@@ -137,7 +137,7 @@ export const MainHeader = () => {
           <Link to={ROUTES.HOME} className="flex items-center space-x-2">
             <img className="w-6 dark:hidden" src={"/logo.svg"} />
             <img className="w-6 hidden dark:inline" src={"/logo-dark.svg"} />
-            <span className="font-bold text-base md:text-lg bg-clip-text text-transparent bg-blue-600">
+            <span className="font-bold text-base md:text-lg text-primary">
               English Master
             </span>
           </Link>
@@ -192,8 +192,8 @@ export const MainHeader = () => {
                         className={`flex items-center gap-2 cursor-pointer ${
                           item.isActive
                             ? item.variant === "admin"
-                              ? "bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300"
-                              : "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300"
+                              ? "bg-primary/10 text-primary"
+                              : "bg-primary/10 text-primary"
                             : ""
                         }`}
                       >

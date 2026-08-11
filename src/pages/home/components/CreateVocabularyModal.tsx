@@ -99,7 +99,7 @@ const VocabularyRow: React.FC<VocabularyRowProps> = ({
       <div className="flex flex-col gap-2 mt-6">
         <Button
           size="icon"
-          className="h-8 w-8 bg-blue-600 hover:bg-blue-700 text-white"
+          className="h-8 w-8"
           onClick={handleSaveClick}
           disabled={isSaving || !data.text}
           title="Save this item"

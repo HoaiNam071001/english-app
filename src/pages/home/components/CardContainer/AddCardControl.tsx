@@ -125,7 +125,7 @@ export const AddCardControl: React.FC<AddCardControlProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white gap-2">
+        <Button className="gap-2">
           <PlusCircle size={18} /> Add Cards
         </Button>
       </DialogTrigger>

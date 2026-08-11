@@ -10,11 +10,11 @@ export const BrowserFrame = ({ src, alt, className }: BrowserFrameProps) => {
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-2xl shadow-black/40 backdrop-blur-xl",
+        "overflow-hidden rounded-2xl border border-border bg-card/70 shadow-2xl shadow-black/15 dark:shadow-black/40 backdrop-blur-xl",
         className
       )}
     >
-      <div className="flex items-center gap-1.5 border-b border-white/10 bg-white/5 px-4 py-2.5">
+      <div className="flex items-center gap-1.5 border-b border-border bg-muted/50 px-4 py-2.5">
         <span className="h-2.5 w-2.5 rounded-full bg-red-400/70" />
         <span className="h-2.5 w-2.5 rounded-full bg-yellow-400/70" />
         <span className="h-2.5 w-2.5 rounded-full bg-green-400/70" />
@@ -28,7 +28,7 @@ export const PhoneFrame = ({ src, alt, className }: BrowserFrameProps) => {
   return (
     <div
       className={cn(
-        "relative w-fit rounded-[2.25rem] border-[6px] border-white/10 bg-white/5 p-1.5 shadow-2xl shadow-black/40 backdrop-blur-xl",
+        "relative w-fit rounded-[2.25rem] border-[6px] border-border bg-card/70 p-1.5 shadow-2xl shadow-black/15 dark:shadow-black/40 backdrop-blur-xl",
         className
       )}
     >

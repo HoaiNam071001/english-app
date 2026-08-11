@@ -19,7 +19,7 @@ const LandingPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-slate-950 text-white">
+    <div className="min-h-screen overflow-x-hidden bg-background text-foreground transition-colors duration-300">
       <LandingHeader />
       <main>
         <HeroSection />
@@ -30,7 +30,7 @@ const LandingPage = () => {
           title={
             <>
               Lưu ngữ pháp & mẫu câu vào{" "}
-              <span className="bg-gradient-to-r from-blue-400 to-violet-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-brand-start to-brand-end bg-clip-text text-transparent">
                 một nơi duy nhất
               </span>
             </>
@@ -51,7 +51,7 @@ const LandingPage = () => {
           title={
             <>
               Học nhanh hơn nhờ{" "}
-              <span className="bg-gradient-to-r from-fuchsia-400 to-violet-400 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-brand-start to-brand-end bg-clip-text text-transparent">
                 kho từ vựng có sẵn
               </span>
             </>

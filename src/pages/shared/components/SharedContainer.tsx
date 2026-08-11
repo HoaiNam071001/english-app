@@ -352,7 +352,7 @@ export const SharedContainer = () => {
                   <Button
                     variant="default"
                     size="sm"
-                    className="h-8 gap-2 animate-in fade-in slide-in-from-left-2 bg-blue-600 hover:bg-blue-700 text-white"
+                    className="h-8 gap-2 animate-in fade-in slide-in-from-left-2"
                     onClick={() => {
                       const selectedItems = displayItems.filter((i) =>
                         selectedIds.has(i.id),
@@ -434,7 +434,7 @@ export const SharedContainer = () => {
                       <Checkbox
                         checked={isGroupSelected}
                         onCheckedChange={() => handleSelectGroup(dateKey)}
-                        className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 h-4 w-4"
+                        className="data-[state=checked]:bg-primary data-[state=checked]:border-primary h-4 w-4"
                       />
                       <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
                         <CalendarDays size={14} />

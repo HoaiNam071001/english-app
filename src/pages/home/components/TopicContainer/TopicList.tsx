@@ -311,7 +311,7 @@ const TopicList: React.FC<TopicListProps> = ({
             </Button>
             <Button
               onClick={handleSave}
-              className="bg-blue-600 hover:bg-blue-700 text-white "
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {editingTopicId ? "Save Changes" : "Create Topic"}
             </Button>

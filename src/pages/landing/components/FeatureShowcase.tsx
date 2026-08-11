@@ -39,13 +39,13 @@ export const FeatureShowcase = ({
           </Reveal>
 
           <Reveal direction={reverse ? "left" : "right"} delay={0.1}>
-            <span className="text-xs font-semibold uppercase tracking-widest text-violet-300">
+            <span className="text-xs font-semibold uppercase tracking-widest text-primary">
               {eyebrow}
             </span>
-            <h2 className="mt-3 text-2xl font-bold text-white sm:text-3xl md:text-4xl">
+            <h2 className="mt-3 text-2xl font-bold text-foreground sm:text-3xl md:text-4xl">
               {title}
             </h2>
-            <p className="mt-4 text-base text-slate-300 md:text-lg">
+            <p className="mt-4 text-base text-muted-foreground md:text-lg">
               {description}
             </p>
             <ul className="mt-6 space-y-3">
@@ -54,9 +54,9 @@ export const FeatureShowcase = ({
                 return (
                   <li
                     key={idx}
-                    className="flex items-center gap-3 text-sm text-slate-200 md:text-base"
+                    className="flex items-center gap-3 text-sm text-foreground/85 md:text-base"
                   >
-                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-violet-300 backdrop-blur-xl">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-border bg-card/70 text-primary backdrop-blur-xl">
                       <Icon className="h-4 w-4" />
                     </span>
                     {point.text}

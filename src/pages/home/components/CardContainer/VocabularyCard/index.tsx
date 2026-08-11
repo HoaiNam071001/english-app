@@ -130,8 +130,8 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
             transition-all duration-500 ease-in-out
             ${
               isFlipped
-                ? "bg-card border-blue-200 dark:border-blue-800 hover:border-blue-400 hover:dark:border-blue-500"
-                : "bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900 dark:from-purple-950 dark:via-indigo-950 dark:to-blue-950 border-purple-500/50 dark:border-purple-400/30 shadow-2xl shadow-purple-500/20 dark:shadow-purple-400/10"
+                ? "bg-card border-primary/35 hover:border-primary/70 dark:border-primary/45 dark:hover:border-primary/80"
+                : "bg-gradient-to-br from-brand-card-start via-brand-card-mid to-brand-card-end border-primary/25 shadow-xl shadow-black/20 dark:shadow-black/35"
             }
           `}
         >
