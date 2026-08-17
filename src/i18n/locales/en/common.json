@@ -89,6 +89,17 @@
   },
   "pwa": {
     "updateAvailable": "A new version is available. Would you like to refresh?",
-    "offlineReady": "The app is ready to work offline!"
+    "offlineReady": "The app is ready to work offline!",
+    "install": {
+      "title": "Install English Master",
+      "description": "Launch it straight from your home screen and learn faster.",
+      "benefitFast": "Opens like a native app",
+      "benefitOffline": "Works offline",
+      "action": "Install",
+      "later": "Not now",
+      "dismiss": "Dismiss",
+      "iosStep1": "Tap the Share button in the browser bar",
+      "iosStep2": "Choose “Add to Home Screen” to install"
+    }
   }
 }

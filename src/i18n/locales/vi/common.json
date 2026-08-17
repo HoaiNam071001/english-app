@@ -89,6 +89,17 @@
   },
   "pwa": {
     "updateAvailable": "Có bản cập nhật mới, bạn có muốn làm mới không?",
-    "offlineReady": "Ứng dụng đã sẵn sàng chạy Offline!"
+    "offlineReady": "Ứng dụng đã sẵn sàng chạy Offline!",
+    "install": {
+      "title": "Cài English Master vào máy",
+      "description": "Mở app ngay từ màn hình chính, học nhanh hơn mỗi ngày.",
+      "benefitFast": "Mở nhanh như app",
+      "benefitOffline": "Học được cả khi offline",
+      "action": "Cài đặt",
+      "later": "Để sau",
+      "dismiss": "Đóng thông báo",
+      "iosStep1": "Chạm nút Chia sẻ trên thanh trình duyệt",
+      "iosStep2": "Chọn “Thêm vào MH chính” để cài app"
+    }
   }
 }
