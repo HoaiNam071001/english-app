@@ -1,0 +1,105 @@
+{
+  "documentTitle": "English Master - Learn English vocabulary every day",
+  "nav": {
+    "features": "Features",
+    "community": "Community",
+    "multiplatform": "Multi-platform",
+    "toggleMenu": "Toggle menu"
+  },
+  "cta": {
+    "enterApp": "Open app",
+    "enterYourApp": "Open your app",
+    "startFree": "Start for free",
+    "startFreeNow": "Start for free now",
+    "exploreFeatures": "Explore features"
+  },
+  "hero": {
+    "badge": "Free • Learn offline • Unlimited flashcards",
+    "titleLead": "Learn English vocabulary,",
+    "titleHighlight": "and never forget it",
+    "description": "English Master brings flashcards, grammar notes and a community vocabulary library together in one place — study anytime, anywhere, even offline.",
+    "imageAlt": "English Master vocabulary flashcard management screen"
+  },
+  "notes": {
+    "eyebrow": "Smart notes",
+    "titleLead": "Keep grammar & sentence patterns in",
+    "titleHighlight": "a single place",
+    "description": "Create notes as tables, lists or markdown right inside the app. No more switching between tools just to review what you learned.",
+    "points": {
+      "table": "Clear tables for grammar rules",
+      "checklist": "Checklists that are easy to follow",
+      "editor": "A smooth, Notion-like editor"
+    },
+    "imageAlt": "English Master grammar notes page"
+  },
+  "community": {
+    "eyebrow": "Community",
+    "titleLead": "Learn faster with a",
+    "titleHighlight": "ready-made vocabulary library",
+    "description": "Discover and import vocabulary sets shared by the community, saving hours of building new cards for every topic.",
+    "points": {
+      "sets": "Hundreds of vocabulary sets by topic",
+      "import": "Import with a single click",
+      "updates": "Continuously updated by users"
+    },
+    "imageAlt": "English Master community vocabulary library"
+  },
+  "mobile": {
+    "eyebrow": "Every device",
+    "titleLead": "Take your vocabulary",
+    "titleHighlight": "anywhere",
+    "description": "Install it like a real app on your phone and keep learning seamlessly, whether you are on the move or offline.",
+    "imageAlt": "English Master on mobile",
+    "points": {
+      "clean": {
+        "title": "Clean interface",
+        "text": "Optimised for one-handed use, so you can study in any spare minute."
+      },
+      "offline": {
+        "title": "Works offline",
+        "text": "PWA technology lets you review vocabulary even without a connection."
+      },
+      "sync": {
+        "title": "Instant sync",
+        "text": "Add a new word on your phone and see it right away on your computer."
+      }
+    }
+  },
+  "features": {
+    "eyebrow": "A complete toolkit",
+    "title": "Everything you need to learn vocabulary effectively",
+    "items": {
+      "flashcard": {
+        "title": "Flip flashcards",
+        "description": "Memorise actively with two-sided cards and vivid illustrations."
+      },
+      "pronunciation": {
+        "title": "Audio & phonetics",
+        "description": "Hear native pronunciation and see the IPA transcription for every word."
+      },
+      "progress": {
+        "title": "Track your progress",
+        "description": "Vocabulary is grouped by study day, making review effortless."
+      },
+      "guest": {
+        "title": "Guest mode",
+        "description": "Try it instantly without signing up — your data stays on your device."
+      },
+      "notes": {
+        "title": "Grammar notes",
+        "description": "Save tables, lists and sentence patterns right inside the app."
+      },
+      "theme": {
+        "title": "Light/Dark theme",
+        "description": "Follow your system automatically or pick whatever suits you."
+      }
+    }
+  },
+  "final": {
+    "title": "Ready to level up your vocabulary?",
+    "description": "Join English Master today — completely free, no credit card required."
+  },
+  "footer": {
+    "copyright": "© {{year}} English Master. Learn vocabulary every day."
+  }
+}

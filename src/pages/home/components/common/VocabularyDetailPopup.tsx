@@ -8,6 +8,7 @@ import { TopicItem, VocabularyItem } from "@/types";
 import { Info } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { VocabularyDetailContent } from "./VocabularyDetailContent";
+import { useTranslation } from "react-i18next";
 
 interface VocabularyDetailPopupProps {
   item: VocabularyItem;
@@ -24,6 +25,7 @@ export const VocabularyDetailPopup: React.FC<VocabularyDetailPopupProps> = ({
   side = "right",
   align = "center",
 }) => {
+  const { t } = useTranslation(["home", "common"]);
   const [isMobile, setIsMobile] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -52,7 +54,7 @@ export const VocabularyDetailPopup: React.FC<VocabularyDetailPopupProps> = ({
         <CommonModal
           open={isModalOpen}
           onOpenChange={setIsModalOpen}
-          title="Vocabulary Details"
+          title={t("detail.title")}
           icon={<Info size={18} />}
           footer={null}
         >

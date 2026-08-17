@@ -20,6 +20,7 @@ import TopicSelector from "../common/TopicSelector";
 import WordTypeSelector from "../common/WordTypeSelector"; // <--- Import mới
 import { DraftSelectionView } from "./DraftSelectionView";
 import { PhoneticRow } from "./PhoneticRow";
+import { useTranslation } from "react-i18next";
 
 interface EditPopoverContentProps {
   word: VocabularyItem;
@@ -34,6 +35,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
   onDelete,
   onClose,
 }) => {
+  const { t } = useTranslation(["home", "common"]);
   const { lookupWords, loading: apiLoading } = useDictionary();
   const toast = useToast();
 
@@ -61,7 +63,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
     if (results && results.length > 0) {
       setDraft(results[0]);
     } else {
-      toast.error("Word not found");
+      toast.error(t("edit.wordNotFound"));
     }
   };
 
@@ -86,7 +88,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
     return (
       <div className="space-y-3 md:w-72">
         <h4 className="font-medium text-sm text-destructive">
-          Confirm deletion?
+          {t("edit.confirmDelete")}
         </h4>
         <div className="flex gap-2 justify-end">
           <Button
@@ -95,7 +97,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
             className="h-7 text-xs"
             onClick={() => setShowDeleteConfirm(false)}
           >
-            Cancel
+            {t("common:actions.cancel")}
           </Button>
           <Button
             variant="destructive"
@@ -106,7 +108,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
               onClose();
             }}
           >
-            Delete
+            {t("common:actions.delete")}
           </Button>
         </div>
       </div>
@@ -147,7 +149,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
                 htmlFor="text"
                 className="text-xs text-muted-foreground mr-auto"
               >
-                Word
+                {t("edit.word")}
               </Label>
               <DictionarySearchButton text={form.text} showText />
             </div>
@@ -178,7 +180,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
                 htmlFor="meaning"
                 className="text-xs text-muted-foreground"
               >
-                Meaning (VN)
+                {t("edit.meaning")}
               </Label>
               <Input
                 id="meaning"
@@ -194,7 +196,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
           {/* PART OF SPEECH */}
           <div className="space-y-1">
             <Label className="text-xs text-muted-foreground">
-              Part of Speech
+              {t("edit.partOfSpeech")}
             </Label>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -210,7 +212,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
                       </span>
                     ) : (
                       <span className="text-muted-foreground italic">
-                        Select type...
+                        {t("edit.selectType")}
                       </span>
                     )}
                   </span>
@@ -239,7 +241,9 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
 
           {/* WORD TYPE (NEW) */}
           <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">Word Types</Label>
+            <Label className="text-xs text-muted-foreground">
+              {t("edit.wordTypes")}
+            </Label>
             <WordTypeSelector
               value={form.typeIds}
               onChange={(val) => setForm({ ...form, typeIds: val })}
@@ -250,7 +254,9 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
         {/* PHONETICS */}
         <div className="space-y-1">
           <div className="flex items-center justify-between">
-            <Label className="text-xs text-muted-foreground">Phonetics</Label>
+            <Label className="text-xs text-muted-foreground">
+              {t("edit.phonetics")}
+            </Label>
             <Button
               variant="ghost"
               size="sm"
@@ -287,7 +293,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
             ))}
             {(!form.phonetics || form.phonetics.length === 0) && (
               <div className="text-[10px] text-muted-foreground italic text-center py-2 bg-muted/30 rounded-sm border border-dashed">
-                No phonetics.
+                {t("edit.noPhonetics")}
               </div>
             )}
           </div>
@@ -295,7 +301,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
 
         {/* TOPIC */}
         <div className="space-y-1">
-          <Label className="text-xs text-muted-foreground">Topic</Label>
+          <Label className="text-xs text-muted-foreground">{t("edit.topic")}</Label>
           <TopicSelector
             value={form.topicId || null}
             onChange={(val) => setForm({ ...form, topicId: val })}
@@ -306,14 +312,14 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
         {/* NOTE */}
         <div className="space-y-1">
           <Label htmlFor="note" className="text-xs text-muted-foreground">
-            Note
+            {t("edit.note")}
           </Label>
           <Textarea
             id="note"
             value={form.example}
             onChange={(e) => setForm({ ...form, example: e.target.value })}
             className="text-xs min-h-[50px] leading-snug"
-            placeholder="E.g. Example sentence..."
+            placeholder={t("edit.notePlaceholder")}
           />
         </div>
       </div>
@@ -334,10 +340,10 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
           className="h-7 text-xs ml-auto"
           onClick={onClose}
         >
-          Cancel
+          {t("common:actions.cancel")}
         </Button>
         <Button size="sm" className="h-7 text-xs" onClick={handleSave}>
-          <Save size={14} className="mr-1.5" /> Save
+          <Save size={14} className="mr-1.5" /> {t("common:actions.save")}
         </Button>
       </div>
     </div>

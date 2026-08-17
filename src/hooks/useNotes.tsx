@@ -4,6 +4,7 @@ import { INoteService } from "@/services/note/types";
 import { NoteModel } from "@/types";
 import { DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "./useAuth"; // Hook auth của bạn
 import { useToast } from "./useToast"; // Hook toast của bạn
 
@@ -12,6 +13,7 @@ const PAGE_SIZE = 10;
 export const useNotes = () => {
   const { userProfile } = useAuth();
   const toast = useToast();
+  const { t } = useTranslation("note");
 
   // State Data
   const [notes, setNotes] = useState<NoteModel[]>([]);
@@ -62,7 +64,7 @@ export const useNotes = () => {
         setHasMore(response.hasMore);
       } catch (error) {
         console.error("Fetch notes failed", error);
-        toast.error("Failed to load notes");
+        toast.error(t("note:toast.loadFailed"));
       } finally {
         setLoading(false);
       }
@@ -76,11 +78,11 @@ export const useNotes = () => {
     try {
       const newNote = await service.add(data);
       setNotes((prev) => [newNote, ...prev]);
-      toast.success("Note created!");
+      toast.success(t("note:toast.created"));
       return newNote;
     } catch (e) {
       console.error(e);
-      toast.error("Failed to create note");
+      toast.error(t("note:toast.createFailed"));
     }
   };
 
@@ -92,10 +94,10 @@ export const useNotes = () => {
 
     try {
       await service.update(id, updates);
-      toast.success("Note saved!");
+      toast.success(t("note:toast.saved"));
     } catch (e) {
       console.error(e);
-      toast.error("Failed to save note");
+      toast.error(t("note:toast.saveFailed"));
     }
   };
 
@@ -105,10 +107,10 @@ export const useNotes = () => {
 
     try {
       await service.delete(id);
-      toast.success("Note deleted");
+      toast.success(t("note:toast.deleted"));
     } catch (e) {
       console.error(e);
-      toast.error("Failed to delete note");
+      toast.error(t("note:toast.deleteFailed"));
       setNotes(backup); // Revert
     }
   };

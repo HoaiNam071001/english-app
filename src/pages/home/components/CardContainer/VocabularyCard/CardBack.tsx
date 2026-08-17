@@ -1,8 +1,10 @@
 import { X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export const CardBack: React.FC<{
   handleRemove: (e: React.MouseEvent) => void;
 }> = ({ handleRemove }) => {
+  const { t } = useTranslation("home");
   return (
     <div className="flex flex-col items-center justify-center relative w-full h-full animate-in fade-in zoom-in-95 duration-500">
       <div className="absolute inset-0 opacity-15 dark:opacity-25">
@@ -26,7 +28,7 @@ export const CardBack: React.FC<{
       <div
         className="absolute top-0 left-0 p-1.5 rounded-full hover:bg-white/20 dark:hover:bg-white/30 transition-all opacity-0 group-hover:opacity-100 text-white/70 hover:text-red-300 dark:hover:text-red-400 z-20 backdrop-blur-sm"
         onClick={handleRemove}
-        title="Remove"
+        title={t("card.remove")}
       >
         <X size={16} />
       </div>
@@ -41,7 +43,7 @@ export const CardBack: React.FC<{
       </div>
 
       <p className="text-white/90 dark:text-amber-50 text-[10px] mt-5 uppercase tracking-[0.2em] font-semibold z-10 drop-shadow-lg">
-        Tap to reveal
+        {t("flashcards.tapToReveal")}
       </p>
 
       <div className="absolute top-3 right-3 w-1.5 h-1.5 bg-white/70 rounded-full"></div>

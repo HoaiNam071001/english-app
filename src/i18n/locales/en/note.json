@@ -1,0 +1,57 @@
+{
+  "toolbar": {
+    "searchPlaceholder": "Search by keyword...",
+    "collapseAll": "Collapse All",
+    "expandAll": "Expand All",
+    "groupByDate": "Group by Date",
+    "grouped": "Grouped",
+    "noGroup": "No Group",
+    "gridView": "Grid View",
+    "listView": "List View",
+    "newNote": "New Note"
+  },
+  "groups": {
+    "all": "All Notes",
+    "today": "Today",
+    "yesterday": "Yesterday"
+  },
+  "list": {
+    "syncing": "Syncing your notes...",
+    "emptyTitle": "No notes found",
+    "emptySearch": "We couldn't find anything matching \"{{query}}\"",
+    "emptyHint": "Get started by creating your first note.",
+    "createNote": "Create Note",
+    "loadMore": "Load older notes"
+  },
+  "card": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "noPreview": "No content preview"
+  },
+  "delete": {
+    "title": "Delete Note?",
+    "message": "Are you sure you want to delete this note? This action cannot be undone.",
+    "confirm": "Delete"
+  },
+  "editor": {
+    "viewTitle": "View Details",
+    "editTitle": "Edit Note",
+    "createTitle": "Create New Note",
+    "createdAt": "Created: {{value}}",
+    "updatedAt": "Updated: {{value}}",
+    "titleLabel": "Title",
+    "titlePlaceholder": "Enter note title...",
+    "contentLabel": "Content",
+    "update": "Update Note",
+    "save": "Save Note"
+  },
+  "toast": {
+    "loadFailed": "Failed to load notes",
+    "created": "Note created!",
+    "createFailed": "Failed to create note",
+    "saved": "Note saved!",
+    "saveFailed": "Failed to save note",
+    "deleted": "Note deleted",
+    "deleteFailed": "Failed to delete note"
+  }
+}

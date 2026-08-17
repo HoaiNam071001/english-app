@@ -1,0 +1,29 @@
+{
+  "users": {
+    "total": "Total:",
+    "syncing": "Syncing data...",
+    "empty": "No user data available.",
+    "notUpdated": "Not updated",
+    "defaultAdmin": "Admin"
+  },
+  "role": {
+    "admin": "ADMIN",
+    "user": "USER"
+  },
+  "status": {
+    "pending": "Pending",
+    "approved": "Active",
+    "rejected": "Blocked"
+  },
+  "actions": {
+    "approve": "Approve",
+    "reopen": "Reopen",
+    "block": "Block",
+    "reject": "Reject"
+  },
+  "reject": {
+    "title": "Reject User?",
+    "message": "Are you sure you want to reject this user?",
+    "confirm": "Reject"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "users": {
+    "total": "Tổng số:",
+    "syncing": "Đang đồng bộ dữ liệu...",
+    "empty": "Chưa có dữ liệu người dùng.",
+    "notUpdated": "Chưa cập nhật",
+    "defaultAdmin": "Admin"
+  },
+  "role": {
+    "admin": "QUẢN TRỊ",
+    "user": "NGƯỜI DÙNG"
+  },
+  "status": {
+    "pending": "Chờ duyệt",
+    "approved": "Hoạt động",
+    "rejected": "Bị chặn"
+  },
+  "actions": {
+    "approve": "Duyệt",
+    "reopen": "Mở lại",
+    "block": "Chặn",
+    "reject": "Từ chối"
+  },
+  "reject": {
+    "title": "Từ chối người dùng?",
+    "message": "Bạn có chắc muốn từ chối người dùng này?",
+    "confirm": "Từ chối"
+  }
+}

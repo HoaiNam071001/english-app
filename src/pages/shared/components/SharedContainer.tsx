@@ -31,19 +31,21 @@ import "moment/locale/vi";
 import { useEffect, useMemo, useState } from "react";
 import { ConflictItem, ImportPreviewModal } from "./ImportPreviewModal";
 import { SharedItem } from "./SharedItem";
+import { useTranslation } from "react-i18next";
 
-moment.locale("vi");
+type TranslateFn = (key: string) => string;
 
-const formatDateGroup = (dateString: string) => {
+const formatDateGroup = (dateString: string, t: TranslateFn) => {
   const date = moment(dateString);
-  if (!date.isValid()) return "Unknown Date";
+  if (!date.isValid()) return t("unknownDate");
   const now = moment();
-  if (date.isSame(now, "day")) return "Today";
-  if (date.isSame(now.clone().subtract(1, "days"), "day")) return "Yesterday";
+  if (date.isSame(now, "day")) return t("today");
+  if (date.isSame(now.clone().subtract(1, "days"), "day")) return t("yesterday");
   return date.format("dddd, DD/MM/YYYY");
 };
 
 export const SharedContainer = () => {
+  const { t } = useTranslation("shared");
   const { userProfile } = useAuth();
   const [searchTerm, setSearchTerm] = useState("");
   const { items, loading, hasMore, fetchNextSharedPage, totalCount } =
@@ -152,16 +154,19 @@ export const SharedContainer = () => {
       }
       if (addedCount > 0 || updatedCount > 0) {
         toast.success(
-          `Import successful: ${addedCount} added, ${updatedCount} updated.`,
+          t("toast.importSuccess", {
+            added: addedCount,
+            updated: updatedCount,
+          }),
         );
       } else {
-        toast.info("No changes were made.");
+        toast.info(t("toast.noChanges"));
       }
       setSelectedIds(new Set());
       setLastSelectedId(null);
     } catch (error) {
       console.error(error);
-      toast.error("Import failed");
+      toast.error(t("toast.importFailed"));
     }
   };
 
@@ -239,13 +244,13 @@ export const SharedContainer = () => {
             {/* Title Section */}
             <div>
               <h2 className="text-md font-bold leading-tight flex gap-2">
-                Public Vocabulary Library
+                {t("title")}
                 <span className="ml-auto inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold text-blue-700 bg-blue-50 border border-blue-200 rounded-full dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800">
                   {totalCount} words
                 </span>
               </h2>
               <p className="text-xs text-muted-foreground">
-                Browse collections shared by the community
+                {t("subtitle")}
               </p>
             </div>
 
@@ -253,7 +258,7 @@ export const SharedContainer = () => {
             <div className="relative w-full md:w-64">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search community..."
+                placeholder={t("searchPlaceholder")}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-9 pr-8 h-9 text-sm bg-muted/30 focus:bg-background transition-colors"
@@ -292,7 +297,7 @@ export const SharedContainer = () => {
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Select All Visible</p>
+                    <p>{t("selectAllVisible")}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -311,7 +316,7 @@ export const SharedContainer = () => {
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Toggle Meanings</p>
+                    <p>{t("toggleMeanings")}</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -339,7 +344,7 @@ export const SharedContainer = () => {
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>
-                      {hideExisting ? "Show all words" : "Hide owned words"}
+                      {hideExisting ? t("showAll") : t("hideOwned")}
                     </p>
                   </TooltipContent>
                 </Tooltip>
@@ -361,7 +366,7 @@ export const SharedContainer = () => {
                     }}
                   >
                     <Copy size={14} />
-                    <span>Import {selectedIds.size}</span>
+                    <span>{t("importSelected", { count: selectedIds.size })}</span>
                   </Button>
                 </>
               )}
@@ -373,13 +378,13 @@ export const SharedContainer = () => {
                 <kbd className="bg-muted px-1 py-0.5 rounded border font-mono text-[10px]">
                   Ctrl
                 </kbd>{" "}
-                + Click to select
+                {t("hintCtrlClick")}
               </span>
               <span className="flex items-center gap-1">
                 <kbd className="bg-muted px-1 py-0.5 rounded border font-mono text-[10px]">
                   Shift
                 </kbd>{" "}
-                for range
+                {t("hintShiftRange")}
               </span>
             </div>
           </div>
@@ -391,7 +396,7 @@ export const SharedContainer = () => {
         {loading && items.length === 0 ? (
           <div className="h-64 flex flex-col items-center justify-center text-muted-foreground italic">
             <Loader2 className="h-8 w-8 animate-spin mb-2 opacity-20" />
-            <p>Loading library...</p>
+            <p>{t("loadingLibrary")}</p>
           </div>
         ) : (
           <div className="pb-20 space-y-6">
@@ -399,12 +404,12 @@ export const SharedContainer = () => {
               <div className="py-20 flex flex-col items-center justify-center border-2 border-dashed rounded-xl bg-muted/10">
                 <Search className="h-10 w-10 text-muted-foreground/20 mb-3" />
                 <p className="text-muted-foreground font-medium">
-                  No words found
+                  {t("emptyTitle")}
                 </p>
                 <p className="text-xs text-muted-foreground/70 mt-1">
                   {hideExisting
-                    ? "Try turning off the 'Hide owned words' filter."
-                    : `No results for "${searchTerm}"`}
+                    ? t("emptyHint")
+                    : t("noResultsFor", { query: searchTerm })}
                 </p>
                 {hideExisting && (
                   <Button
@@ -413,7 +418,7 @@ export const SharedContainer = () => {
                     onClick={() => setHideExisting(false)}
                     className="mt-2"
                   >
-                    Clear Filter
+                    {t("clearFilter")}
                   </Button>
                 )}
               </div>
@@ -439,7 +444,7 @@ export const SharedContainer = () => {
                       <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
                         <CalendarDays size={14} />
                         <span className="text-foreground font-semibold">
-                          {formatDateGroup(dateKey)}
+                          {formatDateGroup(dateKey, t)}
                         </span>
                         <span className="bg-muted px-2 py-0.5 rounded-full text-[10px] font-bold">
                           {groupWords.length}
@@ -479,10 +484,10 @@ export const SharedContainer = () => {
                   {loading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Loading...
+                      {t("loading")}
                     </>
                   ) : (
-                    "Load More"
+                    t("loadMore")
                   )}
                 </Button>
               </div>

@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import { VocabularyItem } from "@/types";
 import { Eye, EyeOff, ImageIcon, ImageOff } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface CardFlagControlsProps {
   item: VocabularyItem;
@@ -19,6 +20,7 @@ export const CardFlagControls: React.FC<CardFlagControlsProps> = ({
   onToggleMeaning,
   onToggleImage,
 }) => {
+  const { t } = useTranslation("home");
   return (
     <div
       className={cn(
@@ -33,7 +35,7 @@ export const CardFlagControls: React.FC<CardFlagControlsProps> = ({
           e.stopPropagation();
           onToggleMeaning(!showMeaning);
         }}
-        title={showMeaning ? "Hide Meaning" : "Show Meaning"}
+        title={showMeaning ? t("card.hideMeaning") : t("card.showMeaning")}
       >
         {showMeaning ? <Eye size={14} /> : <EyeOff size={14} />}
       </div>
@@ -45,7 +47,7 @@ export const CardFlagControls: React.FC<CardFlagControlsProps> = ({
             e.stopPropagation();
             onToggleImage(!hideImage);
           }}
-          title={!hideImage ? "Hide Image" : "Show Image"}
+          title={!hideImage ? t("card.hideImage") : t("card.showImage")}
         >
           {hideImage ? <ImageIcon size={14} /> : <ImageOff size={14} />}
         </div>

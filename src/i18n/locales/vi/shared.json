@@ -1,0 +1,46 @@
+{
+  "title": "Thư viện từ vựng cộng đồng",
+  "subtitle": "Khám phá các bộ từ vựng được cộng đồng chia sẻ",
+  "searchPlaceholder": "Tìm trong cộng đồng...",
+  "datePlaceholder": "YYYY-MM-DD",
+  "clearFilter": "Xoá bộ lọc",
+  "hideOwned": "Ẩn từ đã có",
+  "showAll": "Hiện tất cả từ",
+  "toggleMeanings": "Ẩn/hiện nghĩa",
+  "selectAllVisible": "Chọn tất cả đang hiển thị",
+  "importSelected": "Nhập {{count}}",
+  "loading": "Đang tải...",
+  "loadingLibrary": "Đang tải thư viện...",
+  "loadMore": "Tải thêm",
+  "emptyTitle": "Không tìm thấy từ nào",
+  "emptyHint": "Thử tắt bộ lọc 'Ẩn từ đã có' xem sao.",
+  "today": "Hôm nay",
+  "yesterday": "Hôm qua",
+  "unknownDate": "Không rõ ngày",
+  "item": {
+    "import": "Nhập vào từ vựng của tôi",
+    "added": "Đã thêm vào danh sách của bạn",
+    "exists": "Đã có trong thư viện của bạn"
+  },
+  "preview": {
+    "title": "Xem trước khi nhập",
+    "resolveConflicts": "Xử lý trùng lặp",
+    "conflict": "Trùng:",
+    "keepAll": "Giữ tất cả",
+    "overwriteAll": "Ghi đè tất cả",
+    "selectAll": "Chọn tất cả",
+    "deselectAll": "Bỏ chọn tất cả"
+  },
+  "toast": {
+    "importSuccess": "Nhập thành công: thêm {{added}}, cập nhật {{updated}}.",
+    "noChanges": "Không có thay đổi nào.",
+    "importFailed": "Nhập thất bại",
+    "loadFailed": "Không thể tải dữ liệu chia sẻ"
+  },
+  "noResultsFor": "Không có kết quả cho \"{{query}}\"",
+  "hintCtrlClick": "+ Nhấp để chọn",
+  "hintShiftRange": "để chọn theo dải",
+  "newSelected": "Từ mới đã chọn",
+  "conflicts": "Trùng lặp",
+  "confirmImport": "Xác nhận nhập ({{count}})"
+}

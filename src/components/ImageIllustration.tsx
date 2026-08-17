@@ -1,4 +1,5 @@
 import { useToast } from "@/hooks/useToast";
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 
@@ -14,6 +15,7 @@ export const ImageIllustration = ({
   const [tempUrl, setTempUrl] = useState(url);
   const [isHovered, setIsHovered] = useState(false);
   const toast = useToast();
+  const { t } = useTranslation();
 
   // Đồng bộ tempUrl khi prop url từ bên ngoài thay đổi
   useEffect(() => {
@@ -32,9 +34,7 @@ export const ImageIllustration = ({
       const isBase64 = /^data:image\/[a-z]+;base64,/.test(trimmedUrl);
 
       if (isBase64) {
-        toast.error(
-          "Base64 format is not allowed. Please use a direct image URL.",
-        );
+        toast.error(t("home:image.base64NotAllowed"));
         setTempUrl(url); // Reset về URL cũ nếu lỗi
         return;
       }
@@ -59,10 +59,10 @@ export const ImageIllustration = ({
     >
       {/* Background Image Preview */}
       {url ? (
-        <img src={url} alt="preview" className="w-full h-full object-cover" />
+        <img src={url} alt={t("home:image.previewAlt")} className="w-full h-full object-cover" />
       ) : (
         <div className="w-full h-full flex items-center justify-center text-[10px] text-muted-foreground italic p-2 text-center bg-muted/50">
-          No image
+          {t("home:image.noImage")}
         </div>
       )}
 
@@ -74,14 +74,14 @@ export const ImageIllustration = ({
       >
         <textarea
           className="flex-1 w-full bg-transparent text-[10px] text-white outline-none resize-none leading-tight border-none p-0 placeholder:text-gray-500 custom-scrollbar"
-          placeholder="Paste URL here..."
+          placeholder={t("home:image.urlPlaceholder")}
           value={tempUrl}
           onChange={(e) => setTempUrl(e.target.value)}
         />
 
         {/* Chỉ báo trạng thái đang chờ xử lý (Optional) */}
         <div className="text-[8px] text-gray-400 text-right italic">
-          Auto-applying...
+          {t("home:image.autoApplying")}
         </div>
       </div>
     </div>

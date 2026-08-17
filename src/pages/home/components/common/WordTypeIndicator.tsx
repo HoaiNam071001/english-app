@@ -7,12 +7,14 @@ import {
 import { TYPE_COLORS } from "@/constants";
 import { useWordTypes } from "@/hooks/useWordTypes";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
 interface WordTypeIndicatorProps {
   typeIds?: string[];
 }
 
 export const WordTypeIndicator = ({ typeIds }: WordTypeIndicatorProps) => {
+  const { t } = useTranslation(["home", "common"]);
   const { getTypesByIds } = useWordTypes();
 
   const assignedTypes = useMemo(
@@ -54,7 +56,7 @@ export const WordTypeIndicator = ({ typeIds }: WordTypeIndicatorProps) => {
           <TooltipContent side="right" className="p-2">
             <div className="flex flex-col gap-1.5">
               <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-                Assigned Types
+                {t("wordTypes.assignedTypes")}
               </span>
               {assignedTypes.map((type) => {
                 const colorObj =

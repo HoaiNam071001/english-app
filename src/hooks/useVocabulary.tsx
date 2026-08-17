@@ -13,12 +13,14 @@ import {
 } from "react";
 import { useAuth } from "./useAuth";
 import { useToast } from "./useToast";
+import { useTranslation } from "react-i18next";
 
 export const useVocabulary = () => {
   const { userProfile } = useAuth();
   const [isLoaded, setIsLoaded] = useState(false);
   const { getCachedWords, cacheWords, isLoadedByUser } = useVocabularyContext();
   const toast = useToast();
+  const { t } = useTranslation();
 
   // Xác định ID hiện tại (User thật hoặc Guest)
   const currentUserId = useMemo(() => {
@@ -74,7 +76,7 @@ export const useVocabulary = () => {
         onSetAllWords(fetchedWords);
       } catch (error) {
         console.error("Fetch failed", error);
-        toast.error("Failed to load vocabulary");
+        toast.error(t("home:toast.loadFailed"));
       } finally {
         setLoading(false);
       }
@@ -91,12 +93,12 @@ export const useVocabulary = () => {
       await fetchAllWords();
 
       if (report.added.length > 0) {
-        toast.success(`${report.added.length} new words added`);
+        toast.success(t("home:toast.wordsAdded", { count: report.added.length }));
       }
       return report;
     } catch (e) {
       console.error(e);
-      toast.error("Failed to add words!");
+      toast.error(t("home:toast.addFailed"));
       return { added: [], skipped: [] };
     }
   };
@@ -112,12 +114,12 @@ export const useVocabulary = () => {
 
     try {
       await service.update(id, updates);
-      toast.success("Updated successfully!");
+      toast.success(t("home:toast.updated"));
       // Lưu ý: Nếu muốn cache luôn đúng 100%, bạn có thể gọi fetchAllWords() ở đây,
       // nhưng để tối ưu performance, ta thường chấp nhận Optimistic UI và chỉ sync khi cần thiết.
     } catch (error) {
       console.error(error);
-      toast.error("Update failed!");
+      toast.error(t("home:toast.updateFailed"));
       fetchAllWords(); // Revert & Re-sync cache nếu lỗi
     }
   };
@@ -126,10 +128,10 @@ export const useVocabulary = () => {
     onSetAllWords((prev) => prev.filter((w) => w.id !== id));
     try {
       await service.delete(id);
-      toast.success("Deleted successfully!");
+      toast.success(t("home:toast.deleted"));
     } catch (e) {
       console.error(e);
-      toast.error("Delete failed!");
+      toast.error(t("home:toast.deleteFailed"));
       fetchAllWords(); // Revert
     }
   };
@@ -138,10 +140,10 @@ export const useVocabulary = () => {
     onSetAllWords((prev) => prev.filter((w) => !ids.includes(w.id)));
     try {
       await service.bulkDelete(ids);
-      toast.success("Deleted successfully!");
+      toast.success(t("home:toast.deleted"));
     } catch (e) {
       console.error(e);
-      toast.error("Delete failed!");
+      toast.error(t("home:toast.deleteFailed"));
       fetchAllWords(); // Revert
     }
   };
@@ -156,10 +158,10 @@ export const useVocabulary = () => {
 
     try {
       await service.bulkUpdate(ids, updates);
-      toast.success("Updated successfully!");
+      toast.success(t("home:toast.updated"));
     } catch (error) {
       console.error("Bulk update error:", error);
-      toast.error("Update failed!");
+      toast.error(t("home:toast.updateFailed"));
       fetchAllWords(); // Revert
     }
   };
@@ -172,10 +174,10 @@ export const useVocabulary = () => {
 
     try {
       await service.update(id, { isLearned: newStatus });
-      toast.success("Updated successfully!");
+      toast.success(t("home:toast.updated"));
     } catch (error) {
       console.error(error);
-      toast.error("Update failed!");
+      toast.error(t("home:toast.updateFailed"));
       fetchAllWords(); // Revert
     }
   };
@@ -187,10 +189,10 @@ export const useVocabulary = () => {
 
     try {
       await service.update(id, { isLearned: true });
-      toast.success("Updated successfully!");
+      toast.success(t("home:toast.updated"));
     } catch (error) {
       console.error(error);
-      toast.error("Update failed");
+      toast.error(t("home:toast.updateFailed"));
       fetchAllWords(); // Revert
     }
   };
@@ -202,10 +204,10 @@ export const useVocabulary = () => {
 
     try {
       await service.bulkUpdate(ids, { isLearned: status });
-      toast.success("Updated successfully!");
+      toast.success(t("home:toast.updated"));
     } catch (e) {
       console.error(e);
-      toast.error("Update failed");
+      toast.error(t("home:toast.updateFailed"));
       fetchAllWords(); // Revert
     }
   };
@@ -241,9 +243,9 @@ export const useVocabulary = () => {
       const total = items.length;
 
       if (failedItems.length === 0) {
-        toast.success(`Updated all ${total} words successfully!`);
+        toast.success(t("home:toast.batchUpdated", { count: total }));
       } else if (successCount === 0) {
-        toast.error(`Failed to update all ${total} words. Please try again.`);
+        toast.error(t("home:toast.batchUpdateFailed", { count: total }));
         void fetchAllWords();
       } else {
         toast.warning(
@@ -253,7 +255,7 @@ export const useVocabulary = () => {
       }
     } catch (error) {
       console.error("Critical batch update error:", error);
-      toast.error("Batch update encountered a critical error.");
+      toast.error(t("home:toast.batchCriticalError"));
       void fetchAllWords();
     }
   };

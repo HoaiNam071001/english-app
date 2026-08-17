@@ -8,8 +8,10 @@ import { AccentType, VocabularyItem } from "@/types";
 import { playAudio } from "@/utils";
 import { Volume2 } from "lucide-react";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
 export const Speaker: React.FC<{ item: VocabularyItem }> = ({ item }) => {
+  const { t } = useTranslation("home");
   const audioSourceType = useMemo(() => {
     const usAudio = item.phonetics?.find(
       (p) => p.audio && p.accent === AccentType.US,
@@ -33,10 +35,10 @@ export const Speaker: React.FC<{ item: VocabularyItem }> = ({ item }) => {
   }, [audioSourceType]);
 
   const speakerTooltip = useMemo(() => {
-    if (audioSourceType === "us") return "Play US Audio";
-    if (audioSourceType === "other") return "Play Audio";
-    return "Browser Text-to-Speech";
-  }, [audioSourceType]);
+    if (audioSourceType === "us") return t("card.playUsAudio");
+    if (audioSourceType === "other") return t("card.playAudio");
+    return t("card.browserTts");
+  }, [audioSourceType, t]);
 
   const handleSpeak = (e: React.MouseEvent) => {
     e.stopPropagation();

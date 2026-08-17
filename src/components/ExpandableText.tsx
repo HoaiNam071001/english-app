@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { JSX, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface ExpandableTextProps {
   content: string | JSX.Element;
@@ -11,6 +12,7 @@ export const ExpandableText = ({
   content,
   maxHeight = 100,
 }: ExpandableTextProps) => {
+  const { t } = useTranslation("common");
   const [isExpanded, setIsExpanded] = useState(false);
   const [isOverflowing, setIsOverflowing] = useState(false);
   const textRef = useRef<HTMLParagraphElement>(null);
@@ -60,11 +62,11 @@ export const ExpandableText = ({
           >
             {isExpanded ? (
               <span className="flex items-center gap-1">
-                Thu gọn <ChevronUp size={12} />
+                {t("actions.collapse")} <ChevronUp size={12} />
               </span>
             ) : (
               <span className="flex items-center gap-1">
-                Xem thêm <ChevronDown size={12} />
+                {t("actions.expand")} <ChevronDown size={12} />
               </span>
             )}
           </Button>

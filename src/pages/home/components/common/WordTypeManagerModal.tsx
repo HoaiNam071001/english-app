@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { WordType } from "@/types";
 import { Check, Pencil, Plus, Tag, Trash2, X } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 // --- 1. Component Item Riêng Biệt (Xử lý Edit Inline) ---
 interface WordTypeItemProps {
@@ -28,6 +29,7 @@ interface WordTypeItemProps {
 }
 
 const WordTypeItem = ({ type, onUpdate, onDelete }: WordTypeItemProps) => {
+  const { t } = useTranslation(["home", "common"]);
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(type.name);
   const [editColor, setEditColor] = useState(type.color);
@@ -71,7 +73,7 @@ const WordTypeItem = ({ type, onUpdate, onDelete }: WordTypeItemProps) => {
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
               className="pl-9 h-9 bg-background"
-              placeholder="Type name..."
+              placeholder={t("wordTypes.namePlaceholder")}
               autoFocus
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleSave();
@@ -165,6 +167,7 @@ export const WordTypeManagerModal = ({
   open,
   onOpenChange,
 }: WordTypeManagerModalProps) => {
+  const { t } = useTranslation(["home", "common"]);
   // Đảm bảo hook useWordTypes của bạn export function `updateType`
   const { types, addType, deleteType, updateType, loading } = useWordTypes();
 
@@ -192,10 +195,10 @@ export const WordTypeManagerModal = ({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Tag className="w-5 h-5 text-primary" />
-              Manage Word Types
+              {t("wordTypes.manageTitle")}
             </DialogTitle>
             <DialogDescription>
-              Define categories to organize your vocabulary.
+              {t("wordTypes.manageDescription")}
             </DialogDescription>
           </DialogHeader>
         </div>
@@ -204,7 +207,7 @@ export const WordTypeManagerModal = ({
         <div className="p-6 py-4 bg-muted/30 space-y-4">
           <div className="space-y-3">
             <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-              Create New Type
+              {t("wordTypes.createNew")}
             </Label>
 
             <div className="flex gap-2">
@@ -216,7 +219,7 @@ export const WordTypeManagerModal = ({
                   )}
                 />
                 <Input
-                  placeholder="Type name (e.g. Noun)..."
+                  placeholder={t("wordTypes.createPlaceholder")}
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   className="pl-9 bg-background focus-visible:ring-offset-0"
@@ -276,7 +279,7 @@ export const WordTypeManagerModal = ({
               {types.length === 0 && (
                 <div className="flex flex-col items-center justify-center h-[150px] text-muted-foreground border-2 border-dashed rounded-lg bg-muted/20">
                   <Tag size={32} className="opacity-20 mb-2" />
-                  <p className="text-sm">No types created yet.</p>
+                  <p className="text-sm">{t("wordTypes.empty")}</p>
                 </div>
               )}
 

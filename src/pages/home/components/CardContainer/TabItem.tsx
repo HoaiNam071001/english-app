@@ -8,6 +8,7 @@ import {
 } from "@radix-ui/react-popover";
 import { Check, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface TabItemProps {
   tab: TabSession;
@@ -32,6 +33,7 @@ export const TabItem = ({
   onEditSave,
   onEditCancel,
 }: TabItemProps) => {
+  const { t } = useTranslation("home");
   const [tempTitle, setTempTitle] = useState(tab.title);
   useEffect(() => {
     setTempTitle(tab.title);
@@ -64,7 +66,7 @@ export const TabItem = ({
               e.stopPropagation();
               onEditStart();
             }}
-            title="Double click to rename"
+            title={t("session.tabRenameHint")}
           >
             {tab.title}
           </span>
@@ -80,7 +82,7 @@ export const TabItem = ({
               onChange={(e) => setTempTitle(e.target.value)}
               onKeyDown={handleKeyDown}
               className="h-8 text-sm"
-              placeholder="Session name"
+              placeholder={t("session.tabNamePlaceholder")}
               autoFocus
             />
             <Button

@@ -5,12 +5,14 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { cn } from "@/lib/utils";
 import { ArrowRight, Menu, Moon, Sun, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { LanguageToggle } from "@/components/LanguageToggle";
 
 const NAV_LINKS = [
-  { label: "Tính năng", href: "#features" },
-  { label: "Cộng đồng", href: "#community" },
-  { label: "Đa nền tảng", href: "#mobile" },
+  { labelKey: "nav.features", href: "#features" },
+  { labelKey: "nav.community", href: "#community" },
+  { labelKey: "nav.multiplatform", href: "#mobile" },
 ];
 
 export const LandingHeader = () => {
@@ -19,6 +21,7 @@ export const LandingHeader = () => {
   const navigate = useNavigate();
   const { userProfile, isGuest } = useAuth();
   const { theme, toggleTheme } = useTheme();
+  const { t } = useTranslation(["landing", "common"]);
   const isAuthed = !!userProfile || isGuest;
 
   useEffect(() => {
@@ -52,18 +55,25 @@ export const LandingHeader = () => {
               href={link.href}
               className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
             >
-              {link.label}
+              {t(link.labelKey)}
             </a>
           ))}
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
+          <LanguageToggle variant="ghost" />
           <Button
             variant="ghost"
             size="icon"
             onClick={toggleTheme}
-            aria-label={theme === "light" ? "Bật chế độ tối" : "Bật chế độ sáng"}
-            title={theme === "light" ? "Chế độ tối" : "Chế độ sáng"}
+            aria-label={
+              theme === "light"
+                ? t("common:theme.enableDark")
+                : t("common:theme.enableLight")
+            }
+            title={
+              theme === "light" ? t("common:theme.dark") : t("common:theme.light")
+            }
           >
             {theme === "light" ? <Moon /> : <Sun />}
           </Button>
@@ -71,7 +81,7 @@ export const LandingHeader = () => {
             onClick={() => navigate(isAuthed ? ROUTES.HOME : ROUTES.LOGIN)}
             className="gap-1.5 bg-gradient-to-r from-brand-start via-brand-mid to-brand-end text-primary-foreground hover:from-brand-hover-start hover:to-brand-hover-end"
           >
-            {isAuthed ? "Vào ứng dụng" : "Bắt đầu miễn phí"}
+            {isAuthed ? t("cta.enterApp") : t("cta.startFree")}
             <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
@@ -79,7 +89,7 @@ export const LandingHeader = () => {
         <button
           className="flex h-9 w-9 items-center justify-center rounded-md text-foreground md:hidden"
           onClick={() => setMobileOpen((v) => !v)}
-          aria-label="Toggle menu"
+          aria-label={t("nav.toggleMenu")}
         >
           {mobileOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
@@ -95,7 +105,7 @@ export const LandingHeader = () => {
                 onClick={() => setMobileOpen(false)}
                 className="text-sm font-medium text-muted-foreground hover:text-foreground"
               >
-                {link.label}
+                {t(link.labelKey)}
               </a>
             ))}
             <button
@@ -104,8 +114,9 @@ export const LandingHeader = () => {
               className="flex items-center gap-2 rounded-md px-1 py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
             >
               {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-              {theme === "light" ? "Chế độ tối" : "Chế độ sáng"}
+              {theme === "light" ? t("common:theme.dark") : t("common:theme.light")}
             </button>
+            <LanguageToggle variant="inline" />
             <Button
               onClick={() => {
                 setMobileOpen(false);
@@ -113,7 +124,7 @@ export const LandingHeader = () => {
               }}
               className="mt-2 w-full gap-1.5 bg-gradient-to-r from-brand-start via-brand-mid to-brand-end text-primary-foreground"
             >
-              {isAuthed ? "Vào ứng dụng" : "Bắt đầu miễn phí"}
+              {isAuthed ? t("cta.enterApp") : t("cta.startFree")}
               <ArrowRight className="h-4 w-4" />
             </Button>
           </nav>

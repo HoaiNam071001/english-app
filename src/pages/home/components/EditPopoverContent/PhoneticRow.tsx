@@ -11,6 +11,7 @@ import {
 } from "@radix-ui/react-dropdown-menu";
 import { Edit2, LinkIcon, Volume2 } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 const VALID_ACCENTS = [AccentType.US, AccentType.UK, AccentType.AU];
 
@@ -25,6 +26,7 @@ export const PhoneticRow = ({
   onUpdate: (item: PhoneticItem) => void;
   onDelete: () => void;
 }) => {
+  const { t } = useTranslation(["home", "common"]);
   const [isEditing, setIsEditing] = useState(!item.text);
   const [editForm, setEditForm] = useState(item);
 
@@ -82,7 +84,7 @@ export const PhoneticRow = ({
             value={editForm.text}
             onChange={(e) => setEditForm({ ...editForm, text: e.target.value })}
             className="h-7 text-xs font-mono flex-1"
-            placeholder="/ipa/"
+            placeholder={t("edit.ipaPlaceholder")}
             autoFocus
           />
         </div>
@@ -96,7 +98,7 @@ export const PhoneticRow = ({
               setEditForm({ ...editForm, audio: e.target.value })
             }
             className="h-7 text-[10px] px-1.5 flex-1"
-            placeholder="https://..."
+            placeholder={t("edit.audioUrlPlaceholder")}
           />
 
           {/* Auto Fill Buttons */}
@@ -107,7 +109,7 @@ export const PhoneticRow = ({
               type="button"
               className="h-7 px-2 text-[10px] text-muted-foreground hover:text-primary whitespace-nowrap"
               onClick={() => handleAutoFillAudio(AccentType.US)}
-              title="Auto generate US Link"
+              title={t("edit.autoGenerateUs")}
             >
               <Wand2 size={10} className="mr-1" /> US
             </Button>
@@ -117,7 +119,7 @@ export const PhoneticRow = ({
               type="button"
               className="h-7 px-2 text-[10px] text-muted-foreground hover:text-primary whitespace-nowrap"
               onClick={() => handleAutoFillAudio(AccentType.UK)}
-              title="Auto generate UK Link"
+              title={t("edit.autoGenerateUk")}
             >
               <Wand2 size={10} className="mr-1" /> UK
             </Button>
@@ -135,7 +137,7 @@ export const PhoneticRow = ({
               setIsEditing(false);
             }}
           >
-            {"Delete"}
+            {t("common:actions.delete")}
           </Button>
           <Button
             variant="ghost"
@@ -145,7 +147,7 @@ export const PhoneticRow = ({
               setIsEditing(false);
             }}
           >
-            Cancel
+            {t("common:actions.cancel")}
           </Button>
           <Button
             size="sm"
@@ -155,7 +157,7 @@ export const PhoneticRow = ({
               setIsEditing(false);
             }}
           >
-            Done
+            {t("common:actions.done")}
           </Button>
         </div>
       </div>
@@ -182,7 +184,7 @@ export const PhoneticRow = ({
           <div
             className="p-1 text-blue-500 hover:text-blue-700 cursor-pointer transition-colors"
             onClick={handlePlay}
-            title="Play Audio"
+            title={t("card.playAudio")}
           >
             <Volume2 size={12} />
           </div>

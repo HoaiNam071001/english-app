@@ -19,6 +19,7 @@ import {
   Shield,
 } from "lucide-react";
 import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { UserFloatingMenu } from "./UserFloatingMenu";
 
@@ -37,6 +38,7 @@ export const MainHeader = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { userProfile } = useAuth();
+  const { t } = useTranslation("common");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navItems: NavItem[] = useMemo(() => {
@@ -50,8 +52,8 @@ export const MainHeader = () => {
     return [
       {
         key: "home",
-        label: "My Vocabulary",
-        shortLabel: "My Vocab",
+        label: t("nav.home"),
+        shortLabel: t("nav.homeShort"),
         path: ROUTES.HOME,
         icon: Book,
         isActive:
@@ -63,7 +65,7 @@ export const MainHeader = () => {
       },
       {
         key: "note",
-        label: "Note",
+        label: t("nav.note"),
         path: ROUTES.NOTE,
         icon: NotebookPen,
         isActive: checkIsActive(ROUTES.NOTE),
@@ -72,7 +74,7 @@ export const MainHeader = () => {
       },
       {
         key: "shared",
-        label: "Community",
+        label: t("nav.community"),
         path: ROUTES.SHARED,
         icon: Globe,
         isActive: checkIsActive(ROUTES.SHARED),
@@ -81,7 +83,7 @@ export const MainHeader = () => {
       },
       {
         key: "admin",
-        label: "Admin",
+        label: t("nav.admin"),
         path: adminUsersPath,
         icon: Shield,
         isActive: checkIsActive(ROUTES.ADMIN.ROOT),
@@ -89,7 +91,7 @@ export const MainHeader = () => {
         variant: "admin",
       },
     ];
-  }, [location.pathname, userProfile?.role]); // Dependency array giờ đã chính xác
+  }, [location.pathname, userProfile?.role, t]); // Dependency array giờ đã chính xác
 
   const getNavItemClasses = (
     isActive: boolean,
@@ -128,11 +130,11 @@ export const MainHeader = () => {
         <div className="flex items-center gap-1 mr-2">
           <Link
             to={ROUTES.LANDING}
-            title="Về trang chủ"
+            title={t("nav.goHome")}
             className="flex items-center justify-center h-8 w-8 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors mr-1"
           >
             <House size={18} />
-            <span className="sr-only">Về trang chủ</span>
+            <span className="sr-only">{t("nav.goHome")}</span>
           </Link>
           <Link to={ROUTES.HOME} className="flex items-center space-x-2">
             <img className="w-6 dark:hidden" src={"/logo.svg"} />
@@ -176,7 +178,7 @@ export const MainHeader = () => {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="h-9 w-9">
                 <Menu size={20} />
-                <span className="sr-only">Toggle menu</span>
+                <span className="sr-only">{t("nav.toggleMenu")}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">

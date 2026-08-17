@@ -12,9 +12,11 @@ import { buildPageGroups } from "@/lib/shortcuts";
 import { STATIC_SHORTCUT_CATALOG } from "@/lib/shortcutRegistry";
 import { Keyboard } from "lucide-react";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
 export const ShortcutsHelpDialog = () => {
   const { catalog, overrides, isOpen, close } = useShortcutsPanel();
+  const { t } = useTranslation("shortcuts");
 
   const pageGroups = useMemo(
     () => buildPageGroups(catalog, STATIC_SHORTCUT_CATALOG),
@@ -26,12 +28,10 @@ export const ShortcutsHelpDialog = () => {
       <DialogContent className="sm:max-w-[560px] max-h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Keyboard size={18} /> Phím tắt
+            <Keyboard size={18} /> {t("help.title")}
           </DialogTitle>
           <DialogDescription>
-            Toàn bộ phím tắt của app, theo Trang rồi tới thành phần. Nhóm "Chưa mở"
-            hiện đang không áp dụng vì trang/thành phần đó chưa được mở trong phiên
-            này — bấm để xem trước, mở trang đó để dùng được.
+            {t("help.description")}
           </DialogDescription>
         </DialogHeader>
 

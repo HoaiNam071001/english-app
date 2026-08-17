@@ -1,6 +1,6 @@
 import { ShortcutsHelpDialog } from "@/components/ShortcutsHelpDialog";
 import { useAuth } from "@/hooks/useAuth";
-import { GLOBAL_SHORTCUT_DEFS } from "@/lib/shortcutRegistry";
+import { GLOBAL_SHORTCUT_DEFS, SHORTCUT_PAGES } from "@/lib/shortcutRegistry";
 import {
   comboMatches,
   hasModifierKey,
@@ -222,7 +222,7 @@ const GlobalShortcuts: React.FC = () => {
   const { toggleTheme } = useTheme();
   const { open: openHelp } = useShortcutsPanel();
 
-  useShortcuts({ page: "Toàn ứng dụng" }, [
+  useShortcuts({ page: SHORTCUT_PAGES.GLOBAL }, [
     { ...GLOBAL_SHORTCUT_DEFS.toggleTheme, handler: () => toggleTheme() },
     { ...GLOBAL_SHORTCUT_DEFS.openHelp, handler: () => openHelp() },
   ]);

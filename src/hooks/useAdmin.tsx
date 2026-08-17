@@ -10,8 +10,10 @@ import {
 } from "firebase/firestore"; // Bỏ 'where'
 import { useCallback, useEffect, useState } from "react";
 import { useConfirm } from "./useConfirm";
+import { useTranslation } from "react-i18next";
 
 export const useAdmin = (userProfile: UserProfile) => {
+  const { t } = useTranslation(["admin", "common"]);
   // Đổi tên state từ pendingUsers -> allUsers
   const [allUsers, setAllUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(false);
@@ -62,10 +64,10 @@ export const useAdmin = (userProfile: UserProfile) => {
 
   const rejectUser = async (id: string) => {
     const isConfirmed = await confirm({
-      title: "Reject User?",
-      message: "Are you sure you want to reject this user?",
-      confirmText: "Reject",
-      cancelText: "Cancel",
+      title: t("admin:reject.title"),
+      message: t("admin:reject.message"),
+      confirmText: t("admin:reject.confirm"),
+      cancelText: t("common:actions.cancel"),
       variant: "destructive",
     });
     if (!isConfirmed) return;

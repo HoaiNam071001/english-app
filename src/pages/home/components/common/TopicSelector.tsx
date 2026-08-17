@@ -9,6 +9,7 @@ import { useTopics } from "@/hooks/useTopics";
 import { getColorStyle, getIconComponent } from "@/utils";
 import { Folder } from "lucide-react";
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 // -------------------------------------------------------------------
 
@@ -25,6 +26,7 @@ const TopicSelector: React.FC<TopicSelectorProps> = ({
   placeholder = "-- Uncategorized --",
   className,
 }) => {
+  const { t } = useTranslation(["home", "common"]);
   const { topics } = useTopics();
   const [CurrentIcon] = useState(() => getIconComponent(value));
   const handleValueChange = (val: string) => {
@@ -37,7 +39,7 @@ const TopicSelector: React.FC<TopicSelectorProps> = ({
   return (
     <Select value={value} onValueChange={handleValueChange}>
       <SelectTrigger className={`w-full ${className}`}>
-        <SelectValue placeholder="Select topic">
+        <SelectValue placeholder={t("topics.selectTopic")}>
           <div className="flex items-center gap-2 w-full">
             {value && currentTopic ? (
               <>
@@ -62,7 +64,7 @@ const TopicSelector: React.FC<TopicSelectorProps> = ({
             <div className="p-1 rounded-md bg-muted">
               <Folder size={14} />
             </div>
-            <span>Uncategorized</span>
+            <span>{t("topics.uncategorized")}</span>
           </div>
         </SelectItem>
 

@@ -4,6 +4,7 @@ import VocabularySidebar from "@/pages/home/components/TopicContainer/Vocabulary
 import { TopicItem, VocabularyItem } from "@/types";
 import { ChevronLeft } from "lucide-react";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
 const ALL_TOPIC_KEY = "ALL";
 
@@ -52,6 +53,7 @@ export const VocabularySidebarContent = ({
   batchUpdateWords,
   onRemoveFromPractice,
 }: VocabularySidebarContentProps) => {
+  const { t } = useTranslation(["home", "common"]);
   const currentTopic = useMemo(
     () => topics.find((t) => t.id === selectedTopicId),
     [topics, selectedTopicId],
@@ -79,11 +81,11 @@ export const VocabularySidebarContent = ({
               onClick={() => onSelectTopic(null)}
               className="gap-1 px-2"
             >
-              <ChevronLeft size={16} /> Back
+              <ChevronLeft size={16} /> {t("topics.back")}
             </Button>
             <span className="font-semibold text-sm truncate">
               {selectedTopicId === ALL_TOPIC_KEY
-                ? "All Vocabulary"
+                ? t("topics.all")
                 : currentTopic?.label}
             </span>
           </div>

@@ -2,6 +2,7 @@
 import { ROUTES } from "@/constants";
 import { useAuth } from "@/hooks/useAuth";
 import { UserRole } from "@/types";
+import { useTranslation } from "react-i18next";
 import { Navigate, Outlet } from "react-router-dom";
 
 interface AdminRouteProps {
@@ -10,8 +11,9 @@ interface AdminRouteProps {
 
 export const AdminRoute: React.FC<AdminRouteProps> = ({ children }) => {
   const { userProfile, loading } = useAuth();
+  const { t } = useTranslation("auth");
 
-  if (loading) return <div>Loading checking permissions...</div>;
+  if (loading) return <div>{t("guard.checkingPermissions")}</div>;
 
   // Kiểm tra role (giả sử field role là 'ADMIN')
   if (!userProfile || userProfile.role !== UserRole.ADMIN) {

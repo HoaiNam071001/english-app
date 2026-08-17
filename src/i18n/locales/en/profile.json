@@ -1,0 +1,17 @@
+{
+  "title": "Personalisation",
+  "subtitle": "Configure the theme, language and keyboard shortcuts for your account.",
+  "appearance": {
+    "title": "Appearance"
+  },
+  "language": {
+    "title": "Language",
+    "description": "Your display language is saved on this device and applies to the whole app."
+  },
+  "shortcuts": {
+    "title": "Keyboard shortcuts",
+    "description": "The \"Not opened\" group contains pages and components you have not opened in this session — open them at least once for their shortcuts to appear here. Each shortcut can use up to 4 keys (at most 3 modifiers + 1 main key).",
+    "fixed": "Fixed",
+    "edit": "Edit shortcut"
+  }
+}

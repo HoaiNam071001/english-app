@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { AlertTriangle } from "lucide-react"; // Icon cảnh báo
 import React, { createContext, ReactNode, useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 // 1. Định nghĩa các tùy chọn hiển thị
 export interface ConfirmOptions {
@@ -32,12 +33,10 @@ export const ConfirmContext = createContext<ConfirmContextType | undefined>(
 export const ConfirmProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
+  const { t } = useTranslation("common");
   const [isOpen, setIsOpen] = useState(false);
   const [options, setOptions] = useState<ConfirmOptions>({
     message: "",
-    title: "Xác nhận",
-    confirmText: "Đồng ý",
-    cancelText: "Hủy",
     variant: "default",
   });
 
@@ -49,9 +48,6 @@ export const ConfirmProvider: React.FC<{ children: ReactNode }> = ({
   const confirm = useCallback((opts: ConfirmOptions) => {
     return new Promise<boolean>((resolve) => {
       setOptions({
-        title: "Xác nhận",
-        confirmText: "Đồng ý",
-        cancelText: "Hủy",
         variant: "default",
         ...opts,
       });
@@ -86,7 +82,7 @@ export const ConfirmProvider: React.FC<{ children: ReactNode }> = ({
               {options.variant === "destructive" && (
                 <AlertTriangle className="h-5 w-5 text-red-500" />
               )}
-              {options.title}
+              {options.title ?? t("confirm.defaultTitle")}
             </DialogTitle>
             <DialogDescription className="py-2 text-muted-foreground">
               {options.message}
@@ -94,7 +90,7 @@ export const ConfirmProvider: React.FC<{ children: ReactNode }> = ({
           </DialogHeader>
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={handleCancel}>
-              {options.cancelText}
+              {options.cancelText ?? t("actions.cancel")}
             </Button>
             <Button
               variant={
@@ -102,7 +98,7 @@ export const ConfirmProvider: React.FC<{ children: ReactNode }> = ({
               }
               onClick={handleConfirm}
             >
-              {options.confirmText}
+              {options.confirmText ?? t("actions.agree")}
             </Button>
           </DialogFooter>
         </DialogContent>

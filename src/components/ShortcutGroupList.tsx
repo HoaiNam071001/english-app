@@ -7,6 +7,7 @@ import {
 } from "@/lib/shortcuts";
 import { ChevronDown, ChevronRight } from "lucide-react";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface ShortcutGroupListProps {
   pageGroups: ShortcutPageGroup[];
@@ -14,23 +15,28 @@ interface ShortcutGroupListProps {
   renderActions?: (binding: ShortcutBinding, groupLabel: string) => React.ReactNode;
 }
 
-const StatusBadge = ({ isActive }: { isActive: boolean }) => (
-  <span
+const StatusBadge = ({ isActive }: { isActive: boolean }) => {
+  const { t } = useTranslation("shortcuts");
+
+  return (
+    <span
     className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium shrink-0 ${
       isActive
         ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
         : "bg-muted text-muted-foreground"
     }`}
   >
-    {isActive ? "Đang mở" : "Chưa mở"}
-  </span>
-);
+      {isActive ? t("list.active") : t("list.inactive")}
+    </span>
+  );
+};
 
 export const ShortcutGroupList: React.FC<ShortcutGroupListProps> = ({
   pageGroups,
   overrides,
   renderActions,
 }) => {
+  const { t } = useTranslation("shortcuts");
   const [manual, setManual] = useState<Record<string, boolean>>({});
 
   const isExpanded = (key: string, defaultActive: boolean) =>
@@ -48,15 +54,17 @@ export const ShortcutGroupList: React.FC<ShortcutGroupListProps> = ({
         key={binding.id}
         className="flex items-center justify-between gap-3 rounded-md px-2 py-1.5 hover:bg-accent/40"
       >
-        <span className="text-sm text-foreground">{binding.description}</span>
+        <span className="text-sm text-foreground">{t(binding.description)}</span>
         <div className="flex items-center gap-2 shrink-0">
           {isCustom && (
             <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-5">
-              Tuỳ chỉnh
+              {t("list.custom")}
             </Badge>
           )}
           {effective === "" ? (
-            <span className="text-xs text-muted-foreground italic">Đã tắt</span>
+            <span className="text-xs text-muted-foreground italic">
+              {t("list.disabled")}
+            </span>
           ) : (
             <div className="flex items-center gap-1">
               {formatComboLabel(effective).map((k, i) => (
@@ -79,7 +87,7 @@ export const ShortcutGroupList: React.FC<ShortcutGroupListProps> = ({
   if (pageGroups.length === 0) {
     return (
       <p className="text-sm text-muted-foreground text-center py-6">
-        Chưa có phím tắt nào khả dụng.
+        {t("list.empty")}
       </p>
     );
   }
@@ -97,7 +105,7 @@ export const ShortcutGroupList: React.FC<ShortcutGroupListProps> = ({
             >
               <span className="flex items-center gap-2 text-sm font-bold">
                 {pageExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
-                {page.page}
+                {t(page.page)}
               </span>
               <StatusBadge isActive={page.isActive} />
             </button>
@@ -106,13 +114,15 @@ export const ShortcutGroupList: React.FC<ShortcutGroupListProps> = ({
               <div className="p-2 space-y-2">
                 {page.directBindings.length > 0 && (
                   <div className="space-y-1">
-                    {page.directBindings.map((b) => renderBindingRow(b, page.page))}
+                    {page.directBindings.map((b) =>
+                      renderBindingRow(b, t(page.page)),
+                    )}
                   </div>
                 )}
 
                 {page.sections.map((section) => {
                   const sectionExpanded = isExpanded(section.key, section.isActive);
-                  const groupLabel = `${page.page} · ${section.section}`;
+                  const groupLabel = `${t(page.page)} · ${t(section.section)}`;
                   return (
                     <div
                       key={section.key}
@@ -129,7 +139,7 @@ export const ShortcutGroupList: React.FC<ShortcutGroupListProps> = ({
                           ) : (
                             <ChevronRight size={12} />
                           )}
-                          {section.section}
+                          {t(section.section)}
                         </span>
                         <StatusBadge isActive={section.isActive} />
                       </button>

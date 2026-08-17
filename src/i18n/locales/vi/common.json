@@ -1,0 +1,94 @@
+{
+  "appName": "English Master",
+  "actions": {
+    "save": "Lưu",
+    "saving": "Đang lưu...",
+    "cancel": "Huỷ",
+    "confirm": "Xác nhận",
+    "agree": "Đồng ý",
+    "delete": "Xoá",
+    "edit": "Sửa",
+    "close": "Đóng",
+    "add": "Thêm",
+    "create": "Tạo mới",
+    "update": "Cập nhật",
+    "search": "Tìm kiếm",
+    "back": "Quay lại",
+    "next": "Tiếp theo",
+    "previous": "Trước đó",
+    "retry": "Thử lại",
+    "copy": "Sao chép",
+    "copied": "Đã sao chép",
+    "import": "Import",
+    "share": "Chia sẻ",
+    "select": "Chọn",
+    "selectAll": "Chọn tất cả",
+    "deselectAll": "Bỏ chọn tất cả",
+    "apply": "Áp dụng",
+    "reset": "Đặt lại",
+    "done": "Xong",
+    "skip": "Bỏ qua",
+    "seeMore": "Xem thêm",
+    "seeLess": "Thu gọn",
+    "expand": "Xem thêm",
+    "collapse": "Thu gọn"
+  },
+  "states": {
+    "loading": "Đang tải...",
+    "processing": "Đang xử lý...",
+    "empty": "Chưa có dữ liệu",
+    "error": "Đã có lỗi xảy ra",
+    "noResults": "Không tìm thấy kết quả"
+  },
+  "confirm": {
+    "defaultTitle": "Xác nhận"
+  },
+  "theme": {
+    "label": "Giao diện",
+    "toggle": "Đổi giao diện",
+    "light": "Chế độ sáng",
+    "dark": "Chế độ tối",
+    "lightShort": "Sáng",
+    "darkShort": "Tối",
+    "enableLight": "Bật chế độ sáng",
+    "enableDark": "Bật chế độ tối"
+  },
+  "language": {
+    "label": "Ngôn ngữ",
+    "description": "Chọn ngôn ngữ hiển thị của ứng dụng. Lựa chọn được lưu trên thiết bị này.",
+    "switch": "Đổi ngôn ngữ",
+    "vi": "Tiếng Việt",
+    "en": "English",
+    "changed": "Đã chuyển sang Tiếng Việt"
+  },
+  "nav": {
+    "home": "Từ vựng của tôi",
+    "homeShort": "Từ vựng",
+    "note": "Ghi chú",
+    "community": "Cộng đồng",
+    "admin": "Quản trị",
+    "goHome": "Về trang chủ",
+    "toggleMenu": "Mở/đóng menu"
+  },
+  "userMenu": {
+    "guestName": "Người dùng khách",
+    "guestSession": "Phiên cục bộ",
+    "defaultUser": "Người dùng",
+    "guestBadge": "CHẾ ĐỘ KHÁCH",
+    "profileSettings": "Hồ sơ & Cài đặt",
+    "keyboardShortcuts": "Phím tắt",
+    "switchBackTo": "Chuyển về tài khoản",
+    "exitGuestMode": "Thoát chế độ khách",
+    "clearDataAndExit": "Xoá dữ liệu & thoát",
+    "switchAccount": "Đổi tài khoản",
+    "logout": "Đăng xuất",
+    "clearDataTitle": "Xoá dữ liệu?",
+    "clearDataMessage": "Bạn có chắc muốn xoá toàn bộ dữ liệu (từ vựng, chủ đề) đã lưu trên thiết bị này? Hành động này không thể hoàn tác.",
+    "clearDataConfirm": "Xoá ngay",
+    "clearDataSuccess": "Đã xoá dữ liệu thành công!"
+  },
+  "pwa": {
+    "updateAvailable": "Có bản cập nhật mới, bạn có muốn làm mới không?",
+    "offlineReady": "Ứng dụng đã sẵn sàng chạy Offline!"
+  }
+}

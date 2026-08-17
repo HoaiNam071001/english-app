@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { VocabularyItem } from "@/types";
 import { PartSpeech } from "../../common/PartSpeech";
 import { Phonetics } from "../../common/Phonetic";
+import { useTranslation } from "react-i18next";
 
 interface CardMainContentProps {
   item: VocabularyItem;
@@ -23,6 +24,7 @@ export const CardMainContent: React.FC<CardMainContentProps> = ({
   hideImage,
   isZoomMode,
 }) => {
+  const { t } = useTranslation("home");
   return (
     <div
       className={cn(
@@ -63,7 +65,7 @@ export const CardMainContent: React.FC<CardMainContentProps> = ({
               onClick={(e) => e.stopPropagation()}
             >
               <div className="font-semibold text-popover-foreground border-b border-border pb-1">
-                Note:
+                {t("card.note")}
               </div>
               <div className="text-popover-foreground/80 italic leading-relaxed max-h-[300px] overflow-auto">
                 <DisplayText text={item.example} />

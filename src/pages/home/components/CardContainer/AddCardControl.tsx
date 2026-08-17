@@ -22,6 +22,7 @@ import { TopicItem, VocabularyItem } from "@/types";
 import { Calendar, Hash, Layers, PlusCircle } from "lucide-react";
 import moment from "moment";
 import React, { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface AddCardControlProps {
   allWords: VocabularyItem[];
@@ -42,6 +43,7 @@ export const AddCardControl: React.FC<AddCardControlProps> = ({
   topics,
   onAdd,
 }) => {
+  const { t } = useTranslation(["home", "common"]);
   const [isOpen, setIsOpen] = useState(false);
   const [mode, setMode] = useState<AddMode>(AddMode.QUANTITY);
 
@@ -67,9 +69,9 @@ export const AddCardControl: React.FC<AddCardControlProps> = ({
       const dateStr = moment(w.createdAt).format("YYYY-MM-DD");
       if (!groups[dateStr]) {
         let label = dateStr;
-        if (moment(dateStr).isSame(moment(), "day")) label = "Today";
+        if (moment(dateStr).isSame(moment(), "day")) label = t("addCards.today");
         else if (moment(dateStr).isSame(moment().subtract(1, "days"), "day"))
-          label = "Yesterday";
+          label = t("addCards.yesterday");
 
         groups[dateStr] = { label, count: 0, dateStr };
       }
@@ -79,7 +81,7 @@ export const AddCardControl: React.FC<AddCardControlProps> = ({
     return Object.values(groups).sort((a, b) =>
       b.dateStr.localeCompare(a.dateStr)
     );
-  }, [availableWords]);
+  }, [availableWords, t]);
 
   // --- LOGIC HANDLERS ---
 
@@ -126,18 +128,18 @@ export const AddCardControl: React.FC<AddCardControlProps> = ({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button className="gap-2">
-          <PlusCircle size={18} /> Add Cards
+          <PlusCircle size={18} /> {t("addCards.addCards")}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[400px]">
         <DialogHeader>
-          <DialogTitle>Add Flashcards</DialogTitle>
+          <DialogTitle>{t("addCards.title")}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
           {/* 1. SELECT MODE */}
           <div className="space-y-2">
-            <Label>Select Method:</Label>
+            <Label>{t("addCards.selectMethod")}</Label>
             <Select value={mode} onValueChange={(v) => setMode(v as AddMode)}>
               <SelectTrigger>
                 <SelectValue />
@@ -145,17 +147,17 @@ export const AddCardControl: React.FC<AddCardControlProps> = ({
               <SelectContent>
                 <SelectItem value={AddMode.QUANTITY}>
                   <div className="flex items-center gap-2">
-                    <Hash size={16} /> Random Quantity
+                    <Hash size={16} /> {t("addCards.randomQuantity")}
                   </div>
                 </SelectItem>
                 <SelectItem value={AddMode.DATE}>
                   <div className="flex items-center gap-2">
-                    <Calendar size={16} /> By Date Created
+                    <Calendar size={16} /> {t("addCards.byDate")}
                   </div>
                 </SelectItem>
                 <SelectItem value={AddMode.TOPIC}>
                   <div className="flex items-center gap-2">
-                    <Layers size={16} /> By Topic
+                    <Layers size={16} /> {t("addCards.byTopic")}
                   </div>
                 </SelectItem>
               </SelectContent>
@@ -168,7 +170,7 @@ export const AddCardControl: React.FC<AddCardControlProps> = ({
             {mode === AddMode.QUANTITY && (
               <div className="space-y-4">
                 <p className="text-sm text-muted-foreground">
-                  System will randomly select words not currently displayed.
+                  {t("addCards.randomHint")}
                   <br />
                   (Available: <strong>{availableWords.length}</strong> words)
                 </p>
@@ -190,7 +192,7 @@ export const AddCardControl: React.FC<AddCardControlProps> = ({
                 </div>
                 <div className="flex items-center gap-2">
                   <Label className="text-xs whitespace-nowrap">
-                    Custom amount:
+                    {t("addCards.customAmount")}
                   </Label>
                   <Input
                     type="number"
@@ -208,7 +210,7 @@ export const AddCardControl: React.FC<AddCardControlProps> = ({
               <ScrollArea className="h-[200px] pr-3">
                 {availableDates.length === 0 ? (
                   <p className="text-xs text-muted-foreground text-center pt-10">
-                    No dates available
+                    {t("addCards.noDates")}
                   </p>
                 ) : (
                   <div className="space-y-2">
@@ -249,7 +251,7 @@ export const AddCardControl: React.FC<AddCardControlProps> = ({
               <ScrollArea className="h-[200px] pr-3">
                 {topics.length === 0 ? (
                   <p className="text-xs text-muted-foreground text-center pt-10">
-                    No topics found
+                    {t("addCards.noTopics")}
                   </p>
                 ) : (
                   <div className="space-y-2">
@@ -299,7 +301,7 @@ export const AddCardControl: React.FC<AddCardControlProps> = ({
 
         <DialogFooter>
           <Button variant="outline" onClick={() => setIsOpen(false)}>
-            Cancel
+            {t("common:actions.cancel")}
           </Button>
           <Button onClick={handleSubmit} disabled={availableWords.length === 0}>
             Add (

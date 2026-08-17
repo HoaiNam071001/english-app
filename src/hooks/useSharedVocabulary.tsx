@@ -4,6 +4,7 @@ import { DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
 import { useCallback, useMemo, useState } from "react";
 import { useAuth } from "./useAuth";
 import { useToast } from "./useToast";
+import { useTranslation } from "react-i18next";
 
 export const useSharedVocabulary = () => {
   const { userProfile } = useAuth();
@@ -15,6 +16,7 @@ export const useSharedVocabulary = () => {
   const [hasMore, setHasMore] = useState(true);
 
   const toast = useToast();
+  const { t } = useTranslation();
 
   const service = useMemo(() => {
     return new FirebaseVocabularyService(userProfile?.id);
@@ -59,7 +61,7 @@ export const useSharedVocabulary = () => {
         setTotalCount(result.total);
       } catch (error) {
         console.error("Fetch shared vocabulary failed:", error);
-        toast.error("Không thể tải dữ liệu chia sẻ");
+        toast.error(t("shared:toast.loadFailed"));
       } finally {
         setLoading(false);
       }

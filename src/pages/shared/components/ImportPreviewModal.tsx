@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { SharedItem } from "./SharedItem";
+import { useTranslation } from "react-i18next";
 
 export interface ConflictItem {
   existing: VocabularyItem;
@@ -41,6 +42,7 @@ export const ImportPreviewModal: React.FC<ImportPreviewModalProps> = ({
   conflicts,
   onConfirm,
 }) => {
+  const { t } = useTranslation(["shared", "common"]);
   // State resolve conflict
   const [resolutions, setResolutions] = useState<
     Record<string, ResolutionType>
@@ -135,19 +137,19 @@ export const ImportPreviewModal: React.FC<ImportPreviewModalProps> = ({
       title={
         <div className="flex items-center gap-2 text-foreground">
           <RefreshCw size={20} className="text-blue-500" />
-          <span>Import Preview</span>
+          <span>{t("preview.title")}</span>
         </div>
       }
       footer={
         <div className="flex justify-end gap-4 w-full pt-2">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t("common:actions.cancel")}
           </Button>
           <Button
             onClick={handleConfirm}
             className="bg-primary text-primary-foreground hover:bg-primary/90"
           >
-            Confirm Import ({totalImportCount})
+            {t("confirmImport", { count: totalImportCount })}
           </Button>
         </div>
       }
@@ -161,7 +163,7 @@ export const ImportPreviewModal: React.FC<ImportPreviewModalProps> = ({
               <strong className="text-green-600 dark:text-green-400">
                 {selectedNewIds.size} / {newItems.length}
               </strong>{" "}
-              New selected
+              {t("newSelected")}
             </span>
           </div>
           <div className="h-4 w-[1px] bg-border"></div>
@@ -171,7 +173,7 @@ export const ImportPreviewModal: React.FC<ImportPreviewModalProps> = ({
               <strong className="text-orange-600 dark:text-orange-400">
                 {conflicts.length}
               </strong>{" "}
-              Conflicts
+              {t("conflicts")}
             </span>
           </div>
         </div>
@@ -181,7 +183,7 @@ export const ImportPreviewModal: React.FC<ImportPreviewModalProps> = ({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-orange-600 dark:text-orange-400 flex items-center gap-2 uppercase tracking-wider">
-                Resolve Conflicts
+                {t("preview.resolveConflicts")}
               </h3>
               <div className="flex gap-1">
                 <Button
@@ -190,7 +192,7 @@ export const ImportPreviewModal: React.FC<ImportPreviewModalProps> = ({
                   className="h-7 text-xs"
                   onClick={() => setAllResolutions(ResolutionType.KEEP)}
                 >
-                  Keep All
+                  {t("preview.keepAll")}
                 </Button>
                 <Button
                   variant="outline"
@@ -198,7 +200,7 @@ export const ImportPreviewModal: React.FC<ImportPreviewModalProps> = ({
                   className="h-7 text-xs"
                   onClick={() => setAllResolutions(ResolutionType.OVERWRITE)}
                 >
-                  Overwrite All
+                  {t("preview.overwriteAll")}
                 </Button>
               </div>
             </div>
@@ -212,7 +214,7 @@ export const ImportPreviewModal: React.FC<ImportPreviewModalProps> = ({
                   <div key={key} className="flex flex-col gap-2">
                     <div className="flex items-center gap-2">
                       <span className="text-xs font-bold bg-muted px-2 py-1 rounded text-muted-foreground uppercase">
-                        Conflict:
+                        {t("preview.conflict")}
                       </span>
                       <span className="text-sm font-bold text-foreground capitalize">
                         {item.existing.text}
@@ -278,11 +280,11 @@ export const ImportPreviewModal: React.FC<ImportPreviewModalProps> = ({
                 >
                   {selectedNewIds.size === newItems.length ? (
                     <>
-                      <CheckSquare size={14} /> Deselect All
+                      <CheckSquare size={14} /> {t("preview.deselectAll")}
                     </>
                   ) : (
                     <>
-                      <SquareDashedBottom size={14} /> Select All
+                      <SquareDashedBottom size={14} /> {t("preview.selectAll")}
                     </>
                   )}
                 </Button>

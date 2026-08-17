@@ -1,5 +1,6 @@
 import { NotebookPen, Table, ListChecks, Users, Import, Sparkles } from "lucide-react";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { CtaSection } from "./components/CtaSection";
 import { FeatureGrid } from "./components/FeatureGrid";
 import { FeatureShowcase } from "./components/FeatureShowcase";
@@ -9,14 +10,16 @@ import { HeroSection } from "./components/HeroSection";
 import { MobileShowcase } from "./components/MobileShowcase";
 
 const LandingPage = () => {
+  const { t } = useTranslation("landing");
+
   useEffect(() => {
-    document.title = "English Master - Học từ vựng tiếng Anh mỗi ngày";
+    document.title = t("documentTitle");
     const previousBehavior = document.documentElement.style.scrollBehavior;
     document.documentElement.style.scrollBehavior = "smooth";
     return () => {
       document.documentElement.style.scrollBehavior = previousBehavior;
     };
-  }, []);
+  }, [t]);
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-background text-foreground transition-colors duration-300">
@@ -26,44 +29,44 @@ const LandingPage = () => {
 
         <FeatureShowcase
           id="features"
-          eyebrow="Ghi chú thông minh"
+          eyebrow={t("notes.eyebrow")}
           title={
             <>
-              Lưu ngữ pháp & mẫu câu vào{" "}
+              {t("notes.titleLead")}{" "}
               <span className="bg-gradient-to-r from-brand-start to-brand-end bg-clip-text text-transparent">
-                một nơi duy nhất
+                {t("notes.titleHighlight")}
               </span>
             </>
           }
-          description="Tạo note dạng bảng, danh sách hay markdown ngay trong ứng dụng. Không cần chuyển qua lại giữa nhiều công cụ để ôn lại kiến thức."
+          description={t("notes.description")}
           points={[
-            { icon: Table, text: "Bảng biểu trực quan cho ngữ pháp" },
-            { icon: ListChecks, text: "Danh sách checklist dễ theo dõi" },
-            { icon: NotebookPen, text: "Soạn thảo mượt mà như Notion" },
+            { icon: Table, text: t("notes.points.table") },
+            { icon: ListChecks, text: t("notes.points.checklist") },
+            { icon: NotebookPen, text: t("notes.points.editor") },
           ]}
           image="/home-2.png"
-          imageAlt="Trang ghi chú ngữ pháp của English Master"
+          imageAlt={t("notes.imageAlt")}
         />
 
         <FeatureShowcase
           id="community"
-          eyebrow="Cộng đồng"
+          eyebrow={t("community.eyebrow")}
           title={
             <>
-              Học nhanh hơn nhờ{" "}
+              {t("community.titleLead")}{" "}
               <span className="bg-gradient-to-r from-brand-start to-brand-end bg-clip-text text-transparent">
-                kho từ vựng có sẵn
+                {t("community.titleHighlight")}
               </span>
             </>
           }
-          description="Khám phá và import bộ từ vựng được cộng đồng chia sẻ, tiết kiệm hàng giờ tự soạn thẻ mới cho từng chủ đề."
+          description={t("community.description")}
           points={[
-            { icon: Users, text: "Hàng trăm bộ từ vựng theo chủ đề" },
-            { icon: Import, text: "Import chỉ với một cú nhấp chuột" },
-            { icon: Sparkles, text: "Cập nhật liên tục từ người dùng" },
+            { icon: Users, text: t("community.points.sets") },
+            { icon: Import, text: t("community.points.import") },
+            { icon: Sparkles, text: t("community.points.updates") },
           ]}
           image="/home-3.png"
-          imageAlt="Thư viện từ vựng cộng đồng của English Master"
+          imageAlt={t("community.imageAlt")}
           reverse
         />
 

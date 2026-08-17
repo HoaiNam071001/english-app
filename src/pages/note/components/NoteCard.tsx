@@ -17,6 +17,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface NoteCardProps {
   note: NoteModel;
@@ -35,6 +36,7 @@ export const NoteCard = ({
   onDelete,
   forceExpand,
 }: NoteCardProps) => {
+  const { t } = useTranslation("note");
   const isGrid = layout === "grid";
   // [NEW] State local để collapse/expand từng item
   const [isExpanded, setIsExpanded] = useState(false);
@@ -65,7 +67,7 @@ export const NoteCard = ({
             e.stopPropagation();
             onEdit(note);
           }}
-          title="Edit"
+          title={t("card.edit")}
         >
           <Edit2 size={16} />
         </Button>
@@ -77,7 +79,7 @@ export const NoteCard = ({
             e.stopPropagation();
             onDelete(note.id);
           }}
-          title="Delete"
+          title={t("card.delete")}
         >
           <Trash2 size={16} />
         </Button>
@@ -93,13 +95,13 @@ export const NoteCard = ({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => onEdit(note)}>
-              Edit
+              {t("card.edit")}
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() => onDelete(note.id)}
               className="text-destructive"
             >
-              Delete
+              {t("card.delete")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -167,7 +169,7 @@ export const NoteCard = ({
             </div>
           ) : (
             <div className="w-full h-full flex items-center justify-center text-muted-foreground p-4">
-              <span>No content preview</span>
+              <span>{t("card.noPreview")}</span>
             </div>
           )}
         </div>

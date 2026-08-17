@@ -17,6 +17,7 @@ import {
   Search,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { NoteCard } from "./components/NoteCard";
 import { NoteEditorModal } from "./components/NoteEditorModal";
 
@@ -24,6 +25,7 @@ type LayoutType = "grid" | "list";
 
 const NotePage = () => {
   const { getStorage, setStorage } = useLocalStorage();
+  const { t } = useTranslation(["note", "common"]);
 
   // --- STATE ---
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -76,7 +78,7 @@ const NotePage = () => {
 
   // --- LOGIC GROUPING ---
   const groupedNotes = useMemo(() => {
-    if (!isGrouped) return { "All Notes": notes };
+    if (!isGrouped) return { [t("groups.all")]: notes };
 
     const groups: Record<string, NoteModel[]> = {};
     const now = new Date();
@@ -90,15 +92,15 @@ const NotePage = () => {
       const date = new Date(note.updatedAt).toLocaleDateString();
       let groupKey = date;
 
-      if (date === todayStr) groupKey = "Today";
-      else if (date === yesterdayStr) groupKey = "Yesterday";
+      if (date === todayStr) groupKey = t("groups.today");
+      else if (date === yesterdayStr) groupKey = t("groups.yesterday");
 
       if (!groups[groupKey]) groups[groupKey] = [];
       groups[groupKey].push(note);
     });
 
     return groups;
-  }, [notes, isGrouped]);
+  }, [notes, isGrouped, t]);
 
   // --- HANDLERS ---
   const handleCreateNew = () => {
@@ -121,11 +123,10 @@ const NotePage = () => {
 
   const handleDelete = async (id: string) => {
     const isConfirmed = await confirm({
-      title: "Delete Note?",
-      message:
-        "Are you sure you want to delete this note? This action cannot be undone.",
-      confirmText: "Delete",
-      cancelText: "Cancel",
+      title: t("delete.title"),
+      message: t("delete.message"),
+      confirmText: t("delete.confirm"),
+      cancelText: t("common:actions.cancel"),
       variant: "destructive",
     });
 
@@ -173,7 +174,7 @@ const NotePage = () => {
             />
             <Input
               className="pl-9 bg-muted/50 border-transparent focus:border-primary focus:bg-background transition-all"
-              placeholder="Search by keyword..."
+              placeholder={t("toolbar.searchPlaceholder")}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -188,17 +189,25 @@ const NotePage = () => {
                   size="sm"
                   onClick={toggleExpandAll}
                   className="gap-2 text-xs font-medium h-9 text-muted-foreground hover:text-foreground"
-                  title={globalExpandState ? "Collapse All" : "Expand All"}
+                  title={
+                    globalExpandState
+                      ? t("toolbar.collapseAll")
+                      : t("toolbar.expandAll")
+                  }
                 >
                   {globalExpandState ? (
                     <>
                       <ChevronsUp size={16} />{" "}
-                      <span className="hidden sm:inline">Collapse All</span>
+                      <span className="hidden sm:inline">
+                        {t("toolbar.collapseAll")}
+                      </span>
                     </>
                   ) : (
                     <>
                       <ChevronsDown size={16} />{" "}
-                      <span className="hidden sm:inline">Expand All</span>
+                      <span className="hidden sm:inline">
+                        {t("toolbar.expandAll")}
+                      </span>
                     </>
                   )}
                 </Button>
@@ -212,11 +221,11 @@ const NotePage = () => {
               size="sm"
               onClick={() => setIsGrouped(!isGrouped)}
               className="gap-2 text-xs font-medium h-9"
-              title="Group by Date"
+              title={t("toolbar.groupByDate")}
             >
               <CalendarDays size={16} />
               <span className="hidden sm:inline">
-                {isGrouped ? "Grouped" : "No Group"}
+                {isGrouped ? t("toolbar.grouped") : t("toolbar.noGroup")}
               </span>
             </Button>
 
@@ -233,7 +242,7 @@ const NotePage = () => {
                     ? "bg-background text-primary shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
-                title="Grid View"
+                title={t("toolbar.gridView")}
               >
                 <LayoutGrid size={16} />
               </Button>
@@ -246,7 +255,7 @@ const NotePage = () => {
                     ? "bg-background text-primary shadow-sm"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
-                title="List View"
+                title={t("toolbar.listView")}
               >
                 <ListIcon size={16} />
               </Button>
@@ -256,7 +265,7 @@ const NotePage = () => {
               onClick={handleCreateNew}
               className="h-10 px-6 shadow-md shadow-primary/20 bg-primary hover:bg-primary/90 transition-all active:scale-95"
             >
-              <Plus size={18} className="mr-2" /> New Note
+              <Plus size={18} className="mr-2" /> {t("toolbar.newNote")}
             </Button>
           </div>
         </div>
@@ -266,7 +275,9 @@ const NotePage = () => {
       {loading && notes.length === 0 ? (
         <div className="flex flex-col justify-center items-center h-64 gap-3">
           <Loader2 className="animate-spin text-primary" size={32} />
-          <p className="text-sm text-muted-foreground">Syncing your notes...</p>
+          <p className="text-sm text-muted-foreground">
+            {t("list.syncing")}
+          </p>
         </div>
       ) : (
         <div className="space-y-8 pb-20">
@@ -318,15 +329,15 @@ const NotePage = () => {
               <div className="p-4 bg-muted rounded-full mb-4">
                 <Search size={32} className="text-muted-foreground" />
               </div>
-              <h3 className="text-lg font-semibold">No notes found</h3>
+              <h3 className="text-lg font-semibold">{t("list.emptyTitle")}</h3>
               <p className="text-muted-foreground max-w-sm mt-1 mb-6">
                 {searchQuery
-                  ? `We couldn't find anything matching "${searchQuery}"`
-                  : "Get started by creating your first note."}
+                  ? t("list.emptySearch", { query: searchQuery })
+                  : t("list.emptyHint")}
               </p>
               {!searchQuery && (
                 <Button onClick={handleCreateNew} variant="outline">
-                  Create Note
+                  {t("list.createNote")}
                 </Button>
               )}
             </div>
@@ -344,7 +355,7 @@ const NotePage = () => {
                 {loading ? (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 ) : (
-                  "Load older notes"
+                  t("list.loadMore")
                 )}
               </Button>
             </div>

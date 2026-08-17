@@ -36,6 +36,7 @@ import { AddCardControl } from "./AddCardControl";
 import VocabularyCard from "./VocabularyCard";
 import { VocabularyCarouselOverlay } from "./VocabularyCarouselOverlay";
 import { keyBy } from 'lodash';
+import { useTranslation } from "react-i18next";
 
 export interface FlashcardSectionProps {
   allWords: VocabularyItem[];
@@ -85,6 +86,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
   onAddWords,
   isToolbarCollapsed = false,
 }) => {
+  const { t } = useTranslation(["home", "common"]);
   const [command, setCommand] = useState<FlashcardCommand | null>(null);
   const [isDeleteAllOpen, setIsDeleteAllOpen] = useState(false);
   const { topics } = useTopics();
@@ -214,7 +216,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
         {/* Left: Cards count & Add control */}
         <div className="flex items-center gap-1.5 flex-1 min-w-0 shrink-0">
           <div className="text-sm font-semibold text-muted-foreground flex items-center gap-1.5 shrink-0">
-            <span className="hidden sm:inline">CARDS</span>
+            <span className="hidden sm:inline">{t("flashcards.cards")}</span>
             <span className="bg-primary/10 text-primary px-1.5 py-0.5 rounded text-xs font-bold">
               {displayCards.length}
             </span>
@@ -234,25 +236,25 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
         <div className="flex items-center gap-0.5 shrink-0">
           {/* Mobile: Flip actions - inline */}
           <div className="flex items-center bg-muted/50 rounded-md p-0.5 border sm:hidden shrink-0">
-            <SimpleTooltip content={"Flip All Up"}>
+            <SimpleTooltip content={t("flashcards.flipAllUp")}>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => sendCommand(FlashcardCommandType.FLIP_ALL)}
                 className="h-7 w-7 text-blue-600 dark:text-blue-400 hover:bg-background"
-                title="Flip All Up"
+                title={t("flashcards.flipAllUp")}
               >
                 <BookOpen size={14} />
               </Button>
             </SimpleTooltip>
             <div className="w-[1px] h-4 bg-border/50 mx-0.5"></div>
-            <SimpleTooltip content={"Flip All Down"}>
+            <SimpleTooltip content={t("flashcards.flipAllDown")}>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => sendCommand(FlashcardCommandType.RESET_FLIP)}
                 className="h-7 w-7 text-muted-foreground hover:bg-background"
-                title="Flip All Down"
+                title={t("flashcards.flipAllDown")}
               >
                 <Book size={14} />
               </Button>
@@ -261,25 +263,25 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
 
           {/* Desktop: Individual flip group */}
           <div className="hidden sm:flex items-center bg-muted/50 rounded-md p-0.5 border shrink-0">
-            <SimpleTooltip content={"Flip All Up"}>
+            <SimpleTooltip content={t("flashcards.flipAllUp")}>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => sendCommand(FlashcardCommandType.FLIP_ALL)}
                 className="h-7 w-7 text-blue-600 dark:text-blue-400 hover:bg-background"
-                title="Flip All Up"
+                title={t("flashcards.flipAllUp")}
               >
                 <BookOpen size={14} />
               </Button>
             </SimpleTooltip>
             <div className="w-[1px] h-4 bg-border/50 mx-0.5"></div>
-            <SimpleTooltip content={"Flip All Down"}>
+            <SimpleTooltip content={t("flashcards.flipAllDown")}>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => sendCommand(FlashcardCommandType.RESET_FLIP)}
                 className="h-7 w-7 text-muted-foreground hover:bg-background"
-                title="Flip All Down"
+                title={t("flashcards.flipAllDown")}
               >
                 <Book size={14} />
               </Button>
@@ -288,7 +290,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
 
           {/* 2. Group: Meaning - Desktop only */}
           <div className="hidden sm:flex items-center bg-muted/50 rounded-md p-0.5 border ml-0.5 shrink-0">
-            <SimpleTooltip content={"Show All Meanings"}>
+            <SimpleTooltip content={t("flashcards.showAllMeanings")}>
               <Button
                 variant="ghost"
                 size="icon"
@@ -296,13 +298,13 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
                   sendCommand(FlashcardCommandType.SHOW_MEANING_ALL)
                 }
                 className="h-7 w-7 text-indigo-600 dark:text-indigo-400 hover:bg-background"
-                title="Show All Meanings"
+                title={t("flashcards.showAllMeanings")}
               >
                 <Eye size={14} />
               </Button>
             </SimpleTooltip>
             <div className="w-[1px] h-4 bg-border/50 mx-0.5"></div>
-            <SimpleTooltip content={"Hide All Meanings"}>
+            <SimpleTooltip content={t("flashcards.hideAllMeanings")}>
               <Button
                 variant="ghost"
                 size="icon"
@@ -310,7 +312,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
                   sendCommand(FlashcardCommandType.HIDE_MEANING_ALL)
                 }
                 className="h-7 w-7 text-muted-foreground hover:bg-background"
-                title="Hide All Meanings"
+                title={t("flashcards.hideAllMeanings")}
               >
                 <EyeOff size={14} />
               </Button>
@@ -319,25 +321,25 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
 
           {/* 3. Group: Image - Desktop only */}
           <div className="hidden sm:flex items-center bg-muted/50 rounded-md p-0.5 border ml-0.5 shrink-0">
-            <SimpleTooltip content={"Show All Images"}>
+            <SimpleTooltip content={t("flashcards.showAllImages")}>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => sendCommand(FlashcardCommandType.SHOW_IMAGE_ALL)}
                 className="h-7 w-7 text-orange-600 dark:text-orange-400 hover:bg-background"
-                title="Show All Images"
+                title={t("flashcards.showAllImages")}
               >
                 <ImageIcon size={14} />
               </Button>
             </SimpleTooltip>
             <div className="w-[1px] h-4 bg-border/50 mx-0.5"></div>
-            <SimpleTooltip content={"Hide All Images"}>
+            <SimpleTooltip content={t("flashcards.hideAllImages")}>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={() => sendCommand(FlashcardCommandType.HIDE_IMAGE_ALL)}
                 className="h-7 w-7 text-muted-foreground hover:bg-background"
-                title="Hide All Images"
+                title={t("flashcards.hideAllImages")}
               >
                 <ImageOff size={14} />
               </Button>
@@ -358,85 +360,87 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel className="text-xs">Actions</DropdownMenuLabel>
+              <DropdownMenuLabel className="text-xs">
+                {t("flashcards.actions")}
+              </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() =>
                   sendCommand(FlashcardCommandType.SHOW_MEANING_ALL)
                 }
               >
-                <Eye className="mr-2 h-3.5 w-3.5" /> Show All Meanings
+                <Eye className="mr-2 h-3.5 w-3.5" /> {t("flashcards.showAllMeanings")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() =>
                   sendCommand(FlashcardCommandType.HIDE_MEANING_ALL)
                 }
               >
-                <EyeOff className="mr-2 h-3.5 w-3.5" /> Hide All Meanings
+                <EyeOff className="mr-2 h-3.5 w-3.5" /> {t("flashcards.hideAllMeanings")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => sendCommand(FlashcardCommandType.SHOW_IMAGE_ALL)}
               >
-                <ImageIcon className="mr-2 h-3.5 w-3.5" /> Show All Images
+                <ImageIcon className="mr-2 h-3.5 w-3.5" /> {t("flashcards.showAllImages")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => sendCommand(FlashcardCommandType.HIDE_IMAGE_ALL)}
               >
-                <ImageOff className="mr-2 h-3.5 w-3.5" /> Hide All Images
+                <ImageOff className="mr-2 h-3.5 w-3.5" /> {t("flashcards.hideAllImages")}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleShuffle}>
-                <RotateCcw className="mr-2 h-3.5 w-3.5" /> Shuffle
+                <RotateCcw className="mr-2 h-3.5 w-3.5" /> {t("flashcards.shuffle")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={removeLearnedCards}
                 disabled={!hasLearnedCards}
               >
-                <CheckCircle className="mr-2 h-3.5 w-3.5" /> Remove Learned
+                <CheckCircle className="mr-2 h-3.5 w-3.5" /> {t("flashcards.removeLearned")}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuLabel className="text-xs">
                 Flipped Cards ({flippedIds.size})
               </DropdownMenuLabel>
               <DropdownMenuItem onClick={() => sortFlippedCards("top")}>
-                <ArrowUpToLine className="mr-2 h-3.5 w-3.5" /> Move to top
+                <ArrowUpToLine className="mr-2 h-3.5 w-3.5" /> {t("flashcards.moveToTop")}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => sortFlippedCards("bottom")}>
-                <ArrowDownToLine className="mr-2 h-3.5 w-3.5" /> Move to bottom
+                <ArrowDownToLine className="mr-2 h-3.5 w-3.5" /> {t("flashcards.moveToBottom")}
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={removeFlippedCards}
                 disabled={flippedIds.size === 0}
                 className="text-red-600 focus:text-red-600"
               >
-                <Eraser className="mr-2 h-3.5 w-3.5" /> Remove flipped
+                <Eraser className="mr-2 h-3.5 w-3.5" /> {t("flashcards.removeFlipped")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
           {/* Desktop: Individual action buttons */}
           {/* Shuffle - Desktop only */}
-          <SimpleTooltip content={"Shuffle"}>
+          <SimpleTooltip content={t("flashcards.shuffle")}>
             <Button
               variant="ghost"
               size="icon"
               className="h-8 w-8 text-muted-foreground hover:text-foreground hidden sm:flex shrink-0"
               onClick={handleShuffle}
-              title="Shuffle"
+              title={t("flashcards.shuffle")}
             >
               <RotateCcw size={15} />
             </Button>
           </SimpleTooltip>
 
           {/* Remove Learned - Desktop only */}
-          <SimpleTooltip content={"Remove learned"}>
+          <SimpleTooltip content={t("flashcards.removeLearned")}>
             <Button
               variant="ghost"
               size="icon"
               className="h-8 w-8 text-muted-foreground hover:text-foreground hidden sm:flex shrink-0"
               onClick={removeLearnedCards}
               disabled={!hasLearnedCards}
-              title="Remove Learned"
+              title={t("flashcards.removeLearned")}
             >
               <CheckCircle size={15} />
             </Button>
@@ -459,10 +463,10 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => sortFlippedCards("top")}>
-                <ArrowUpToLine className="mr-2 h-3.5 w-3.5" /> Move to top
+                <ArrowUpToLine className="mr-2 h-3.5 w-3.5" /> {t("flashcards.moveToTop")}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => sortFlippedCards("bottom")}>
-                <ArrowDownToLine className="mr-2 h-3.5 w-3.5" /> Move to bottom
+                <ArrowDownToLine className="mr-2 h-3.5 w-3.5" /> {t("flashcards.moveToBottom")}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -470,20 +474,20 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
                 disabled={flippedIds.size === 0}
                 className="text-red-600 focus:text-red-600"
               >
-                <Eraser className="mr-2 h-3.5 w-3.5" /> Remove flipped
+                <Eraser className="mr-2 h-3.5 w-3.5" /> {t("flashcards.removeFlipped")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
           {/* Delete All Popover - Always visible */}
           <Popover open={isDeleteAllOpen} onOpenChange={setIsDeleteAllOpen}>
-            <SimpleTooltip content={"Clear Session"}>
+            <SimpleTooltip content={t("flashcards.clearSession")}>
               <PopoverTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
-                  title="Clear Session"
+                  title={t("flashcards.clearSession")}
                 >
                   <Trash2 size={15} />
                 </Button>
@@ -493,7 +497,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
             <PopoverContent className="w-64 p-3" align="end">
               <div className="space-y-2">
                 <h4 className="font-medium text-sm text-destructive">
-                  Clear this session?
+                  {t("flashcards.clearTitle")}
                 </h4>
                 <div className="flex justify-end gap-2">
                   <Button
@@ -502,7 +506,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
                     className="h-7 text-xs"
                     onClick={() => setIsDeleteAllOpen(false)}
                   >
-                    Cancel
+                    {t("common:actions.cancel")}
                   </Button>
                   <Button
                     variant="destructive"
@@ -510,7 +514,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
                     className="h-7 text-xs"
                     onClick={confirmRemoveAll}
                   >
-                    Clear All
+                    {t("flashcards.clearAll")}
                   </Button>
                 </div>
               </div>
@@ -523,7 +527,7 @@ const FlashcardSection: React.FC<FlashcardSectionProps> = ({
       {displayCards.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center text-muted-foreground">
           <div className="text-4xl mb-2 grayscale opacity-30">📇</div>
-          <p className="text-sm font-medium">No cards in session</p>
+          <p className="text-sm font-medium">{t("flashcards.empty")}</p>
           <div className="mt-3">
             <AddCardControl
               allWords={allWords}

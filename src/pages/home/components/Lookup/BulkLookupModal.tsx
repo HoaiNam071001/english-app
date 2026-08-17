@@ -16,6 +16,7 @@ import { CheckedState } from "@radix-ui/react-checkbox";
 import { Check, Sparkles } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { LookupRow } from "./LookupRow";
+import { useTranslation } from "react-i18next";
 
 // --- TYPES ---
 
@@ -50,6 +51,7 @@ export const BulkLookupModal: React.FC<BulkLookupModalProps> = ({
   selectedWords,
   onApplyUpdates,
 }) => {
+  const { t } = useTranslation(["home", "common"]);
   const { lookupWords } = useDictionary();
   const [results, setResults] = useState<VolLookupResult[]>([]);
   const [selections, setSelections] = useState<SelectionState>({});
@@ -272,11 +274,11 @@ export const BulkLookupModal: React.FC<BulkLookupModalProps> = ({
       onOpenChange={onOpenChange}
       title={`Enrich Vocabulary (${results.length})`}
       icon={<Sparkles size={20} className="text-purple-600" />}
-      description="Fetch data to update Phonetics, Type, and Notes."
+      description={t("lookup.description")}
       footer={
         <div className="flex flex-col sm:flex-row gap-2 justify-end w-full pt-2 border-t mt-4">
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t("common:actions.cancel")}
           </Button>
           <Button
             onClick={handleApplySelectedAll}
@@ -305,7 +307,9 @@ export const BulkLookupModal: React.FC<BulkLookupModalProps> = ({
                         }
                         className="h-3 w-3 md:h-4 md:w-4"
                       />
-                      <label htmlFor="word-row-all" className="whitespace-nowrap">Word</label>
+                      <label htmlFor="word-row-all" className="whitespace-nowrap">
+                        {t("lookup.word")}
+                      </label>
                     </div>
                   </th>
 
@@ -320,7 +324,9 @@ export const BulkLookupModal: React.FC<BulkLookupModalProps> = ({
                         }
                         className="h-3 w-3 md:h-4 md:w-4"
                       />
-                      <label htmlFor="PHONETICS-row-all" className="whitespace-nowrap">Phonetics</label>
+                      <label htmlFor="PHONETICS-row-all" className="whitespace-nowrap">
+                        {t("lookup.phonetics")}
+                      </label>
                     </div>
                   </th>
 
@@ -335,7 +341,9 @@ export const BulkLookupModal: React.FC<BulkLookupModalProps> = ({
                         }
                         className="h-3 w-3 md:h-4 md:w-4"
                       />
-                      <label htmlFor="TYPE-row-all" className="whitespace-nowrap">Type</label>
+                      <label htmlFor="TYPE-row-all" className="whitespace-nowrap">
+                        {t("lookup.type")}
+                      </label>
                     </div>
                   </th>
 
@@ -350,7 +358,9 @@ export const BulkLookupModal: React.FC<BulkLookupModalProps> = ({
                         }
                         className="h-3 w-3 md:h-4 md:w-4"
                       />
-                      <label htmlFor="NOTE-row-all" className="whitespace-nowrap">Note</label>
+                      <label htmlFor="NOTE-row-all" className="whitespace-nowrap">
+                        {t("lookup.note")}
+                      </label>
                     </div>
                   </th>
                 </tr>
@@ -378,7 +388,7 @@ export const BulkLookupModal: React.FC<BulkLookupModalProps> = ({
                       colSpan={4}
                       className="p-4 md:p-8 text-center text-muted-foreground text-xs md:text-sm"
                     >
-                      All words processed.
+                      {t("lookup.allProcessed")}
                     </td>
                   </tr>
                 )}

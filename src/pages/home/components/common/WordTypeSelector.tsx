@@ -10,6 +10,7 @@ import { useWordTypes } from "@/hooks/useWordTypes";
 import { cn } from "@/lib/utils";
 import { Check, ChevronsUpDown, X } from "lucide-react";
 import React, { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
 interface WordTypeSelectorProps {
   value: string[] | null | undefined;
@@ -22,6 +23,7 @@ const WordTypeSelector: React.FC<WordTypeSelectorProps> = ({
   onChange,
   className,
 }) => {
+  const { t } = useTranslation(["home", "common"]);
   const { types } = useWordTypes();
 
   const selectedIds = useMemo(() => {
@@ -76,7 +78,7 @@ const WordTypeSelector: React.FC<WordTypeSelectorProps> = ({
               })
             ) : (
               <span className="text-muted-foreground text-sm">
-                Select types...
+                {t("wordTypes.selectTypes")}
               </span>
             )}
           </div>
@@ -125,7 +127,7 @@ const WordTypeSelector: React.FC<WordTypeSelectorProps> = ({
             })}
             {types.length === 0 && (
               <div className="text-xs text-center py-4 text-muted-foreground">
-                No types defined.
+                {t("wordTypes.noneDefined")}
               </div>
             )}
           </div>

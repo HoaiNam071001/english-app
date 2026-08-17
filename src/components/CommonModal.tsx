@@ -9,6 +9,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 interface CommonModalProps {
   open: boolean;
@@ -44,13 +45,15 @@ export const CommonModal: React.FC<CommonModalProps> = ({
   closeOnInteractOutside = true, // Giá trị mặc định
   footer,
   onConfirm,
-  confirmText = "Confirm",
+  confirmText,
   confirmVariant = "default",
-  cancelText = "Cancel",
+  cancelText,
   loading = false,
   disableConfirm = false,
   contentClassName = "",
 }) => {
+  const { t } = useTranslation("common");
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
@@ -83,7 +86,7 @@ export const CommonModal: React.FC<CommonModalProps> = ({
               onClick={() => onOpenChange(false)}
               disabled={loading}
             >
-              {cancelText}
+              {cancelText ?? t("actions.cancel")}
             </Button>
             {onConfirm && (
               <Button
@@ -92,7 +95,7 @@ export const CommonModal: React.FC<CommonModalProps> = ({
                 disabled={loading || disableConfirm}
               >
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {confirmText}
+                {confirmText ?? t("actions.confirm")}
               </Button>
             )}
           </DialogFooter>

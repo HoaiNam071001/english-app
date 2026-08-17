@@ -1,5 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import { STORAGE_KEY } from "@/constants";
+import i18n from "@/i18n";
 import { auth, db, googleProvider } from "@/firebaseConfig";
 import {
   DataTable,
@@ -124,7 +125,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           }
         } catch (err) {
           console.error("Sync error:", err);
-          setError("Lỗi đồng bộ thông tin.");
+          setError(i18n.t("auth:errors.syncFailed"));
         }
       } else {
         setUser(null);
@@ -167,9 +168,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } catch (err) {
       console.error("Login failed:", err);
       if (err.code === "auth/popup-closed-by-user") {
-        setError("Đã đóng cửa sổ đăng nhập.");
+        setError(i18n.t("auth:errors.popupClosed"));
       } else {
-        setError("Đăng nhập thất bại.");
+        setError(i18n.t("auth:errors.loginFailed"));
       }
       setLoading(false);
     }

@@ -5,7 +5,11 @@ import { useShortcuts } from "@/contexts/ShortcutsContext";
 import { useConfirm } from "@/hooks/useConfirm";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { useTabSession } from "@/hooks/useTabSession";
-import { HOME_SESSION_SHORTCUT_DEFS } from "@/lib/shortcutRegistry";
+import {
+  HOME_SESSION_SHORTCUT_DEFS,
+  SHORTCUT_PAGES,
+  SHORTCUT_SECTIONS,
+} from "@/lib/shortcutRegistry";
 import { AddReport, TabSession, TopicItem, VocabularyItem } from "@/types";
 import { isToday } from "@/utils";
 import {
@@ -31,6 +35,7 @@ import CreateVocabularyModal, {
 } from "../CreateVocabularyModal";
 import FlashcardSection from "./FlashcardSection";
 import { TabItem } from "./TabItem"; // Giả sử bạn đã tách file TabItem
+import { useTranslation } from "react-i18next";
 
 export interface CardContainerRef {
   addWordsToSession: (words: VocabularyItem[]) => void;
@@ -70,6 +75,7 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
     },
     ref,
   ) => {
+    const { t } = useTranslation(["home", "common"]);
     const {
       tabs,
       setTabs,
@@ -195,11 +201,10 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
     // 3. MANUAL RESET HANDLER (Vẫn giữ Confirm cho hành động phá hủy này)
     const handleManualReset = async () => {
       const isConfirmed = await confirm({
-        title: "Start Fresh Session?",
-        message:
-          "This will close all current tabs and create a new session with today's unlearned words.",
-        confirmText: "Start Fresh",
-        cancelText: "Cancel",
+        title: t("session.resetTitle"),
+        message: t("session.resetMessage"),
+        confirmText: t("session.resetConfirm"),
+        cancelText: t("common:actions.cancel"),
         variant: "destructive",
       });
 
@@ -246,7 +251,9 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
     };
 
     // --- Phím tắt của trang (session + mở modal thêm từ) ---
-    useShortcuts({ page: "Trang chủ", section: "Phiên học (Session)" }, [
+    useShortcuts(
+      { page: SHORTCUT_PAGES.HOME, section: SHORTCUT_SECTIONS.SESSION },
+      [
       {
         ...HOME_SESSION_SHORTCUT_DEFS.openCreateVocab,
         handler: () => createModalRef.current?.openModal(),
@@ -309,7 +316,7 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
     if (!isLoaded || !activeTab)
       return (
         <div className="h-full w-full flex items-center justify-center text-muted-foreground animate-pulse">
-          Loading Session...
+          {t("session.loading")}
         </div>
       );
 
@@ -394,13 +401,13 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
             ))}
 
             <div className="sticky right-0 bg-background z-10 h-full flex items-center px-0.5">
-              <SimpleTooltip content={"New Tab"}>
+              <SimpleTooltip content={t("session.newTab")}>
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={handleAddTab}
                   className="h-8 w-8 md:h-9 md:w-9 shrink-0 text-muted-foreground hover:text-foreground"
-                  title="New Tab"
+                  title={t("session.newTab")}
                 >
                   <Plus size={16} className="md:w-[18px] md:h-[18px]" />
                 </Button>
@@ -420,13 +427,13 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
 
           {/* Action Buttons Group - Desktop: Reset + Add New Word */}
           <div className="hidden md:flex items-center gap-0.5 shrink-0 px-1">
-            <SimpleTooltip content={"Reset"}>
+            <SimpleTooltip content={t("session.reset")}>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={handleManualReset}
                 className="h-8 w-8 md:h-9 md:w-9 shrink-0 text-orange-500 hover:text-orange-600 hover:bg-orange-50"
-                title="Reset Session"
+                title={t("session.resetSession")}
               >
                 <RotateCcw size={14} className="md:w-4 md:h-4" />
               </Button>
@@ -441,13 +448,13 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
           </div>
           {/* Reset Button - Mobile only */}
           <div className="flex items-center shrink-0 px-1 md:hidden">
-            <SimpleTooltip content={"Reset"}>
+            <SimpleTooltip content={t("session.reset")}>
               <Button
                 variant="ghost"
                 size="icon"
                 onClick={handleManualReset}
                 className="h-8 w-8 shrink-0 text-orange-500 hover:text-orange-600 hover:bg-orange-50"
-                title="Reset Session"
+                title={t("session.resetSession")}
               >
                 <RotateCcw size={14} className="md:w-4 md:h-4" />
               </Button>

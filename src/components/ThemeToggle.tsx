@@ -1,9 +1,11 @@
 import { useTheme } from "@/contexts/ThemeContext";
 import { Moon, Sun } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button } from "./ui/button";
 
 export const ThemeToggle = ({ text }) => {
   const { theme, toggleTheme } = useTheme();
+  const { t } = useTranslation("common");
 
   return (
     <div
@@ -16,7 +18,7 @@ export const ThemeToggle = ({ text }) => {
         variant="ghost"
         size="icon"
         className="h-9 w-9 ml-auto"
-        aria-label="Toggle theme"
+        aria-label={t("theme.toggle")}
       >
         {theme === "light" ? (
           <Moon className="h-5 w-5" />

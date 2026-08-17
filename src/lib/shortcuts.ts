@@ -209,9 +209,10 @@ export interface KeyOption {
   label: string;
 }
 
+/** `group` là khoá i18n trong namespace "shortcuts" */
 export const KEY_OPTION_GROUPS: { group: string; options: KeyOption[] }[] = [
   {
-    group: "Phím bổ trợ",
+    group: "keyGroups.modifiers",
     options: [
       { value: "ctrl", label: "Ctrl" },
       { value: "alt", label: "Alt" },
@@ -220,28 +221,28 @@ export const KEY_OPTION_GROUPS: { group: string; options: KeyOption[] }[] = [
     ],
   },
   {
-    group: "Chữ cái",
+    group: "keyGroups.letters",
     options: Array.from({ length: 26 }, (_, i) => {
       const c = String.fromCharCode(97 + i);
       return { value: c, label: c.toUpperCase() };
     }),
   },
   {
-    group: "Số",
+    group: "keyGroups.numbers",
     options: Array.from({ length: 10 }, (_, i) => ({
       value: String(i),
       label: String(i),
     })),
   },
   {
-    group: "Phím chức năng",
+    group: "keyGroups.functionKeys",
     options: Array.from({ length: 12 }, (_, i) => ({
       value: `f${i + 1}`,
       label: `F${i + 1}`,
     })),
   },
   {
-    group: "Điều hướng",
+    group: "keyGroups.navigation",
     options: [
       { value: "arrowup", label: "↑ Up" },
       { value: "arrowdown", label: "↓ Down" },
@@ -255,7 +256,7 @@ export const KEY_OPTION_GROUPS: { group: string; options: KeyOption[] }[] = [
     ],
   },
   {
-    group: "Đặc biệt",
+    group: "keyGroups.special",
     options: [
       { value: "enter", label: "Enter" },
       { value: "escape", label: "Esc" },
@@ -265,7 +266,7 @@ export const KEY_OPTION_GROUPS: { group: string; options: KeyOption[] }[] = [
     ],
   },
   {
-    group: "Ký hiệu",
+    group: "keyGroups.symbols",
     options: [
       { value: "/", label: "/" },
       { value: "\\", label: "\\" },
@@ -311,7 +312,8 @@ const RESERVED_COMBOS = [
 
 export interface ComboValidation {
   level: "ok" | "warning" | "error";
-  message?: string;
+  /** Khoá i18n trong namespace "shortcuts" */
+  messageKey?: string;
 }
 
 /** Chỉ được chọn tối đa 1 phím chính (không phải modifier) vì 1 sự kiện bàn phím
@@ -320,14 +322,14 @@ export const validateComboTokens = (tokens: string[]): ComboValidation => {
   const clean = tokens.filter(Boolean);
 
   if (clean.length === 0) {
-    return { level: "error", message: "Chưa chọn phím nào." };
+    return { level: "error", messageKey: "validation.empty" };
   }
 
   const uniq = new Set(clean);
   if (uniq.size !== clean.length) {
     return {
       level: "error",
-      message: "Không thể chọn trùng một phím trong cùng tổ hợp.",
+      messageKey: "validation.duplicate",
     };
   }
 
@@ -335,14 +337,13 @@ export const validateComboTokens = (tokens: string[]): ComboValidation => {
   if (mainKeys.length === 0) {
     return {
       level: "error",
-      message:
-        "Tổ hợp cần có ít nhất 1 phím chính (không phải Ctrl/Alt/Shift/Meta).",
+      messageKey: "validation.needMainKey",
     };
   }
   if (mainKeys.length > 1) {
     return {
       level: "error",
-      message: "Chỉ được chọn tối đa 1 phím chính trong 1 tổ hợp.",
+      messageKey: "validation.tooManyMainKeys",
     };
   }
 
@@ -350,8 +351,7 @@ export const validateComboTokens = (tokens: string[]): ComboValidation => {
   if (RESERVED_COMBOS.some((r) => combosEqual(r, combo))) {
     return {
       level: "error",
-      message:
-        "Tổ hợp này được trình duyệt/hệ điều hành dùng riêng, không thể ghi đè.",
+      messageKey: "validation.reserved",
     };
   }
 
@@ -359,8 +359,7 @@ export const validateComboTokens = (tokens: string[]): ComboValidation => {
   if (!hasModifier) {
     return {
       level: "warning",
-      message:
-        "Không có phím bổ trợ (Ctrl/Alt/Shift) — dễ bị kích hoạt ngoài ý muốn khi thao tác ngoài ô nhập liệu.",
+      messageKey: "validation.noModifier",
     };
   }
 

@@ -3,6 +3,7 @@ import { ROUTES } from "@/constants";
 import { useAuth } from "@/hooks/useAuth";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { BrowserFrame } from "./DeviceFrame";
 import { GradientBlob } from "./GradientBlob";
@@ -10,6 +11,7 @@ import { GradientBlob } from "./GradientBlob";
 export const HeroSection = () => {
   const navigate = useNavigate();
   const { userProfile, isGuest } = useAuth();
+  const { t } = useTranslation("landing");
   const isAuthed = !!userProfile || isGuest;
 
   return (
@@ -36,7 +38,7 @@ export const HeroSection = () => {
             className="mx-auto mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card/70 px-4 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur-xl"
           >
             <Sparkles className="h-3.5 w-3.5 text-primary" />
-            Miễn phí • Học offline • Không giới hạn thẻ từ
+            {t("hero.badge")}
           </motion.div>
 
           <motion.h1
@@ -45,9 +47,9 @@ export const HeroSection = () => {
             transition={{ duration: 0.7, delay: 0.1 }}
             className="text-4xl font-extrabold tracking-tight text-foreground sm:text-5xl md:text-6xl"
           >
-            Học từ vựng tiếng Anh,{" "}
+            {t("hero.titleLead")}{" "}
             <span className="bg-gradient-to-r from-brand-start via-brand-mid to-brand-end bg-clip-text text-transparent">
-              nhớ mãi không quên
+              {t("hero.titleHighlight")}
             </span>
           </motion.h1>
 
@@ -57,9 +59,7 @@ export const HeroSection = () => {
             transition={{ duration: 0.7, delay: 0.2 }}
             className="mx-auto mt-6 max-w-xl text-base text-muted-foreground md:text-lg"
           >
-            English Master gom flashcard, ghi chú ngữ pháp và kho từ vựng
-            cộng đồng vào một nơi duy nhất — học mọi lúc, mọi nơi, kể cả khi
-            mất mạng.
+            {t("hero.description")}
           </motion.p>
 
           <motion.div
@@ -73,7 +73,7 @@ export const HeroSection = () => {
               onClick={() => navigate(isAuthed ? ROUTES.HOME : ROUTES.LOGIN)}
               className="w-full gap-2 bg-gradient-to-r from-brand-start via-brand-mid to-brand-end px-6 text-primary-foreground shadow-lg shadow-primary/20 hover:from-brand-hover-start hover:to-brand-hover-end sm:w-auto"
             >
-              {isAuthed ? "Vào ứng dụng của bạn" : "Bắt đầu miễn phí"}
+              {isAuthed ? t("cta.enterYourApp") : t("cta.startFree")}
               <ArrowRight className="h-4 w-4" />
             </Button>
             <Button
@@ -82,7 +82,7 @@ export const HeroSection = () => {
               asChild
               className="w-full bg-background/60 backdrop-blur-xl sm:w-auto"
             >
-              <a href="#features">Khám phá tính năng</a>
+              <a href="#features">{t("cta.exploreFeatures")}</a>
             </Button>
           </motion.div>
         </div>
@@ -96,7 +96,7 @@ export const HeroSection = () => {
           <div className="absolute inset-x-8 -bottom-6 h-24 rounded-full bg-primary/15 blur-3xl" />
           <BrowserFrame
             src="/home-1.png"
-            alt="Giao diện quản lý flashcard từ vựng của English Master"
+            alt={t("hero.imageAlt")}
             className="relative"
           />
         </motion.div>

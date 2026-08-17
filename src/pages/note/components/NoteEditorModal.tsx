@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { NoteModel } from "@/types";
 import { Calendar, Eye, FileText } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface NoteEditorModalProps {
   open: boolean;
@@ -22,6 +23,7 @@ export const NoteEditorModal: React.FC<NoteEditorModalProps> = ({
   onSave,
   isViewMode = false,
 }) => {
+  const { t } = useTranslation(["note", "common"]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
@@ -63,10 +65,10 @@ export const NoteEditorModal: React.FC<NoteEditorModalProps> = ({
           )}
           <span className="font-semibold">
             {isViewMode
-              ? "View Details"
+              ? t("editor.viewTitle")
               : note
-                ? "Edit Note"
-                : "Create New Note"}
+                ? t("editor.editTitle")
+                : t("editor.createTitle")}
           </span>
         </div>
       }
@@ -77,7 +79,7 @@ export const NoteEditorModal: React.FC<NoteEditorModalProps> = ({
             onClick={() => onOpenChange(false)}
             className="gap-2"
           >
-            {isViewMode ? "Close" : "Cancel"}
+            {isViewMode ? t("common:actions.close") : t("common:actions.cancel")}
           </Button>
           {!isViewMode && (
             <Button
@@ -85,7 +87,7 @@ export const NoteEditorModal: React.FC<NoteEditorModalProps> = ({
               disabled={!title}
               className="bg-primary hover:bg-primary/90 text-primary-foreground gap-2"
             >
-              {note ? "Update Note" : "Save Note"}
+              {note ? t("editor.update") : t("editor.save")}
             </Button>
           )}
         </div>
@@ -97,11 +99,19 @@ export const NoteEditorModal: React.FC<NoteEditorModalProps> = ({
           <div className="flex flex-wrap gap-3 select-none">
             <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-md border border-border/50">
               <Calendar size={12} />
-              <span>Created: {new Date(note.createdAt).toLocaleString()}</span>
+              <span>
+                {t("editor.createdAt", {
+                  value: new Date(note.createdAt).toLocaleString(),
+                })}
+              </span>
             </div>
             <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-md border border-border/50">
               <Calendar size={12} />
-              <span>Updated: {new Date(note.updatedAt).toLocaleString()}</span>
+              <span>
+                {t("editor.updatedAt", {
+                  value: new Date(note.updatedAt).toLocaleString(),
+                })}
+              </span>
             </div>
           </div>
         )}
@@ -110,7 +120,7 @@ export const NoteEditorModal: React.FC<NoteEditorModalProps> = ({
         <div className="grid gap-2">
           {!isViewMode && (
             <Label htmlFor="title" className="text-sm font-semibold ml-1">
-              Title
+              {t("editor.titleLabel")}
             </Label>
           )}
           {isViewMode ? (
@@ -118,7 +128,7 @@ export const NoteEditorModal: React.FC<NoteEditorModalProps> = ({
           ) : (
             <Input
               id="title"
-              placeholder="Enter note title..."
+              placeholder={t("editor.titlePlaceholder")}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               disabled={isViewMode}
@@ -134,7 +144,9 @@ export const NoteEditorModal: React.FC<NoteEditorModalProps> = ({
         {/* MARKDOWN EDITOR */}
         <div className="grid gap-2 flex-1 min-h-0">
           {!isViewMode && (
-            <Label className="text-sm font-semibold ml-1">Content</Label>
+            <Label className="text-sm font-semibold ml-1">
+              {t("editor.contentLabel")}
+            </Label>
           )}
           <div
             className={`transition-all max-h-[400px] overflow-auto ${

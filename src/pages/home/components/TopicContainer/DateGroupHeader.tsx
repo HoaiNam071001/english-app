@@ -2,6 +2,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { formatDateGroup } from "@/utils";
 import { ChevronDown, ChevronRight, Pin } from "lucide-react";
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 interface DateGroupHeaderProps {
   dateKey: string;
@@ -25,10 +26,11 @@ export const DateGroupHeader = React.memo<DateGroupHeaderProps>(
     customTitle,
     isPinnedGroup,
   }) => {
+  const { t } = useTranslation(["home", "common"]);
     return (
       <div
         onClick={onSelect}
-        title="Click to select all items in this group"
+        title={t("sidebar.selectGroupHint")}
         className={`
         sticky top-0 z-20 px-2 py-2 mb-2
         text-xs font-bold uppercase tracking-wider border-b border-border

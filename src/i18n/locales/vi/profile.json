@@ -1,0 +1,17 @@
+{
+  "title": "Cá nhân hoá",
+  "subtitle": "Cấu hình giao diện, ngôn ngữ và phím tắt cho tài khoản của bạn.",
+  "appearance": {
+    "title": "Giao diện"
+  },
+  "language": {
+    "title": "Ngôn ngữ",
+    "description": "Ngôn ngữ hiển thị được lưu trên thiết bị này và áp dụng cho toàn bộ ứng dụng."
+  },
+  "shortcuts": {
+    "title": "Phím tắt",
+    "description": "Nhóm \"Chưa mở\" là những trang/thành phần bạn chưa mở trong phiên này — hãy mở chúng ít nhất 1 lần để phím tắt xuất hiện ở đây. Mỗi phím tắt có thể sửa tối đa 4 phím (tối đa 3 phím bổ trợ + 1 phím chính).",
+    "fixed": "Cố định",
+    "edit": "Sửa phím tắt"
+  }
+}

@@ -24,21 +24,27 @@ import {
   User as UserIcon,
   X,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 // --- 1. HELPER COMPONENTS & FUNCTIONS ---
 
-const formatDate = (timestamp?: number, short = false) => {
-  if (!timestamp) return "Not updated";
+const formatDate = (
+  timestamp: number | undefined,
+  locale: string,
+  emptyLabel: string,
+  short = false,
+) => {
+  if (!timestamp) return emptyLabel;
   if (short) {
     const date = new Date(timestamp);
-    return date.toLocaleDateString("en-US", {
+    return date.toLocaleDateString(locale, {
       month: "short",
       day: "numeric",
       year:
         date.getFullYear() !== new Date().getFullYear() ? "numeric" : undefined,
     });
   }
-  return new Date(timestamp).toLocaleString("en-US", {
+  return new Date(timestamp).toLocaleString(locale, {
     hour: "2-digit",
     minute: "2-digit",
     day: "2-digit",
@@ -48,6 +54,7 @@ const formatDate = (timestamp?: number, short = false) => {
 };
 
 const RoleBadge = ({ role }: { role: UserRole }) => {
+  const { t } = useTranslation("admin");
   const isAdmin = role === UserRole.ADMIN;
   return (
     <span
@@ -62,12 +69,13 @@ const RoleBadge = ({ role }: { role: UserRole }) => {
       ) : (
         <UserIcon size={9} />
       )}
-      {isAdmin ? "ADMIN" : "USER"}
+      {isAdmin ? t("role.admin") : t("role.user")}
     </span>
   );
 };
 
 const StatusBadge = ({ status }: { status: UserStatus }) => {
+  const { t } = useTranslation("admin");
   const styles = {
     [UserStatus.PENDING]:
       "bg-yellow-50 dark:bg-yellow-950/30 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800",
@@ -84,9 +92,9 @@ const StatusBadge = ({ status }: { status: UserStatus }) => {
   };
 
   const labels = {
-    [UserStatus.PENDING]: "Pending",
-    [UserStatus.APPROVED]: "Active",
-    [UserStatus.REJECTED]: "Blocked",
+    [UserStatus.PENDING]: t("status.pending"),
+    [UserStatus.APPROVED]: t("status.approved"),
+    [UserStatus.REJECTED]: t("status.rejected"),
   };
 
   return (
@@ -104,13 +112,17 @@ const StatusBadge = ({ status }: { status: UserStatus }) => {
 const UsersPage = () => {
   const { userProfile } = useAuth();
   const { allUsers, loading, approveUser, rejectUser } = useAdmin(userProfile);
+  const { t, i18n } = useTranslation("admin");
+
+  const showDate = (timestamp?: number) =>
+    formatDate(timestamp, i18n.language, t("users.notUpdated"));
 
   return (
     <div className="bg-background relative">
       {/* HEADER */}
       <div className="sticky top-0 z-10 bg-background/95 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border pt-4 md:pt-6">
         <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 px-4 py-2 rounded-lg border border-blue-200 dark:border-blue-800 text-sm font-medium text-card-foreground shrink-0">
-          Total:{" "}
+          {t("users.total")}{" "}
           <span className="text-blue-600 dark:text-blue-400 font-bold text-base">
             {allUsers.length}
           </span>
@@ -122,14 +134,14 @@ const UsersPage = () => {
         <Card className="border shadow-sm bg-card mt-4 md:mt-6">
           <CardContent className="py-16 text-center text-muted-foreground">
             <Clock className="animate-spin mb-3 h-8 w-8 mx-auto text-blue-500" />
-            <p className="text-sm font-medium">Syncing data...</p>
+            <p className="text-sm font-medium">{t("users.syncing")}</p>
           </CardContent>
         </Card>
       ) : allUsers.length === 0 ? (
         <Card className="border shadow-sm bg-card mt-4 md:mt-6">
           <CardContent className="py-16 text-center text-muted-foreground">
             <UserIcon className="mx-auto h-12 w-12 text-muted-foreground/40 mb-3" />
-            <p className="text-sm font-medium">No user data available.</p>
+            <p className="text-sm font-medium">{t("users.empty")}</p>
           </CardContent>
         </Card>
       ) : (
@@ -157,8 +169,8 @@ const UsersPage = () => {
                           <Check size={11} className="mr-1" />
                         )}
                         {user.status === UserStatus.REJECTED
-                          ? "Reopen"
-                          : "Approve"}
+                          ? t("actions.reopen")
+                          : t("actions.approve")}
                       </Button>
                     )}
 
@@ -177,8 +189,8 @@ const UsersPage = () => {
                             <X size={11} className="mr-1" />
                           )}
                           {user.status === UserStatus.APPROVED
-                            ? "Block"
-                            : "Reject"}
+                            ? t("actions.block")
+                            : t("actions.reject")}
                         </Button>
                       )}
                   </div>
@@ -209,8 +221,8 @@ const UsersPage = () => {
                                 <Check size={14} className="mr-2" />
                               )}
                               {user.status === UserStatus.REJECTED
-                                ? "Reopen"
-                                : "Approve"}
+                                ? t("actions.reopen")
+                                : t("actions.approve")}
                             </DropdownMenuItem>
                           )}
 
@@ -230,8 +242,8 @@ const UsersPage = () => {
                                   <X size={14} className="mr-2" />
                                 )}
                                 {user.status === UserStatus.APPROVED
-                                  ? "Block"
-                                  : "Reject"}
+                                  ? t("actions.block")
+                                  : t("actions.reject")}
                               </DropdownMenuItem>
                             </>
                           )}
@@ -267,10 +279,10 @@ const UsersPage = () => {
                         <div className="flex items-center gap-1">
                           <Calendar size={10} className="shrink-0" />
                           <span className="hidden sm:inline whitespace-nowrap">
-                            {formatDate(user.createdAt)}
+                            {showDate(user.createdAt)}
                           </span>
                           <span className="sm:hidden whitespace-nowrap">
-                            {formatDate(user.createdAt)}
+                            {showDate(user.createdAt)}
                           </span>
                         </div>
                         {user.lastLoginAt && (
@@ -282,10 +294,10 @@ const UsersPage = () => {
                               <Clock size={10} className="shrink-0" />
                               <span className="text-blue-600 dark:text-blue-400">
                                 <span className="hidden sm:inline whitespace-nowrap">
-                                  {formatDate(user.lastLoginAt)}
+                                  {showDate(user.lastLoginAt)}
                                 </span>
                                 <span className="sm:hidden">
-                                  {formatDate(user.lastLoginAt)}
+                                  {showDate(user.lastLoginAt)}
                                 </span>
                               </span>
                             </div>
@@ -301,7 +313,7 @@ const UsersPage = () => {
                                   className="text-green-600 dark:text-green-500 shrink-0"
                                 />
                                 <span className="font-mono text-[10px] truncate">
-                                  {user.approvedBy || "Admin"}
+                                  {user.approvedBy || t("users.defaultAdmin")}
                                 </span>
                               </div>
                             </>

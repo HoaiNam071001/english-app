@@ -25,7 +25,12 @@ import { ImageIllustration } from "@/components/ImageIllustration";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { STORAGE_KEY } from "@/constants";
 import { useShortcuts } from "@/contexts/ShortcutsContext";
-import { VOCAB_MODAL_SHORTCUT_DEFS } from "@/lib/shortcutRegistry";
+import {
+  SHORTCUT_PAGES,
+  SHORTCUT_SECTIONS,
+  VOCAB_MODAL_SHORTCUT_DEFS,
+} from "@/lib/shortcutRegistry";
+import { useTranslation } from "react-i18next";
 
 // ==========================================
 // 1. SUB-COMPONENT: ROW ITEM (Giữ nguyên)
@@ -45,6 +50,7 @@ const VocabularyRow: React.FC<VocabularyRowProps> = ({
   onRemove,
   onSave,
 }) => {
+  const { t } = useTranslation("home");
   const [isSaving, setIsSaving] = useState(false);
 
   const handleSaveClick = async () => {
@@ -74,10 +80,10 @@ const VocabularyRow: React.FC<VocabularyRowProps> = ({
         <div className="space-y-2">
           <div className="space-y-1">
             <Label className="text-[10px] text-muted-foreground uppercase font-bold">
-              Word
+              {t("create.word")}
             </Label>
             <Input
-              placeholder="e.g. Apple"
+              placeholder={t("create.wordPlaceholder")}
               value={data.text || ""}
               onChange={(e) => onChange(id, "text", e.target.value)}
               onKeyDown={handleEnterToSave}
@@ -88,7 +94,7 @@ const VocabularyRow: React.FC<VocabularyRowProps> = ({
 
           <div className="">
             <Input
-              placeholder="Meaning"
+              placeholder={t("create.meaningPlaceholder")}
               value={data.meaning || ""}
               onChange={(e) => onChange(id, "meaning", e.target.value)}
               onKeyDown={handleEnterToSave}
@@ -100,10 +106,10 @@ const VocabularyRow: React.FC<VocabularyRowProps> = ({
 
         <div className="space-y-1">
           <Label className="text-[10px] text-muted-foreground uppercase font-bold">
-            Note
+            {t("create.note")}
           </Label>
           <Textarea
-            placeholder="Example sentence..."
+            placeholder={t("create.examplePlaceholder")}
             value={data.example || ""}
             onChange={(e) => onChange(id, "example", e.target.value)}
             className="min-h-[36px] h-9 text-xs py-2 leading-tight resize-none focus:h-20 transition-all z-10 relative"
@@ -118,7 +124,7 @@ const VocabularyRow: React.FC<VocabularyRowProps> = ({
           className="h-8 w-8"
           onClick={handleSaveClick}
           disabled={isSaving || !data.text}
-          title="Save this item"
+          title={t("create.saveItem")}
         >
           {isSaving ? (
             <Loader2 className="animate-spin" size={14} />
@@ -133,7 +139,7 @@ const VocabularyRow: React.FC<VocabularyRowProps> = ({
           className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
           onClick={() => onRemove(id)}
           disabled={isSaving}
-          title="Remove row"
+          title={t("create.removeRow")}
         >
           <Trash2 size={14} />
         </Button>
@@ -167,6 +173,7 @@ const StructuredImportTab = forwardRef<
   StructuredImportHandle,
   StructuredImportTabProps
 >(({ onAdd, onSuccess, rows, setRows }, ref) => {
+  const { t } = useTranslation("home");
   const toast = useToast();
   const [loading, setLoading] = useState(false);
 
@@ -215,7 +222,7 @@ const StructuredImportTab = forwardRef<
   const handleSaveSingleRow = async (id: string) => {
     const rowToSave = rows.find((r) => r._id === id);
     if (!rowToSave || !rowToSave.text?.trim()) {
-      toast.error("Please enter a word.");
+      toast.error(t("create.toast.enterWord"));
       return;
     }
 
@@ -231,15 +238,15 @@ const StructuredImportTab = forwardRef<
       const result = await onAdd([entry]);
 
       if (result.added.length > 0) {
-        toast.success(`Saved "${entry.text}" successfully!`);
+        toast.success(t("create.toast.saved", { word: entry.text }));
         removeRow(id);
         onSuccess();
       } else if (result.skipped.length > 0) {
-        toast.error(`"${entry.text}" already exists in the library!`);
+        toast.error(t("create.toast.exists", { word: entry.text }));
       }
     } catch (error) {
       console.error("Error saving word:", error);
-      toast.error("Failed to save word.");
+      toast.error(t("create.toast.saveFailed"));
     }
   };
 
@@ -247,7 +254,7 @@ const StructuredImportTab = forwardRef<
     const validRows = rows.filter((r) => r.text && r.text.trim() !== "");
 
     if (validRows.length === 0) {
-      toast.error("Please enter at least one word.");
+      toast.error(t("create.toast.enterAtLeastOne"));
       return;
     }
 
@@ -264,7 +271,9 @@ const StructuredImportTab = forwardRef<
 
     if (duplicates.size > 0) {
       toast.error(
-        `Duplicate words found in list: ${Array.from(duplicates).join(", ")}`,
+        t("create.toast.duplicates", {
+          words: Array.from(duplicates).join(", "),
+        }),
       );
       return;
     }
@@ -316,7 +325,7 @@ const StructuredImportTab = forwardRef<
           onClick={addRow}
           className="h-7 gap-1 ml-auto"
         >
-          <Plus size={14} /> Add Line
+          <Plus size={14} /> {t("create.addLine")}
         </Button>
       </div>
 
@@ -335,9 +344,9 @@ const StructuredImportTab = forwardRef<
 
           {rows.length === 0 && (
             <div className="text-center py-10 text-muted-foreground">
-              All items saved! <br />
+              {t("create.toast.allSaved")} <br />
               <Button variant="link" onClick={addRow}>
-                Add more words
+                {t("create.addMoreWords")}
               </Button>
             </div>
           )}
@@ -351,7 +360,7 @@ const StructuredImportTab = forwardRef<
           className="gap-2"
         >
           {loading && <Loader2 className="animate-spin" size={16} />}
-          Save
+          {t("common:actions.save")}
         </Button>
       </div>
     </div>
@@ -377,6 +386,7 @@ export interface RawTextImportHandle {
 
 const RawTextImportTab = forwardRef<RawTextImportHandle, RawTextImportTabProps>(
   ({ onAdd, onSuccess, inputText, setInputText }, ref) => {
+    const { t } = useTranslation("home");
     const [loading, setLoading] = useState(false);
     const [report, setReport] = useState<AddReport | null>(null);
 
@@ -445,19 +455,21 @@ const RawTextImportTab = forwardRef<RawTextImportHandle, RawTextImportTabProps>(
       <div className="flex flex-col gap-2 overflow-hidden h-full">
         <div className="bg-muted/30 p-3 rounded text-sm text-muted-foreground space-y-1">
           <p>
-            Format:{" "}
+            {t("create.formatLabel")}{" "}
             <code className="text-blue-600 font-bold">
-              Word: Meaning | Example
+              {t("create.formatTwo")}
             </code>
           </p>
           <p>
-            Or simple:{" "}
-            <code className="text-blue-600 font-bold">Word: Meaning</code>
+            {t("create.orSimple")}{" "}
+            <code className="text-blue-600 font-bold">
+              {t("create.formatOne")}
+            </code>
           </p>
         </div>
 
         <Textarea
-          placeholder={`mean: ý nghĩa | phần giải thích\nHello | He said hello to me\nApple: Quả táo`}
+          placeholder={t("create.rawPlaceholder")}
           className="font-mono text-sm flex-1 overflow-auto mb-4"
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
@@ -470,7 +482,10 @@ const RawTextImportTab = forwardRef<RawTextImportHandle, RawTextImportTabProps>(
               <div className="text-green-600 flex items-start gap-2">
                 <span>✅</span>
                 <span>
-                  Added ({report.added.length}): {report.added.join(", ")}
+                  {t("create.addedReport", {
+                    count: report.added.length,
+                    words: report.added.join(", "),
+                  })}
                 </span>
               </div>
             )}
@@ -478,8 +493,10 @@ const RawTextImportTab = forwardRef<RawTextImportHandle, RawTextImportTabProps>(
               <div className="text-red-500 flex items-start gap-2">
                 <span>⚠️</span>
                 <span>
-                  Duplicate ({report.skipped.length}):{" "}
-                  {report.skipped.join(", ")}
+                  {t("create.duplicateReport", {
+                    count: report.skipped.length,
+                    words: report.skipped.join(", "),
+                  })}
                 </span>
               </div>
             )}
@@ -492,7 +509,7 @@ const RawTextImportTab = forwardRef<RawTextImportHandle, RawTextImportTabProps>(
             disabled={loading || !inputText}
           >
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Save
+            {t("common:actions.save")}
           </Button>
         </div>
       </div>
@@ -523,6 +540,7 @@ const CreateVocabularyModal = forwardRef<
   CreateVocabularyModalHandle,
   CreateVocabularyModalProps
 >(({ onAddVocabulary, onSuccess }, ref) => {
+  const { t } = useTranslation("home");
   const [open, setOpen] = useState(false);
 
   useImperativeHandle(ref, () => ({
@@ -568,7 +586,7 @@ const CreateVocabularyModal = forwardRef<
   };
 
   useShortcuts(
-    { page: "Trang chủ", section: "Thêm từ vựng mới" },
+    { page: SHORTCUT_PAGES.HOME, section: SHORTCUT_SECTIONS.CREATE_VOCAB },
     [
       {
         ...VOCAB_MODAL_SHORTCUT_DEFS.tabRaw,
@@ -582,8 +600,8 @@ const CreateVocabularyModal = forwardRef<
         ...VOCAB_MODAL_SHORTCUT_DEFS.save,
         description:
           activeTab === CreateVolMode.Raw
-            ? "Lưu nội dung (Raw Text)"
-            : "Lưu tất cả từ (Structured List)",
+            ? "defs.saveRaw"
+            : "defs.saveStructured",
         handler: () => {
           if (activeTab === CreateVolMode.Raw) {
             rawTabRef.current?.triggerSave();
@@ -601,14 +619,14 @@ const CreateVocabularyModal = forwardRef<
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="gap-2" variant="secondary">
-          <Plus size={16} /> Add New Words
+          <Plus size={16} /> {t("create.title")}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] flex flex-col">
         <DialogHeader>
-          <DialogTitle>Import Vocabulary</DialogTitle>
+          <DialogTitle>{t("create.importVocabulary")}</DialogTitle>
           <DialogDescription>
-            Add new words to your library using one of the methods below.
+            {t("create.description")}
           </DialogDescription>
         </DialogHeader>
 
@@ -619,10 +637,10 @@ const CreateVocabularyModal = forwardRef<
         >
           <TabsList className="grid w-full grid-cols-2 mb-4">
             <TabsTrigger value={CreateVolMode.Raw} className="gap-2">
-              <FileText size={16} /> Raw Text
+              <FileText size={16} /> {t("create.rawText")}
             </TabsTrigger>
             <TabsTrigger value={CreateVolMode.Structured} className="gap-2">
-              <List size={16} /> Structured List
+              <List size={16} /> {t("create.structuredList")}
             </TabsTrigger>
           </TabsList>
 

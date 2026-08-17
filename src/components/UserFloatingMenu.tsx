@@ -21,7 +21,9 @@ import {
   UserCog,
   Users,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { LanguageSelectItems } from "./LanguageSelectItems";
 import { ThemeToggle } from "./ThemeToggle";
 import { UserAvatar } from "./UserAvatar";
 
@@ -33,14 +35,14 @@ export const UserFloatingMenu = () => {
   const { confirm } = useConfirm();
   const { open: openShortcutsHelp } = useShortcutsPanel();
   const navigate = useNavigate();
+  const { t } = useTranslation("common");
 
   const onGuestClearData = async () => {
     const isConfirmed = await confirm({
-      title: "Clear Data?",
-      message:
-        "Are you sure you want to delete all data (vocabulary, topics) saved on this device? This action cannot be undone.",
-      confirmText: "Clear Now",
-      cancelText: "Cancel",
+      title: t("userMenu.clearDataTitle"),
+      message: t("userMenu.clearDataMessage"),
+      confirmText: t("userMenu.clearDataConfirm"),
+      cancelText: t("actions.cancel"),
       variant: "destructive",
     });
     if (isConfirmed) {
@@ -51,14 +53,16 @@ export const UserFloatingMenu = () => {
       });
 
       setIsGuest(false);
-      toast.success("Data cleared successfully!");
+      toast.success(t("userMenu.clearDataSuccess"));
     }
   };
 
   if (!user && !isGuest) return null;
 
-  const headerName = isGuest ? "Guest User" : user?.displayName || "User";
-  const headerEmail = isGuest ? "Local Session" : user?.email || "";
+  const headerName = isGuest
+    ? t("userMenu.guestName")
+    : user?.displayName || t("userMenu.defaultUser");
+  const headerEmail = isGuest ? t("userMenu.guestSession") : user?.email || "";
 
   return (
     <DropdownMenu>
@@ -89,7 +93,7 @@ export const UserFloatingMenu = () => {
               </p>
               {isGuest && (
                 <span className="w-fit text-[10px] font-medium text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-900/40 px-1.5 py-0.5 rounded mt-1 inline-block">
-                  GUEST MODE
+                  {t("userMenu.guestBadge")}
                 </span>
               )}
             </div>
@@ -104,13 +108,16 @@ export const UserFloatingMenu = () => {
           onClick={() => navigate(ROUTES.PROFILE)}
         >
           <UserCog className="mr-2 h-4 w-4" />
-          <span>Profile & Settings</span>
+          <span>{t("userMenu.profileSettings")}</span>
         </DropdownMenuItem>
 
         {/* THEME TOGGLE */}
         <div className="px-2 py-1.5">
-          <ThemeToggle text="Theme" />
+          <ThemeToggle text={t("theme.label")} />
         </div>
+
+        {/* LANGUAGE */}
+        <LanguageSelectItems />
 
         {/* KEYBOARD SHORTCUTS */}
         <DropdownMenuItem
@@ -118,7 +125,7 @@ export const UserFloatingMenu = () => {
           onClick={openShortcutsHelp}
         >
           <Keyboard className="mr-2 h-4 w-4" />
-          <span>Keyboard Shortcuts</span>
+          <span>{t("userMenu.keyboardShortcuts")}</span>
           <DropdownMenuShortcut>
             {formatComboLabel("mod+/").join(" ")}
           </DropdownMenuShortcut>
@@ -130,7 +137,7 @@ export const UserFloatingMenu = () => {
         {isGuest && user && (
           <>
             <DropdownMenuLabel className="text-[10px] uppercase text-muted-foreground font-semibold px-2 py-1">
-              Switch back to
+              {t("userMenu.switchBackTo")}
             </DropdownMenuLabel>
             <DropdownMenuItem
               className="p-2 cursor-pointer focus:bg-accent"
@@ -145,7 +152,7 @@ export const UserFloatingMenu = () => {
                     <img
                       src={user.photoURL}
                       className="w-8 h-8 rounded-full border border-border"
-                      alt="User"
+                      alt={t("userMenu.defaultUser")}
                     />
                   ) : (
                     <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
@@ -181,7 +188,7 @@ export const UserFloatingMenu = () => {
               className="cursor-pointer text-popover-foreground"
             >
               <LogOut className="mr-2 h-4 w-4" />
-              <span>Exit Guest Mode</span>
+              <span>{t("userMenu.exitGuestMode")}</span>
             </DropdownMenuItem>
 
             <DropdownMenuItem
@@ -189,7 +196,7 @@ export const UserFloatingMenu = () => {
               className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
             >
               <Trash2 className="mr-2 h-4 w-4" />
-              <span>Clear Data & Exit</span>
+              <span>{t("userMenu.clearDataAndExit")}</span>
             </DropdownMenuItem>
           </>
         )}
@@ -202,7 +209,7 @@ export const UserFloatingMenu = () => {
               className="cursor-pointer"
             >
               <Users className="mr-2 h-4 w-4" />
-              <span>Switch Account</span>
+              <span>{t("userMenu.switchAccount")}</span>
             </DropdownMenuItem>
 
             <DropdownMenuItem
@@ -210,7 +217,7 @@ export const UserFloatingMenu = () => {
               className="cursor-pointer text-destructive focus:text-destructive focus:bg-destructive/10"
             >
               <LogOut className="mr-2 h-4 w-4" />
-              <span>Logout</span>
+              <span>{t("userMenu.logout")}</span>
             </DropdownMenuItem>
           </>
         )}

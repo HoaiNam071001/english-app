@@ -2,6 +2,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { EnMeaningItem } from "@/utils/vocabularyUtils"; // Import type từ file common
 import { CheckedState } from "@radix-ui/react-checkbox";
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 interface EnMeaningSelectorProps {
   meanings: EnMeaningItem[];
@@ -16,10 +17,11 @@ export const EnMeaningSelector: React.FC<EnMeaningSelectorProps> = ({
   onSelectionChange,
   idPrefix = "en-meaning",
 }) => {
+  const { t } = useTranslation(["home", "common"]);
   if (!meanings || meanings.length === 0) {
     return (
       <span className="text-muted-foreground text-xs italic">
-        No definitions found.
+        {t("lookup.noDefinitions")}
       </span>
     );
   }
@@ -57,7 +59,7 @@ export const EnMeaningSelector: React.FC<EnMeaningSelectorProps> = ({
           htmlFor={`${idPrefix}-all`}
           className="text-[9px] md:text-[10px] uppercase text-muted-foreground font-semibold cursor-pointer select-none"
         >
-          Select All
+          {t("lookup.selectAll")}
         </label>
       </div>
 

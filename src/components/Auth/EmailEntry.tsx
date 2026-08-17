@@ -13,6 +13,7 @@ import { useAuth } from "@/hooks/useAuth"; // Hook mới (Redux wrapped)
 import { SavedAccount } from "@/types";
 import { CheckCircle2, Loader2, PersonStanding, User, X } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 const EmailEntry = () => {
@@ -28,6 +29,7 @@ const EmailEntry = () => {
   } = useAuth();
 
   const navigation = useNavigate();
+  const { t } = useTranslation("auth");
   const [savedAccounts, setSavedAccounts] = useState<SavedAccount[]>([]);
 
   useEffect(() => {
@@ -70,10 +72,10 @@ const EmailEntry = () => {
       <Card className="w-full max-w-md shadow-lg border-border bg-card">
         <CardHeader className="text-center pb-2">
           <CardTitle className="text-2xl font-bold text-foreground">
-            Welcome Back 👋
+            {t("login.title")}
           </CardTitle>
           <CardDescription className="text-muted-foreground">
-            Choose an account to continue
+            {t("login.subtitle")}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -102,7 +104,7 @@ const EmailEntry = () => {
                           {acc.photoURL ? (
                             <img
                               src={acc.photoURL}
-                              alt="avatar"
+                              alt={t("login.avatarAlt")}
                               className="h-full w-full object-cover"
                             />
                           ) : (
@@ -125,11 +127,11 @@ const EmailEntry = () => {
                             </span>
                             {isActiveSession ? (
                               <span className="text-[10px] hidden md:inline text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/40 px-1.5 rounded-full ml-1 font-medium flex items-center gap-0.5 w-fit">
-                                Current
+                                {t("login.current")}
                               </span>
                             ) : (
                               <span className="text-[10px] text-muted-foreground bg-muted px-1.5 rounded-full ml-1 w-fit">
-                                Signed out
+                                {t("login.signedOut")}
                               </span>
                             )}
                           </div>
@@ -141,7 +143,7 @@ const EmailEntry = () => {
                             size="icon"
                             className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 opacity-0 group-hover:opacity-100 transition-opacity absolute right-2"
                             onClick={(e) => handleRemoveAccount(e, acc.email)}
-                            title="Remove account"
+                            title={t("login.removeAccount")}
                           >
                             <X size={16} />
                           </Button>
@@ -163,7 +165,7 @@ const EmailEntry = () => {
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
                     <span className="bg-card px-2 text-muted-foreground">
-                      Or add another account
+                      {t("login.orAddAnother")}
                     </span>
                   </div>
                 </div>
@@ -179,11 +181,11 @@ const EmailEntry = () => {
               {loading ? (
                 <Loader2 className="animate-spin" />
               ) : (
-                <img src={logo} alt="Google Logo" className="h-5 w-5" />
+                <img src={logo} alt={t("login.googleLogoAlt")} className="h-5 w-5" />
               )}
               {savedAccounts.length > 0
-                ? "Sign in with another account"
-                : "Continue with Google"}
+                ? t("login.signInAnother")
+                : t("login.continueWithGoogle")}
             </Button>
 
             {savedAccounts.length === 0 && (
@@ -192,7 +194,9 @@ const EmailEntry = () => {
                   <span className="w-full border-t border-border" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-card px-2 text-muted-foreground">Or</span>
+                  <span className="bg-card px-2 text-muted-foreground">
+                    {t("login.or")}
+                  </span>
                 </div>
               </div>
             )}
@@ -204,7 +208,7 @@ const EmailEntry = () => {
               disabled={loading}
             >
               <PersonStanding className="h-4 w-4" />
-              Try without signing in
+              {t("login.tryWithoutSignIn")}
             </Button>
 
             {error && (
@@ -214,7 +218,7 @@ const EmailEntry = () => {
             )}
 
             <div className="text-center text-xs text-muted-foreground mt-4">
-              Guest mode: Data is only saved on this device.
+              {t("login.guestNote")}
             </div>
           </div>
         </CardContent>

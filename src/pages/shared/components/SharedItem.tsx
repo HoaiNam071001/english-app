@@ -17,6 +17,7 @@ import {
   Info,
 } from "lucide-react";
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface SharedItemProps {
   word: VocabularyItem;
@@ -39,6 +40,7 @@ export const SharedItem: React.FC<SharedItemProps> = ({
   hideImportAction = false,
   isWarning = false,
 }) => {
+  const { t } = useTranslation("shared");
   const [isImportedLocal, setIsImportedLocal] = useState(false);
   const [localReveal, setLocalReveal] = useState(isRevealed);
   const currentRevealed = onToggleReveal ? isRevealed : localReveal;
@@ -106,7 +108,7 @@ export const SharedItem: React.FC<SharedItemProps> = ({
                       <AlertTriangle size={14} />
                     </TooltipTrigger>
                     <TooltipContent side="top">
-                      <p>Already exists in your library</p>
+                      <p>{t("item.exists")}</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -186,8 +188,8 @@ export const SharedItem: React.FC<SharedItemProps> = ({
               <TooltipContent>
                 <p>
                   {isImportedLocal
-                    ? "Added to your list"
-                    : "Import to my vocabulary"}
+                    ? t("item.added")
+                    : t("item.import")}
                 </p>
               </TooltipContent>
             </Tooltip>

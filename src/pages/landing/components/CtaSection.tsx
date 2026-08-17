@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/constants";
 import { useAuth } from "@/hooks/useAuth";
 import { ArrowRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { GradientBlob } from "./GradientBlob";
 import { Reveal } from "./Reveal";
@@ -9,6 +10,7 @@ import { Reveal } from "./Reveal";
 export const CtaSection = () => {
   const navigate = useNavigate();
   const { userProfile, isGuest } = useAuth();
+  const { t } = useTranslation("landing");
   const isAuthed = !!userProfile || isGuest;
 
   return (
@@ -22,18 +24,17 @@ export const CtaSection = () => {
             />
             <div className="relative">
               <h2 className="text-2xl font-bold text-foreground sm:text-3xl md:text-4xl">
-                Sẵn sàng nâng trình từ vựng của bạn?
+                {t("final.title")}
               </h2>
               <p className="mx-auto mt-4 max-w-lg text-muted-foreground">
-                Tham gia English Master ngay hôm nay — hoàn toàn miễn phí,
-                không cần thẻ tín dụng.
+                {t("final.description")}
               </p>
               <Button
                 size="lg"
                 onClick={() => navigate(isAuthed ? ROUTES.HOME : ROUTES.LOGIN)}
                 className="mt-8 gap-2 bg-gradient-to-r from-brand-start via-brand-mid to-brand-end px-8 text-primary-foreground shadow-lg shadow-primary/20 hover:from-brand-hover-start hover:to-brand-hover-end"
               >
-                {isAuthed ? "Vào ứng dụng của bạn" : "Bắt đầu miễn phí ngay"}
+                {isAuthed ? t("cta.enterYourApp") : t("cta.startFreeNow")}
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </div>

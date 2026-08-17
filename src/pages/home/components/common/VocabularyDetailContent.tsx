@@ -15,6 +15,7 @@ import moment from "moment";
 import React from "react";
 import { PartSpeech } from "./PartSpeech";
 import { Phonetic } from "./Phonetic/PhoneticItem";
+import { useTranslation } from "react-i18next";
 
 interface VocabularyDetailContentProps {
   item: VocabularyItem;
@@ -24,6 +25,7 @@ interface VocabularyDetailContentProps {
 export const VocabularyDetailContent: React.FC<
   VocabularyDetailContentProps
 > = ({ item, topic }) => {
+  const { t } = useTranslation("home");
   const formatDate = (timestamp: number) => {
     return moment(timestamp).format("HH:mm DD/MM/YYYY");
   };
@@ -93,7 +95,7 @@ export const VocabularyDetailContent: React.FC<
                           </TooltipTrigger>
                           <TooltipContent side="top">
                             <p className="text-xs">
-                              {pho.audio ? "Play Audio" : "Text-to-Speech"}
+                              {pho.audio ? t("detail.playAudio") : t("detail.tts")}
                             </p>
                           </TooltipContent>
                         </Tooltip>
@@ -119,19 +121,19 @@ export const VocabularyDetailContent: React.FC<
       <div className="space-y-3">
         <div>
           <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground mb-1">
-            <BookOpen size={14} /> Meaning
+            <BookOpen size={14} /> {t("detail.meaning")}
             <div className="ml-auto flex items-center gap-1 whitespace-nowrap">
               {item.isLearned ? (
                 <span
                   className={`${badgeBaseClass} border-transparent bg-green-100 text-green-700 hover:bg-green-200 dark:bg-green-900/30 dark:text-green-400`}
                 >
-                  <Check size={12} className="mr-1" /> Learned
+                  <Check size={12} className="mr-1" /> {t("detail.learned")}
                 </span>
               ) : (
                 <span
                   className={`${badgeBaseClass} border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80`}
                 >
-                  <X size={12} className="mr-1" /> Not learned
+                  <X size={12} className="mr-1" /> {t("detail.notLearned")}
                 </span>
               )}
             </div>

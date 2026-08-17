@@ -1,0 +1,46 @@
+{
+  "title": "Public Vocabulary Library",
+  "subtitle": "Browse collections shared by the community",
+  "searchPlaceholder": "Search community...",
+  "datePlaceholder": "YYYY-MM-DD",
+  "clearFilter": "Clear Filter",
+  "hideOwned": "Hide owned words",
+  "showAll": "Show all words",
+  "toggleMeanings": "Toggle Meanings",
+  "selectAllVisible": "Select All Visible",
+  "importSelected": "Import {{count}}",
+  "loading": "Loading...",
+  "loadingLibrary": "Loading library...",
+  "loadMore": "Load More",
+  "emptyTitle": "No words found",
+  "emptyHint": "Try turning off the 'Hide owned words' filter.",
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "unknownDate": "Unknown Date",
+  "item": {
+    "import": "Import to my vocabulary",
+    "added": "Added to your list",
+    "exists": "Already exists in your library"
+  },
+  "preview": {
+    "title": "Import Preview",
+    "resolveConflicts": "Resolve Conflicts",
+    "conflict": "Conflict:",
+    "keepAll": "Keep All",
+    "overwriteAll": "Overwrite All",
+    "selectAll": "Select All",
+    "deselectAll": "Deselect All"
+  },
+  "toast": {
+    "importSuccess": "Import successful: {{added}} added, {{updated}} updated.",
+    "noChanges": "No changes were made.",
+    "importFailed": "Import failed",
+    "loadFailed": "Could not load shared data"
+  },
+  "noResultsFor": "No results for \"{{query}}\"",
+  "hintCtrlClick": "+ Click to select",
+  "hintShiftRange": "for range",
+  "newSelected": "New selected",
+  "conflicts": "Conflicts",
+  "confirmImport": "Confirm Import ({{count}})"
+}

@@ -10,10 +10,12 @@ import { WordType } from "@/types";
 import { useCallback } from "react";
 import { useAuth } from "./useAuth";
 import { useToast } from "./useToast";
+import { useTranslation } from "react-i18next";
 
 export const useWordTypes = () => {
   const { userProfile } = useAuth();
   const toast = useToast();
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const currentUserId = userProfile?.id || GUEST_INFO.id;
   const {
@@ -28,10 +30,10 @@ export const useWordTypes = () => {
   ) => {
     try {
       await dispatch(addWordType({ userId: userProfile?.id, entry })).unwrap();
-      toast.success("Type created successfully");
+      toast.success(t("home:wordTypes.toast.created"));
     } catch (error) {
       console.error(error);
-      toast.error("Failed to create type");
+      toast.error(t("home:wordTypes.toast.createFailed"));
     }
   };
 
@@ -40,20 +42,20 @@ export const useWordTypes = () => {
       await dispatch(
         updateWordType({ userId: userProfile?.id, id, updates })
       ).unwrap();
-      toast.success("Type updated");
+      toast.success(t("home:wordTypes.toast.updated"));
     } catch (error) {
       console.error(error);
-      toast.error("Failed to update type");
+      toast.error(t("home:wordTypes.toast.updateFailed"));
     }
   };
 
   const deleteType = async (id: string) => {
     try {
       await dispatch(deleteWordType({ userId: userProfile?.id, id })).unwrap();
-      toast.success("Type deleted");
+      toast.success(t("home:wordTypes.toast.deleted"));
     } catch (error) {
       console.error(error);
-      toast.error("Failed to delete type");
+      toast.error(t("home:wordTypes.toast.deleteFailed"));
     }
   };
 

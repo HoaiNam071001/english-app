@@ -1,0 +1,67 @@
+{
+  "pages": {
+    "global": "Whole app",
+    "home": "Home"
+  },
+  "sections": {
+    "session": "Study session",
+    "createVocab": "Add new vocabulary"
+  },
+  "defs": {
+    "toggleTheme": "Switch between Light / Dark theme",
+    "openHelp": "Show the keyboard shortcut list",
+    "openCreateVocab": "Open the Add vocabulary modal",
+    "newSession": "Create a new session (tab)",
+    "closeSession": "Close the current session (requires at least 2 sessions)",
+    "resetSession": "Reset all sessions (asks for confirmation first)",
+    "tabRaw": "Switch to the Raw Text tab",
+    "tabStructured": "Switch to the Structured List tab",
+    "save": "Save (Raw Text or Structured List, depending on the open tab)",
+    "saveRaw": "Save content (Raw Text)",
+    "saveStructured": "Save all words (Structured List)",
+    "saveRowHint": "Save the word being typed (when the Word/Meaning field is focused)"
+  },
+  "keyGroups": {
+    "modifiers": "Modifier keys",
+    "letters": "Letters",
+    "numbers": "Numbers",
+    "functionKeys": "Function keys",
+    "navigation": "Navigation",
+    "special": "Special",
+    "symbols": "Symbols"
+  },
+  "validation": {
+    "empty": "No key selected yet.",
+    "duplicate": "The same key cannot be used twice in one combination.",
+    "needMainKey": "The combination needs at least one main key (not Ctrl/Alt/Shift/Meta).",
+    "tooManyMainKeys": "Only one main key is allowed per combination.",
+    "reserved": "This combination is reserved by the browser or operating system and cannot be overridden.",
+    "noModifier": "No modifier key (Ctrl/Alt/Shift) — it may fire accidentally while you work outside input fields."
+  },
+  "list": {
+    "active": "Open",
+    "inactive": "Not opened",
+    "custom": "Custom",
+    "disabled": "Disabled",
+    "empty": "No shortcuts available yet.",
+    "fixed": "Fixed",
+    "editTitle": "Edit shortcut"
+  },
+  "help": {
+    "title": "Keyboard shortcuts",
+    "description": "All shortcuts in the app, grouped by page and then by component. Groups marked \"Not opened\" are inactive because that page or component has not been opened in this session — click to preview them, and open the page to use them."
+  },
+  "editor": {
+    "title": "Edit shortcut",
+    "selectKey": "Select a key",
+    "removeKey": "Remove this key",
+    "addKey": "Add key",
+    "preview": "Preview:",
+    "previewEmpty": "(empty)",
+    "resetDefault": "Restore default",
+    "conflictTitle": "Shortcut conflict",
+    "conflictDescription": "This combination is already used by <0>{{description}}</0> ({{group}}). Do you want to override it (the other feature loses its shortcut) or pick a different combination?",
+    "conflictEdit": "Edit again",
+    "conflictOverride": "Override"
+  }
+}

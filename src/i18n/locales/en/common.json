@@ -1,0 +1,94 @@
+{
+  "appName": "English Master",
+  "actions": {
+    "save": "Save",
+    "saving": "Saving...",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "agree": "OK",
+    "delete": "Delete",
+    "edit": "Edit",
+    "close": "Close",
+    "add": "Add",
+    "create": "Create",
+    "update": "Update",
+    "search": "Search",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "retry": "Try again",
+    "copy": "Copy",
+    "copied": "Copied",
+    "import": "Import",
+    "share": "Share",
+    "select": "Select",
+    "selectAll": "Select all",
+    "deselectAll": "Deselect all",
+    "apply": "Apply",
+    "reset": "Reset",
+    "done": "Done",
+    "skip": "Skip",
+    "seeMore": "See more",
+    "seeLess": "See less",
+    "expand": "See more",
+    "collapse": "See less"
+  },
+  "states": {
+    "loading": "Loading...",
+    "processing": "Processing...",
+    "empty": "No data yet",
+    "error": "Something went wrong",
+    "noResults": "No results found"
+  },
+  "confirm": {
+    "defaultTitle": "Confirm"
+  },
+  "theme": {
+    "label": "Theme",
+    "toggle": "Toggle theme",
+    "light": "Light mode",
+    "dark": "Dark mode",
+    "lightShort": "Light",
+    "darkShort": "Dark",
+    "enableLight": "Switch to light mode",
+    "enableDark": "Switch to dark mode"
+  },
+  "language": {
+    "label": "Language",
+    "description": "Choose the display language of the app. Your choice is saved on this device.",
+    "switch": "Change language",
+    "vi": "Tiếng Việt",
+    "en": "English",
+    "changed": "Switched to English"
+  },
+  "nav": {
+    "home": "My Vocabulary",
+    "homeShort": "My Vocab",
+    "note": "Note",
+    "community": "Community",
+    "admin": "Admin",
+    "goHome": "Back to home page",
+    "toggleMenu": "Toggle menu"
+  },
+  "userMenu": {
+    "guestName": "Guest User",
+    "guestSession": "Local Session",
+    "defaultUser": "User",
+    "guestBadge": "GUEST MODE",
+    "profileSettings": "Profile & Settings",
+    "keyboardShortcuts": "Keyboard Shortcuts",
+    "switchBackTo": "Switch back to",
+    "exitGuestMode": "Exit Guest Mode",
+    "clearDataAndExit": "Clear Data & Exit",
+    "switchAccount": "Switch Account",
+    "logout": "Logout",
+    "clearDataTitle": "Clear Data?",
+    "clearDataMessage": "Are you sure you want to delete all data (vocabulary, topics) saved on this device? This action cannot be undone.",
+    "clearDataConfirm": "Clear Now",
+    "clearDataSuccess": "Data cleared successfully!"
+  },
+  "pwa": {
+    "updateAvailable": "A new version is available. Would you like to refresh?",
+    "offlineReady": "The app is ready to work offline!"
+  }
+}

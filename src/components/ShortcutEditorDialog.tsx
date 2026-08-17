@@ -33,6 +33,7 @@ import {
 import { STATIC_SHORTCUT_CATALOG } from "@/lib/shortcutRegistry";
 import { AlertTriangle, Plus, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { Trans, useTranslation } from "react-i18next";
 
 interface ConflictInfo {
   id: string;
@@ -54,6 +55,7 @@ export const ShortcutEditorDialog: React.FC<ShortcutEditorDialogProps> = ({
   groupLabel,
 }) => {
   const { catalog, overrides, setOverride } = useShortcutsPanel();
+  const { t } = useTranslation("shortcuts");
   const [slots, setSlots] = useState<string[]>([]);
   const [conflict, setConflict] = useState<ConflictInfo | null>(null);
 
@@ -131,9 +133,9 @@ export const ShortcutEditorDialog: React.FC<ShortcutEditorDialogProps> = ({
       <Dialog open={open && !conflict} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-[440px]">
           <DialogHeader>
-            <DialogTitle>Sửa phím tắt</DialogTitle>
+            <DialogTitle>{t("editor.title")}</DialogTitle>
             <DialogDescription>
-              {groupLabel} · {binding.description}
+              {groupLabel} · {t(binding.description)}
             </DialogDescription>
           </DialogHeader>
 
@@ -143,12 +145,12 @@ export const ShortcutEditorDialog: React.FC<ShortcutEditorDialogProps> = ({
                 <div key={idx} className="flex items-center gap-1">
                   <Select value={slot || undefined} onValueChange={(v) => updateSlot(idx, v)}>
                     <SelectTrigger size="sm" className="w-32">
-                      <SelectValue placeholder="Chọn phím" />
+                      <SelectValue placeholder={t("editor.selectKey")} />
                     </SelectTrigger>
                     <SelectContent>
                       {KEY_OPTION_GROUPS.map((g) => (
                         <SelectGroup key={g.group}>
-                          <SelectLabel>{g.group}</SelectLabel>
+                          <SelectLabel>{t(g.group)}</SelectLabel>
                           {g.options.map((opt) => (
                             <SelectItem key={opt.value} value={opt.value}>
                               {opt.label}
@@ -163,7 +165,7 @@ export const ShortcutEditorDialog: React.FC<ShortcutEditorDialogProps> = ({
                     size="icon"
                     className="h-7 w-7 text-muted-foreground hover:text-destructive"
                     onClick={() => removeSlot(idx)}
-                    title="Xoá phím này"
+                    title={t("editor.removeKey")}
                   >
                     <X size={14} />
                   </Button>
@@ -177,15 +179,19 @@ export const ShortcutEditorDialog: React.FC<ShortcutEditorDialogProps> = ({
                   className="h-8 gap-1"
                   onClick={addSlot}
                 >
-                  <Plus size={14} /> Thêm phím
+                  <Plus size={14} /> {t("editor.addKey")}
                 </Button>
               )}
             </div>
 
             <div className="flex items-center gap-2 flex-wrap min-h-[28px]">
-              <span className="text-xs text-muted-foreground">Xem trước:</span>
+              <span className="text-xs text-muted-foreground">
+                {t("editor.preview")}
+              </span>
               {slots.filter(Boolean).length === 0 ? (
-                <span className="text-xs text-muted-foreground italic">(trống)</span>
+                <span className="text-xs text-muted-foreground italic">
+                  {t("editor.previewEmpty")}
+                </span>
               ) : (
                 formatComboLabel(previewCombo).map((k, i) => (
                   <Badge
@@ -206,7 +212,7 @@ export const ShortcutEditorDialog: React.FC<ShortcutEditorDialogProps> = ({
                 }`}
               >
                 <AlertTriangle size={13} className="mt-0.5 shrink-0" />
-                {validation.message}
+                {validation.messageKey && t(validation.messageKey)}
               </p>
             )}
           </div>
@@ -218,14 +224,14 @@ export const ShortcutEditorDialog: React.FC<ShortcutEditorDialogProps> = ({
               onClick={handleResetDefault}
               className="text-muted-foreground"
             >
-              Khôi phục mặc định
+              {t("editor.resetDefault")}
             </Button>
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Hủy
+                {t("common:actions.cancel")}
               </Button>
               <Button onClick={handleSaveClick} disabled={validation.level === "error"}>
-                Lưu
+                {t("common:actions.save")}
               </Button>
             </div>
           </DialogFooter>
@@ -236,21 +242,27 @@ export const ShortcutEditorDialog: React.FC<ShortcutEditorDialogProps> = ({
         <DialogContent className="sm:max-w-[420px]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-orange-500" /> Trùng phím tắt
+              <AlertTriangle className="h-5 w-5 text-orange-500" />{" "}
+              {t("editor.conflictTitle")}
             </DialogTitle>
             <DialogDescription className="pt-1">
-              Tổ hợp này hiện đang được dùng bởi{" "}
-              <strong className="text-foreground">{conflict?.description}</strong> (
-              {conflict?.groupLabel}). Bạn muốn ghi đè (tính năng kia sẽ bị tắt phím
-              tắt) hay chỉnh lại tổ hợp khác?
+              <Trans
+                ns="shortcuts"
+                i18nKey="editor.conflictDescription"
+                values={{
+                  description: conflict ? t(conflict.description) : "",
+                  group: conflict?.groupLabel ?? "",
+                }}
+                components={[<strong className="text-foreground" />]}
+              />
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setConflict(null)}>
-              Chỉnh sửa lại
+              {t("editor.conflictEdit")}
             </Button>
             <Button variant="destructive" onClick={handleOverrideConfirm}>
-              Ghi đè
+              {t("editor.conflictOverride")}
             </Button>
           </DialogFooter>
         </DialogContent>

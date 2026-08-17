@@ -5,6 +5,7 @@ import { formatNoteForSave, transformApiData } from "@/utils/vocabularyUtils";
 import { ArrowLeft, Check } from "lucide-react";
 import { useMemo, useState } from "react";
 import { EnMeaningSelector } from "../Lookup/EnMeaningSelector";
+import { useTranslation } from "react-i18next";
 
 interface DraftSelectionViewProps {
   // Nhận vào Raw Data từ API
@@ -20,6 +21,7 @@ export const DraftSelectionView = ({
   onApply,
   onCancel,
 }: DraftSelectionViewProps) => {
+  const { t } = useTranslation(["home", "common"]);
   // 1. Transform raw data thành cấu trúc để hiển thị
   const draft = useMemo(() => transformApiData(data), [data]);
 
@@ -73,13 +75,13 @@ export const DraftSelectionView = ({
         >
           <ArrowLeft size={14} />
         </Button>
-        <h4 className="font-semibold text-sm">Select Data to Apply</h4>
+        <h4 className="font-semibold text-sm">{t("draft.title")}</h4>
       </div>
 
       {/* BODY */}
       <div className="flex-1 overflow-y-auto space-y-4">
         <p className="text-[10px] text-muted-foreground">
-          Select individual fields to override your current data.
+          {t("draft.description")}
         </p>
 
         {/* 1. PHONETICS */}
@@ -94,7 +96,9 @@ export const DraftSelectionView = ({
           >
             <Checkbox checked={selPhonetics} className="mt-1" />
             <div className="flex-1 space-y-1">
-              <span className="text-xs font-semibold block">Phonetics</span>
+              <span className="text-xs font-semibold block">
+                {t("draft.phonetics")}
+              </span>
               <div className="flex flex-col gap-1">
                 {draft.phonetics.map((p, i) => (
                   <div
@@ -116,7 +120,7 @@ export const DraftSelectionView = ({
         {draft.partOfSpeech.length > 0 && (
           <div className="p-2 rounded-md border border-muted bg-muted/10">
             <span className="text-xs font-semibold block mb-2">
-              Part of Speech
+              {t("draft.partOfSpeech")}
             </span>
             <div className="flex flex-col gap-2">
               {draft.partOfSpeech.map((pos) => {
@@ -149,7 +153,7 @@ export const DraftSelectionView = ({
           <div className="p-2 rounded-md border border-muted bg-muted/10">
             <div className="mb-2">
               <span className="text-xs font-semibold">
-                Note (English Details)
+                {t("draft.note")}
               </span>
             </div>
             <EnMeaningSelector
@@ -170,10 +174,10 @@ export const DraftSelectionView = ({
           className="h-7 text-xs"
           onClick={onCancel}
         >
-          Cancel
+          {t("common:actions.cancel")}
         </Button>
         <Button size="sm" className="h-7 text-xs" onClick={handleApply}>
-          <Check size={14} className="mr-1" /> Apply Selected
+          <Check size={14} className="mr-1" /> {t("draft.apply")}
         </Button>
       </div>
     </div>

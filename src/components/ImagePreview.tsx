@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 export const ImagePreview = ({
   url,
@@ -9,6 +10,7 @@ export const ImagePreview = ({
   w?: string | number;
   h?: string | number;
 }) => {
+  const { t } = useTranslation("home");
   return (
     <div
       style={{
@@ -24,7 +26,7 @@ export const ImagePreview = ({
       {url ? (
         <img
           src={url}
-          alt="preview"
+          alt={t("home:image.previewAlt")}
           className={cn("h-full w-full object-cover")}
           onError={(e) => {
             (e.target as HTMLImageElement).src =
@@ -32,7 +34,7 @@ export const ImagePreview = ({
           }}
         />
       ) : (
-        <span className="text-[10px] text-muted-foreground">No img</span>
+        <span className="text-[10px] text-muted-foreground">{t("home:image.noImageShort")}</span>
       )}
     </div>
   );

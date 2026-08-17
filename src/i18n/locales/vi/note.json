@@ -1,0 +1,57 @@
+{
+  "toolbar": {
+    "searchPlaceholder": "Tìm theo từ khoá...",
+    "collapseAll": "Thu gọn tất cả",
+    "expandAll": "Mở rộng tất cả",
+    "groupByDate": "Nhóm theo ngày",
+    "grouped": "Đã nhóm",
+    "noGroup": "Không nhóm",
+    "gridView": "Dạng lưới",
+    "listView": "Dạng danh sách",
+    "newNote": "Ghi chú mới"
+  },
+  "groups": {
+    "all": "Tất cả ghi chú",
+    "today": "Hôm nay",
+    "yesterday": "Hôm qua"
+  },
+  "list": {
+    "syncing": "Đang đồng bộ ghi chú của bạn...",
+    "emptyTitle": "Không tìm thấy ghi chú nào",
+    "emptySearch": "Không tìm thấy nội dung nào khớp với \"{{query}}\"",
+    "emptyHint": "Bắt đầu bằng cách tạo ghi chú đầu tiên của bạn.",
+    "createNote": "Tạo ghi chú",
+    "loadMore": "Tải các ghi chú cũ hơn"
+  },
+  "card": {
+    "edit": "Sửa",
+    "delete": "Xoá",
+    "noPreview": "Không có nội dung xem trước"
+  },
+  "delete": {
+    "title": "Xoá ghi chú?",
+    "message": "Bạn có chắc muốn xoá ghi chú này? Hành động này không thể hoàn tác.",
+    "confirm": "Xoá"
+  },
+  "editor": {
+    "viewTitle": "Xem chi tiết",
+    "editTitle": "Sửa ghi chú",
+    "createTitle": "Tạo ghi chú mới",
+    "createdAt": "Tạo lúc: {{value}}",
+    "updatedAt": "Cập nhật: {{value}}",
+    "titleLabel": "Tiêu đề",
+    "titlePlaceholder": "Nhập tiêu đề ghi chú...",
+    "contentLabel": "Nội dung",
+    "update": "Cập nhật ghi chú",
+    "save": "Lưu ghi chú"
+  },
+  "toast": {
+    "loadFailed": "Không tải được ghi chú",
+    "created": "Đã tạo ghi chú!",
+    "createFailed": "Không tạo được ghi chú",
+    "saved": "Đã lưu ghi chú!",
+    "saveFailed": "Không lưu được ghi chú",
+    "deleted": "Đã xoá ghi chú",
+    "deleteFailed": "Không xoá được ghi chú"
+  }
+}

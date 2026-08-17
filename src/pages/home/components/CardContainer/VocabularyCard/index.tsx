@@ -3,6 +3,7 @@ import { TOPIC_COLORS } from "@/constants";
 import { TopicItem, VocabularyItem } from "@/types";
 import { Pin } from "lucide-react";
 import React, { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { EditVocabularyModal } from "../../common/EditVocabularyModal";
 import { FlashcardCommand } from "../FlashcardSection";
 import { CardBack } from "./CardBack";
@@ -42,6 +43,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
   onDelete,
   onEnterZoomMode,
 }) => {
+  const { t } = useTranslation("home");
   const [loading, setLoading] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
 
@@ -114,7 +116,7 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
         {isFlipped && item.isPinned && (
           <div
             className="absolute -top-1 -right-1 z-40 transition-all duration-300 pointer-events-none"
-            title="Pinned"
+            title={t("card.pinned")}
           >
             <Pin
               size={16}

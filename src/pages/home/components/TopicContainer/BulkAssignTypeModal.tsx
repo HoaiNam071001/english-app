@@ -9,6 +9,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { useEffect, useState } from "react";
 import WordTypeSelector from "../common/WordTypeSelector";
+import { useTranslation } from "react-i18next";
 
 interface BulkAssignTypeModalProps {
   open: boolean;
@@ -23,6 +24,7 @@ export const BulkAssignTypeModal: React.FC<BulkAssignTypeModalProps> = ({
   selectedCount,
   onConfirm,
 }) => {
+  const { t } = useTranslation(["home", "common"]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
   useEffect(() => {
     if (open) setSelectedTypes([]);
@@ -35,15 +37,15 @@ export const BulkAssignTypeModal: React.FC<BulkAssignTypeModalProps> = ({
           <DialogTitle>Assign Types to {selectedCount} items</DialogTitle>
         </DialogHeader>
         <div className="py-4">
-          <Label className="mb-2 block">Select Word Types</Label>
+          <Label className="mb-2 block">{t("wordTypes.selectTitle")}</Label>
           <WordTypeSelector value={selectedTypes} onChange={setSelectedTypes} />
           <p className="text-xs text-muted-foreground mt-2">
-            Warning: This will overwrite existing types.
+            {t("wordTypes.overwriteWarning")}
           </p>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancel
+            {t("common:actions.cancel")}
           </Button>
           <Button
             onClick={() => {
@@ -51,7 +53,7 @@ export const BulkAssignTypeModal: React.FC<BulkAssignTypeModalProps> = ({
               onOpenChange(false);
             }}
           >
-            Apply
+            {t("common:actions.apply")}
           </Button>
         </DialogFooter>
       </DialogContent>

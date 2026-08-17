@@ -30,6 +30,7 @@ import {
 } from "lucide-react";
 import React, { useMemo, useState } from "react";
 import { WordTypeManagerModal } from "../common/WordTypeManagerModal";
+import { useTranslation } from "react-i18next";
 
 interface TopicListProps {
   topics: TopicItem[];
@@ -48,6 +49,7 @@ const TopicList: React.FC<TopicListProps> = ({
   onUpdateTopic,
   onDeleteTopic,
 }) => {
+  const { t } = useTranslation(["home", "common"]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTopicId, setEditingTopicId] = useState<string | null>(null); // null = mode create
   const [isTypeManagerOpen, setIsTypeManagerOpen] = useState(false);
@@ -116,9 +118,11 @@ const TopicList: React.FC<TopicListProps> = ({
         onOpenChange={setIsTypeManagerOpen}
       />
       <div className="px-4 pt-2 pb-2 gap-4 border-b flex items-center bg-card">
-        <h3 className="font-semibold text-card-foreground">Topics</h3>
+        <h3 className="font-semibold text-card-foreground">
+          {t("topics.title")}
+        </h3>
 
-        <SimpleTooltip content={"Edit Word Types"}>
+        <SimpleTooltip content={t("topics.editWordTypes")}>
           <Button
             variant="ghost"
             size="icon"
@@ -129,14 +133,14 @@ const TopicList: React.FC<TopicListProps> = ({
           </Button>
         </SimpleTooltip>
 
-        <SimpleTooltip content={"New Topic"}>
+        <SimpleTooltip content={t("topics.newTopic")}>
           <Button
             size="sm"
             variant="outline"
             className="h-8 gap-1 "
             onClick={handleOpenCreate}
           >
-            <FolderPlus size={16} /> <span className="text-xs">New</span>
+            <FolderPlus size={16} /> <span className="text-xs">{t("topics.new")}</span>
           </Button>
         </SimpleTooltip>
       </div>
@@ -152,7 +156,9 @@ const TopicList: React.FC<TopicListProps> = ({
               <Folder size={20} />
             </div>
             <div className="flex-1">
-              <h4 className="font-bold text-card-foreground">All Vocabulary</h4>
+              <h4 className="font-bold text-card-foreground">
+                {t("topics.all")}
+              </h4>
               <p className="text-xs text-muted-foreground">
                 Total: {vocabulary.length} words
               </p>
@@ -187,7 +193,7 @@ const TopicList: React.FC<TopicListProps> = ({
                     </span>
                     <span>•</span>
                     <span className="truncate">
-                      {topic.desc || "No description"}
+                      {topic.desc || t("topics.noDescription")}
                     </span>
                   </div>
                 </div>
@@ -205,13 +211,13 @@ const TopicList: React.FC<TopicListProps> = ({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                       <DropdownMenuItem onClick={() => handleOpenEdit(topic)}>
-                        <Pencil className="mr-2 h-4 w-4" /> Edit Topic
+                        <Pencil className="mr-2 h-4 w-4" /> {t("topics.editTitle")}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => onDeleteTopic(topic.id)}
                         className="text-red-600 focus:text-red-600"
                       >
-                        <Trash2 className="mr-2 h-4 w-4" /> Delete Topic
+                        <Trash2 className="mr-2 h-4 w-4" /> {t("topics.deleteTitle")}
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -227,24 +233,24 @@ const TopicList: React.FC<TopicListProps> = ({
         <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {editingTopicId ? "Edit Topic" : "Create New Topic"}
+              {editingTopicId ? t("topics.editTitle") : t("topics.createTitle")}
             </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div className="space-y-2">
-              <Label>Topic Name</Label>
+              <Label>{t("topics.name")}</Label>
               <Input
-                placeholder="e.g. IELTS, Travel..."
+                placeholder={t("topics.namePlaceholder")}
                 value={label}
                 onChange={(e) => setLabel(e.target.value)}
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Description</Label>
+              <Label>{t("topics.description")}</Label>
               <Textarea
-                placeholder="Short description..."
+                placeholder={t("topics.descriptionPlaceholder")}
                 value={desc}
                 onChange={(e) => setDesc(e.target.value)}
                 className="h-20"
@@ -253,7 +259,7 @@ const TopicList: React.FC<TopicListProps> = ({
 
             {/* Color Grid */}
             <div className="space-y-2">
-              <Label>Color</Label>
+              <Label>{t("topics.color")}</Label>
               <div className="flex flex-wrap gap-2">
                 {TOPIC_COLORS.map((c) => (
                   <button
@@ -279,7 +285,7 @@ const TopicList: React.FC<TopicListProps> = ({
 
             {/* Icon Grid */}
             <div className="space-y-2">
-              <Label>Icon</Label>
+              <Label>{t("topics.icon")}</Label>
               <ScrollArea className="h-32 rounded-md border p-2 bg-muted/50">
                 <div className="grid grid-cols-6 gap-2 p-1">
                   {ICON_KEYS.map((k) => {
@@ -307,13 +313,13 @@ const TopicList: React.FC<TopicListProps> = ({
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
-              Cancel
+              {t("common:actions.cancel")}
             </Button>
             <Button
               onClick={handleSave}
               className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
-              {editingTopicId ? "Save Changes" : "Create Topic"}
+              {editingTopicId ? t("topics.saveChanges") : t("topics.create")}
             </Button>
           </DialogFooter>
         </DialogContent>

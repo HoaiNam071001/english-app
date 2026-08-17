@@ -1,0 +1,67 @@
+{
+  "pages": {
+    "global": "Toàn ứng dụng",
+    "home": "Trang chủ"
+  },
+  "sections": {
+    "session": "Phiên học (Session)",
+    "createVocab": "Thêm từ vựng mới"
+  },
+  "defs": {
+    "toggleTheme": "Chuyển giao diện Sáng / Tối",
+    "openHelp": "Hiển thị danh sách phím tắt",
+    "openCreateVocab": "Mở modal Thêm từ vựng mới",
+    "newSession": "Tạo session (tab) mới",
+    "closeSession": "Đóng session đang mở (cần có từ 2 session trở lên)",
+    "resetSession": "Reset toàn bộ session (có xác nhận trước khi xoá)",
+    "tabRaw": "Chuyển sang tab Raw Text",
+    "tabStructured": "Chuyển sang tab Structured List",
+    "save": "Lưu (Raw Text hoặc Structured List, tuỳ tab đang mở)",
+    "saveRaw": "Lưu nội dung (Raw Text)",
+    "saveStructured": "Lưu tất cả từ (Structured List)",
+    "saveRowHint": "Lưu từ đang nhập (khi focus ở ô Word/Meaning)"
+  },
+  "keyGroups": {
+    "modifiers": "Phím bổ trợ",
+    "letters": "Chữ cái",
+    "numbers": "Số",
+    "functionKeys": "Phím chức năng",
+    "navigation": "Điều hướng",
+    "special": "Đặc biệt",
+    "symbols": "Ký hiệu"
+  },
+  "validation": {
+    "empty": "Chưa chọn phím nào.",
+    "duplicate": "Không thể chọn trùng một phím trong cùng tổ hợp.",
+    "needMainKey": "Tổ hợp cần có ít nhất 1 phím chính (không phải Ctrl/Alt/Shift/Meta).",
+    "tooManyMainKeys": "Chỉ được chọn tối đa 1 phím chính trong 1 tổ hợp.",
+    "reserved": "Tổ hợp này được trình duyệt/hệ điều hành dùng riêng, không thể ghi đè.",
+    "noModifier": "Không có phím bổ trợ (Ctrl/Alt/Shift) — dễ bị kích hoạt ngoài ý muốn khi thao tác ngoài ô nhập liệu."
+  },
+  "list": {
+    "active": "Đang mở",
+    "inactive": "Chưa mở",
+    "custom": "Tuỳ chỉnh",
+    "disabled": "Đã tắt",
+    "empty": "Chưa có phím tắt nào khả dụng.",
+    "fixed": "Cố định",
+    "editTitle": "Sửa phím tắt"
+  },
+  "help": {
+    "title": "Phím tắt",
+    "description": "Toàn bộ phím tắt của app, theo Trang rồi tới thành phần. Nhóm \"Chưa mở\" hiện đang không áp dụng vì trang/thành phần đó chưa được mở trong phiên này — bấm để xem trước, mở trang đó để dùng được."
+  },
+  "editor": {
+    "title": "Sửa phím tắt",
+    "selectKey": "Chọn phím",
+    "removeKey": "Xoá phím này",
+    "addKey": "Thêm phím",
+    "preview": "Xem trước:",
+    "previewEmpty": "(trống)",
+    "resetDefault": "Khôi phục mặc định",
+    "conflictTitle": "Trùng phím tắt",
+    "conflictDescription": "Tổ hợp này hiện đang được dùng bởi <0>{{description}}</0> ({{group}}). Bạn muốn ghi đè (tính năng kia sẽ bị tắt phím tắt) hay chỉnh lại tổ hợp khác?",
+    "conflictEdit": "Chỉnh sửa lại",
+    "conflictOverride": "Ghi đè"
+  }
+}

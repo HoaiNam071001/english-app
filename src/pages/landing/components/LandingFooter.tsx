@@ -1,4 +1,8 @@
+import { useTranslation } from "react-i18next";
+
 export const LandingFooter = () => {
+  const { t } = useTranslation("landing");
+
   return (
     <footer className="relative border-t border-border py-8">
       <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 sm:flex-row md:px-8">
@@ -9,7 +13,7 @@ export const LandingFooter = () => {
           </span>
         </a>
         <p className="text-xs text-muted-foreground">
-          © {new Date().getFullYear()} English Master. Học từ vựng mỗi ngày.
+          {t("footer.copyright", { year: new Date().getFullYear() })}
         </p>
       </div>
     </footer>

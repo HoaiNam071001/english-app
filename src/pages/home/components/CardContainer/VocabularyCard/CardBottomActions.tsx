@@ -10,6 +10,7 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { Speaker } from "./Speaker";
+import { useTranslation } from "react-i18next";
 
 interface CardBottomActionsProps {
   item: VocabularyItem;
@@ -32,6 +33,7 @@ export const CardBottomActions: React.FC<CardBottomActionsProps> = ({
   onEditOpen,
   onToggleExpand,
 }) => {
+  const { t } = useTranslation("home");
   // CSS class chung cho các nút tròn
   const btnClass =
     "w-fit rounded-full bg-secondary/80 hover:bg-secondary border border-border/50 shadow-sm backdrop-blur-sm transition-all cursor-pointer flex items-center justify-center text-muted-foreground " +
@@ -74,7 +76,7 @@ export const CardBottomActions: React.FC<CardBottomActionsProps> = ({
             e.stopPropagation();
             onUpdate(item.id, { isPinned: !item.isPinned });
           }}
-          title={item.isPinned ? "Unpin" : "Pin item"}
+          title={item.isPinned ? t("card.unpin") : t("card.pin")}
         >
           <Pin size={14} className={item.isPinned ? "fill-current" : ""} />
         </div>
@@ -92,7 +94,7 @@ export const CardBottomActions: React.FC<CardBottomActionsProps> = ({
               : "text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900",
           )}
           onClick={onMarkLearned}
-          title={item.isLearned ? "Mark as unlearned" : "Mark as learned"}
+          title={item.isLearned ? t("card.markUnlearned") : t("card.markLearned")}
         >
           {loading ? (
             <span className="animate-spin text-xs">⏳</span>
@@ -114,7 +116,7 @@ export const CardBottomActions: React.FC<CardBottomActionsProps> = ({
             e.stopPropagation();
             onEditOpen();
           }}
-          title="Edit word"
+          title={t("card.editWord")}
         >
           <PenLine size={14} />
         </div>
@@ -127,7 +129,7 @@ export const CardBottomActions: React.FC<CardBottomActionsProps> = ({
             "hover:bg-accent hover:text-purple-600",
           )}
           onClick={onToggleExpand}
-          title={isExpanded ? "Minimize" : "Maximize"}
+          title={isExpanded ? t("card.minimize") : t("card.maximize")}
         >
           {isExpanded ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
         </div>

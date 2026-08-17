@@ -81,6 +81,7 @@ import {
   SharingStatus,
 } from "./FilterOptionRow";
 import { VocabularyItemRow } from "./VocabularyItemRow";
+import { useTranslation } from "react-i18next";
 
 moment.locale("vi");
 
@@ -117,6 +118,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
   onBulkUpdate,
   batchUpdateWords,
 }) => {
+  const { t } = useTranslation(["home", "common"]);
   // State
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [revealedIds, setRevealedIds] = useState<Set<string>>(new Set());
@@ -244,7 +246,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
     if (showPinnedOnly && pinnedItems.length > 0) {
       groups.push({
         key: "pinned-group-header",
-        title: "Pinned Items",
+        title: t("sidebar.pinnedItems"),
         items: pinnedItems,
         isPinnedGroup: true,
       });
@@ -260,7 +262,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
     });
 
     return groups;
-  }, [searchedWords, showPinnedOnly]);
+  }, [searchedWords, showPinnedOnly, t]);
 
   // --- EFFECT: SYNC PIN MODE ---
   useEffect(() => {
@@ -379,9 +381,9 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
   const handleBulkDeleteWithConfirm = async () => {
     if (
       await confirm({
-        title: `Delete ${selectedIds.size} items?`,
-        message: "Cannot be undone.",
-        confirmText: "Delete",
+        title: t("sidebar.deleteCountTitle", { count: selectedIds.size }),
+        message: t("sidebar.deleteMessage"),
+        confirmText: t("common:actions.delete"),
         variant: "destructive",
       })
     ) {
@@ -452,7 +454,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
         <div className="relative flex-1">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search..."
+            placeholder={t("sidebar.search")}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-9 pr-8 bg-muted/50 border-border h-9 text-sm"
@@ -490,7 +492,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b pb-2">
                 <h4 className="font-semibold text-sm flex items-center gap-2">
-                  <Filter size={14} /> Filter Options
+                  <Filter size={14} /> {t("sidebar.filters")}
                 </h4>
                 {isFiltering && (
                   <Button
@@ -499,7 +501,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                     className="h-6 px-2 text-xs text-muted-foreground"
                     onClick={() => setTempFilters(DEFAULT_FILTER)}
                   >
-                    Clear All
+                    {t("sidebar.clearAll")}
                   </Button>
                 )}
               </div>
@@ -507,7 +509,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
               {/* Word Types */}
               <div className="space-y-1.5">
                 <Label className="text-xs text-muted-foreground">
-                  Word Types
+                  {t("sidebar.wordTypes")}
                 </Label>
                 <WordTypeSelector
                   value={tempFilters.typeIds}
@@ -522,7 +524,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
               <div className="grid grid-cols-2 gap-4">
                 {/* Column 1: Learning Status */}
                 <FilterOptionRow
-                  label="Learning Status"
+                  label={t("sidebar.learningStatus")}
                   value={tempFilters.learningStatus}
                   onChange={(val) =>
                     setTempFilters((prev) => ({ ...prev, learningStatus: val }))
@@ -531,28 +533,28 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                     {
                       value: LearningStatus.All,
                       icon: <LayoutList size={16} />,
-                      tooltip: "All items",
+                      tooltip: t("sidebar.allItems"),
                     },
                     {
                       value: LearningStatus.Learned,
                       icon: (
                         <CheckCircle2 size={16} className="text-green-600" />
                       ),
-                      tooltip: "Learned",
+                      tooltip: t("sidebar.learned"),
                     },
                     {
                       value: LearningStatus.NotLearned,
                       icon: (
                         <Circle size={16} className="text-muted-foreground" />
                       ),
-                      tooltip: "Learning (Not learned)",
+                      tooltip: t("sidebar.learning"),
                     },
                   ]}
                 />
 
                 {/* Column 2: Visibility */}
                 <FilterOptionRow
-                  label="Visibility"
+                  label={t("sidebar.visibility")}
                   value={tempFilters.sharingStatus}
                   onChange={(val) =>
                     setTempFilters((prev) => ({ ...prev, sharingStatus: val }))
@@ -566,12 +568,12 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                     {
                       value: SharingStatus.Shared,
                       icon: <Globe size={16} className="text-blue-500" />,
-                      tooltip: "Public / Shared",
+                      tooltip: t("sidebar.publicShared"),
                     },
                     {
                       value: SharingStatus.Private,
                       icon: <Lock size={16} className="text-amber-500" />,
-                      tooltip: "Private",
+                      tooltip: t("sidebar.private"),
                     },
                   ]}
                 />
@@ -580,7 +582,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
               {/* Row: Pinned & Logic */}
               <div className="grid grid-cols-2 gap-4 pt-1">
                 <FilterOptionRow
-                  label="Pinned"
+                  label={t("sidebar.pinned")}
                   value={tempFilters.pinStatus}
                   onChange={(val) =>
                     setTempFilters((prev) => ({ ...prev, pinStatus: val }))
@@ -599,18 +601,18 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                           className="text-orange-500 fill-orange-500"
                         />
                       ),
-                      tooltip: "Pinned Only",
+                      tooltip: t("sidebar.pinnedOnly"),
                     },
                     {
                       value: PinStatus.NotPinned,
                       icon: <PinOff size={16} />,
-                      tooltip: "Unpinned Only",
+                      tooltip: t("sidebar.unpinnedOnly"),
                     },
                   ]}
                 />
 
                 <FilterOptionRow
-                  label="Match Logic"
+                  label={t("sidebar.matchLogic")}
                   value={tempFilters.operator}
                   onChange={(val) =>
                     setTempFilters((prev) => ({ ...prev, operator: val }))
@@ -619,12 +621,12 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                     {
                       value: FilterOperator.OR,
                       icon: <Split size={16} className="rotate-180" />, // Icon tượng trưng rẽ nhánh (OR)
-                      tooltip: "Match ANY condition (OR)",
+                      tooltip: t("sidebar.matchAny"),
                     },
                     {
                       value: FilterOperator.AND,
                       icon: <Ampersand size={16} />,
-                      tooltip: "Match ALL conditions (AND)",
+                      tooltip: t("sidebar.matchAll"),
                     },
                   ]}
                 />
@@ -637,14 +639,14 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                   className="flex-1 h-8 text-xs"
                   onClick={handleResetFilter}
                 >
-                  Reset
+                  {t("sidebar.reset")}
                 </Button>
                 <Button
                   size="sm"
                   className="flex-1 h-8 text-xs"
                   onClick={handleApplyFilter}
                 >
-                  Apply Filters
+                  {t("sidebar.applyFilters")}
                 </Button>
               </div>
             </div>
@@ -665,7 +667,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
           <span className="text-sm font-semibold text-card-foreground">
             {selectedIds.size > 0
               ? `(${selectedIds.size})`
-              : `List (${searchedWords.length})`}
+              : t("sidebar.listCount", { count: searchedWords.length })}
           </span>
         </div>
 
@@ -685,7 +687,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                       <X size={16} />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>Deselect all</TooltipContent>
+                  <TooltipContent>{t("sidebar.deselectAll")}</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
 
@@ -701,7 +703,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                       <Sparkles size={16} />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>Enrich Vocabulary</TooltipContent>
+                  <TooltipContent>{t("sidebar.enrichVocabulary")}</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
 
@@ -717,7 +719,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                       <BookOpen size={16} />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>Add to lesson</TooltipContent>
+                  <TooltipContent>{t("sidebar.addToLesson")}</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
 
@@ -729,45 +731,45 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuLabel>
-                    Actions ({selectedIds.size})
+                    {t("sidebar.actionsCount", { count: selectedIds.size })}
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleBulkMark}>
                     {isAllSelectedLearned ? (
                       <>
-                        <RotateCcw className="mr-2 h-4 w-4" /> Mark as Unlearned
+                        <RotateCcw className="mr-2 h-4 w-4" /> {t("sidebar.markUnlearned")}
                       </>
                     ) : (
                       <>
-                        <CheckSquare className="mr-2 h-4 w-4" /> Mark as Learned
+                        <CheckSquare className="mr-2 h-4 w-4" /> {t("sidebar.markLearned")}
                       </>
                     )}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => setIsMoveTopicModalOpen(true)}
                   >
-                    <FolderInput className="mr-2 h-4 w-4" /> Assign Topic
+                    <FolderInput className="mr-2 h-4 w-4" /> {t("sidebar.assignTopic")}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => setIsBulkTypeModalOpen(true)}
                   >
-                    <Tag className="mr-2 h-4 w-4" /> Assign Word Types
+                    <Tag className="mr-2 h-4 w-4" /> {t("sidebar.assignWordTypes")}
                   </DropdownMenuItem>
                   {!!userProfile && (
                     <DropdownMenuSub>
                       <DropdownMenuSubTrigger>
                         <Share2 className="mr-2 h-4 w-4" />
-                        <span>Sharing</span>
+                        <span>{t("sidebar.sharing")}</span>
                       </DropdownMenuSubTrigger>
                       <DropdownMenuSubContent>
                         <DropdownMenuItem onClick={() => handleBulkShare(true)}>
                           <Globe className="mr-2 h-4 w-4 text-emerald-600" />
-                          Public
+                          {t("sidebar.public")}
                         </DropdownMenuItem>
                         <DropdownMenuItem
                           onClick={() => handleBulkShare(false)}
                         >
-                          <GlobeLock className="mr-2 h-4 w-4" /> Private
+                          <GlobeLock className="mr-2 h-4 w-4" /> {t("sidebar.private")}
                         </DropdownMenuItem>
                       </DropdownMenuSubContent>
                     </DropdownMenuSub>
@@ -777,7 +779,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                     onClick={handleBulkDeleteWithConfirm}
                     className="text-destructive focus:text-destructive focus:bg-destructive/10"
                   >
-                    <Trash2 className="mr-2 h-4 w-4" /> Delete Selected
+                    <Trash2 className="mr-2 h-4 w-4" /> {t("sidebar.deleteSelected")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -804,7 +806,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                       />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>Group Pinned items</TooltipContent>
+                  <TooltipContent>{t("sidebar.groupPinned")}</TooltipContent>
                 </Tooltip>
               </TooltipProvider>
 
@@ -821,7 +823,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    {isAllRevealed ? "Hide Meanings" : "Show Meanings"}
+                    {isAllRevealed ? t("sidebar.hideMeanings") : t("sidebar.showMeanings")}
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -844,7 +846,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    {isAllCollapsed ? "Expand All" : "Collapse All"}
+                    {isAllCollapsed ? t("sidebar.expandAll") : t("sidebar.collapseAll")}
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -863,7 +865,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
               <Search size={32} className="opacity-20" />
             )}
             <span className="text-sm">
-              {isFiltering ? "No matches found." : "No results."}
+              {isFiltering ? t("sidebar.noMatches") : t("sidebar.noResults")}
             </span>
             {isFiltering && (
               <Button
@@ -872,7 +874,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                 onClick={handleResetFilter}
                 className="h-auto p-0 text-primary"
               >
-                Reset Filters
+                {t("sidebar.resetFilters")}
               </Button>
             )}
           </div>

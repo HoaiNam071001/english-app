@@ -29,6 +29,7 @@ import { EditVocabularyModal } from "../common/EditVocabularyModal";
 import { Phonetics } from "../common/Phonetic";
 import { VocabularyDetailPopup } from "../common/VocabularyDetailPopup";
 import { WordTypeIndicator } from "../common/WordTypeIndicator";
+import { useTranslation } from "react-i18next";
 
 interface VocabularyItemRowProps {
   word: VocabularyItem;
@@ -57,6 +58,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
   onToggleLearned,
   onRemoveFromPractice,
 }) => {
+  const { t } = useTranslation(["home", "common"]);
   const { topics } = useTopics();
   const [isEditOpen, setIsEditOpen] = useState(false);
 
@@ -168,7 +170,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
                   </div>
                 </TooltipTrigger>
                 <TooltipContent side="top" className="text-xs">
-                  Public: Shared with community
+                  {t("sidebar.publicTooltip")}
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -220,7 +222,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
               e.stopPropagation();
               onToggleLearned(word.id, word.isLearned || false);
             }}
-            title={word.isLearned ? "Mark as unlearned" : "Mark as learned"}
+            title={word.isLearned ? t("card.markUnlearned") : t("card.markLearned")}
           >
             {word.isLearned ? <RotateCcw size={14} /> : <Check size={14} />}
           </Button>
@@ -233,7 +235,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
               e.stopPropagation();
               onToggleReveal(word.id);
             }}
-            title={isMeaningRevealed ? "Hide meaning" : "Show meaning"}
+            title={isMeaningRevealed ? t("sidebar.hideMeaning") : t("sidebar.showMeaning")}
           >
             {isMeaningRevealed ? <EyeOff size={14} /> : <Eye size={14} />}
           </Button>
@@ -246,7 +248,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
               e.stopPropagation();
               setIsEditOpen(true);
             }}
-            title="Edit word"
+            title={t("card.editWord")}
           >
             <PenLine size={14} />
           </Button>
@@ -262,7 +264,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
               e.stopPropagation();
               onUpdate(word.id, { isPinned: !word.isPinned });
             }}
-            title={word.isPinned ? "Unpin" : "Pin item"}
+            title={word.isPinned ? t("card.unpin") : t("card.pin")}
           >
             <Pin size={14} />
           </Button>
@@ -276,7 +278,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
                 e.stopPropagation();
                 onRemoveFromPractice(word);
               }}
-              title="Remove from lesson"
+              title={t("sidebar.removeFromLesson")}
             >
               <Minus size={14} />
             </Button>
@@ -289,7 +291,7 @@ export const VocabularyItemRow: React.FC<VocabularyItemRowProps> = ({
                 e.stopPropagation();
                 onAddToPractice(word);
               }}
-              title="Add to lesson"
+              title={t("sidebar.addToLesson")}
             >
               <Plus size={14} />
             </Button>

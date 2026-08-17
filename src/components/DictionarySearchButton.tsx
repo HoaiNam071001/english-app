@@ -4,8 +4,10 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { GraduationCap, Languages, School } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const DictionarySearchButton = ({ text, showText = false }) => {
+  const { t } = useTranslation("home");
   // Hàm xử lý mở cửa sổ popup (giữ nguyên logic tính toán vị trí)
   const openDictionaryPopup = (url) => {
     const popupWidth = 500;
@@ -65,7 +67,7 @@ const DictionarySearchButton = ({ text, showText = false }) => {
         <div
           className="inline-flex items-center gap-1 p-1 rounded-full transition-all cursor-pointer hover:bg-accent hover:text-accent-foreground"
           onClick={(e) => e.stopPropagation()} // Ngăn chặn sự kiện click lan ra ngoài nếu nút này nằm trong một thẻ cha có onClick
-          title="Tra từ điển"
+          title={t("home:dictionary.lookup")}
         >
           <Languages size={14} />
           {showText && <div className="text-[12px]">{text}</div>}

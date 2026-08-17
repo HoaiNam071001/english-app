@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { TopicItem, VocabularyItem } from "@/types";
 import { getIconComponent } from "@/utils";
 import { Info, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { VocabularyDetailPopup } from "../../common/VocabularyDetailPopup";
 import { WordTypeIndicator } from "../../common/WordTypeIndicator";
 
@@ -26,6 +27,7 @@ export const CardTopMeta: React.FC<CardTopMetaProps> = ({
   isZoomMode,
   onRemove,
 }) => {
+  const { t } = useTranslation("home");
   const renderTopicIcon = () => {
     if (!currentTopic) return null;
     const TopicIcon = getIconComponent(currentTopic.icon || "folder");
@@ -49,7 +51,7 @@ export const CardTopMeta: React.FC<CardTopMetaProps> = ({
         <div
           className="p-1.5 rounded-full hover:bg-accent text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
           onClick={onRemove}
-          title="Remove"
+          title={t("card.remove")}
         >
           <X size={14} />
         </div>
@@ -74,7 +76,7 @@ export const CardTopMeta: React.FC<CardTopMetaProps> = ({
             trigger={
               <div
                 className="p-1 rounded-full hover:bg-background hover:text-blue-500 transition-all cursor-pointer text-muted-foreground"
-                title="View details"
+                title={t("card.viewDetails")}
               >
                 <Info size={14} />
               </div>

@@ -5,6 +5,7 @@ import { CheckedState } from "@radix-ui/react-checkbox";
 import { Loader2, X } from "lucide-react";
 import { ItemSelection, VolLookupResult } from "./BulkLookupModal";
 import { EnMeaningSelector } from "./EnMeaningSelector";
+import { useTranslation } from "react-i18next";
 
 interface LookupRowProps {
   item: VolLookupResult;
@@ -21,6 +22,7 @@ export const LookupRow: React.FC<LookupRowProps> = ({
   onToggleRow,
   onIgnore,
 }) => {
+  const { t } = useTranslation(["home", "common"]);
   const { original, draft, status } = item;
 
   if (status === "loading") {
@@ -31,7 +33,7 @@ export const LookupRow: React.FC<LookupRowProps> = ({
           <span className="text-xs md:text-sm truncate max-w-[100px] md:max-w-none">{original.text}</span>
         </td>
         <td colSpan={3} className="p-2 md:p-3 text-[10px] md:text-xs text-muted-foreground italic">
-          Fetching...
+          {t("lookup.fetching")}
         </td>
       </tr>
     );
@@ -45,7 +47,7 @@ export const LookupRow: React.FC<LookupRowProps> = ({
         </td>
         <td colSpan={3} className="p-2 md:p-3 text-[10px] md:text-xs text-muted-foreground italic">
           <div className="flex items-center gap-2">
-            <span>No data found.</span>
+            <span>{t("lookup.noData")}</span>
             <Button
               variant="ghost"
               size="icon"

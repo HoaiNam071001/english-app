@@ -8,6 +8,7 @@ import { UserProfile, VocabularyItem } from "@/types";
 import { useEffect, useMemo, useRef, useState } from "react";
 import CardContainer, { CardContainerRef } from "./CardContainer";
 import { VocabularySidebarContent } from "./VocabularySidebarContent";
+import { useTranslation } from "react-i18next";
 
 interface DashboardContentProps {
   user: UserProfile | null;
@@ -16,6 +17,7 @@ interface DashboardContentProps {
 const ALL_TOPIC_KEY = "ALL";
 
 export const DashboardContent = ({ user }: DashboardContentProps) => {
+  const { t } = useTranslation(["home", "common"]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isSidebarModalOpen, setIsSidebarModalOpen] = useState(false);
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
@@ -129,7 +131,7 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
       <CommonModal
         open={isSidebarModalOpen}
         onOpenChange={setIsSidebarModalOpen}
-        title="Topics & Vocabulary"
+        title={t("dashboard.sidebarModalTitle")}
         closeOnInteractOutside={true}
         footer={null}
         contentClassName={"overflow-hidden"}

@@ -1,4 +1,5 @@
 import { STORAGE_KEY } from "@/constants";
+import i18n from "@/i18n";
 import { auth, db, googleProvider } from "@/firebaseConfig";
 import { RootState } from "@/store/store";
 import {
@@ -88,7 +89,7 @@ export const syncUserToFirestore = createAsyncThunk<
     }
     return profile;
   } catch (err) {
-    return rejectWithValue(err.message || "Lỗi đồng bộ thông tin.");
+    return rejectWithValue(err.message || i18n.t("auth:errors.syncFailed"));
   }
 });
 
@@ -129,9 +130,9 @@ export const loginWithGoogle = createAsyncThunk<
     // AuthInitializer sẽ lắng nghe tiếp
   } catch (err) {
     if (err.code === "auth/popup-closed-by-user") {
-      return rejectWithValue("Đã đóng cửa sổ đăng nhập.");
+      return rejectWithValue(i18n.t("auth:errors.popupClosed"));
     }
-    return rejectWithValue("Đăng nhập thất bại.");
+    return rejectWithValue(i18n.t("auth:errors.loginFailed"));
   }
 });
 

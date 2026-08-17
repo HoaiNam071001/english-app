@@ -1,0 +1,105 @@
+{
+  "documentTitle": "English Master - Học từ vựng tiếng Anh mỗi ngày",
+  "nav": {
+    "features": "Tính năng",
+    "community": "Cộng đồng",
+    "multiplatform": "Đa nền tảng",
+    "toggleMenu": "Mở/đóng menu"
+  },
+  "cta": {
+    "enterApp": "Vào ứng dụng",
+    "enterYourApp": "Vào ứng dụng của bạn",
+    "startFree": "Bắt đầu miễn phí",
+    "startFreeNow": "Bắt đầu miễn phí ngay",
+    "exploreFeatures": "Khám phá tính năng"
+  },
+  "hero": {
+    "badge": "Miễn phí • Học offline • Không giới hạn thẻ từ",
+    "titleLead": "Học từ vựng tiếng Anh,",
+    "titleHighlight": "nhớ mãi không quên",
+    "description": "English Master gom flashcard, ghi chú ngữ pháp và kho từ vựng cộng đồng vào một nơi duy nhất — học mọi lúc, mọi nơi, kể cả khi mất mạng.",
+    "imageAlt": "Giao diện quản lý flashcard từ vựng của English Master"
+  },
+  "notes": {
+    "eyebrow": "Ghi chú thông minh",
+    "titleLead": "Lưu ngữ pháp & mẫu câu vào",
+    "titleHighlight": "một nơi duy nhất",
+    "description": "Tạo note dạng bảng, danh sách hay markdown ngay trong ứng dụng. Không cần chuyển qua lại giữa nhiều công cụ để ôn lại kiến thức.",
+    "points": {
+      "table": "Bảng biểu trực quan cho ngữ pháp",
+      "checklist": "Danh sách checklist dễ theo dõi",
+      "editor": "Soạn thảo mượt mà như Notion"
+    },
+    "imageAlt": "Trang ghi chú ngữ pháp của English Master"
+  },
+  "community": {
+    "eyebrow": "Cộng đồng",
+    "titleLead": "Học nhanh hơn nhờ",
+    "titleHighlight": "kho từ vựng có sẵn",
+    "description": "Khám phá và import bộ từ vựng được cộng đồng chia sẻ, tiết kiệm hàng giờ tự soạn thẻ mới cho từng chủ đề.",
+    "points": {
+      "sets": "Hàng trăm bộ từ vựng theo chủ đề",
+      "import": "Import chỉ với một cú nhấp chuột",
+      "updates": "Cập nhật liên tục từ người dùng"
+    },
+    "imageAlt": "Thư viện từ vựng cộng đồng của English Master"
+  },
+  "mobile": {
+    "eyebrow": "Mọi thiết bị",
+    "titleLead": "Mang theo từ vựng của bạn ở",
+    "titleHighlight": "bất cứ đâu",
+    "description": "Cài đặt như một ứng dụng thật trên điện thoại, học liền mạch dù đang di chuyển hay mất kết nối mạng.",
+    "imageAlt": "English Master trên giao diện di động",
+    "points": {
+      "clean": {
+        "title": "Giao diện gọn gàng",
+        "text": "Tối ưu thao tác một tay, học nhanh trong vài phút rảnh rỗi."
+      },
+      "offline": {
+        "title": "Hoạt động offline",
+        "text": "Công nghệ PWA giúp bạn ôn từ vựng kể cả khi không có mạng."
+      },
+      "sync": {
+        "title": "Đồng bộ tức thì",
+        "text": "Thêm từ mới trên điện thoại, xem lại ngay trên máy tính."
+      }
+    }
+  },
+  "features": {
+    "eyebrow": "Đầy đủ công cụ",
+    "title": "Mọi thứ bạn cần để học từ vựng hiệu quả",
+    "items": {
+      "flashcard": {
+        "title": "Flashcard lật thẻ",
+        "description": "Ghi nhớ chủ động với thẻ lật hai mặt, ảnh minh hoạ sinh động."
+      },
+      "pronunciation": {
+        "title": "Phát âm & phiên âm",
+        "description": "Nghe phát âm chuẩn và xem phiên âm IPA cho từng từ vựng."
+      },
+      "progress": {
+        "title": "Theo dõi tiến trình",
+        "description": "Từ vựng được nhóm theo ngày học, dễ dàng ôn tập lại."
+      },
+      "guest": {
+        "title": "Chế độ khách",
+        "description": "Trải nghiệm ngay không cần đăng ký, dữ liệu lưu tại máy."
+      },
+      "notes": {
+        "title": "Ghi chú ngữ pháp",
+        "description": "Lưu bảng, danh sách và mẫu câu ngay trong ứng dụng."
+      },
+      "theme": {
+        "title": "Giao diện Sáng/Tối",
+        "description": "Tự động theo hệ thống hoặc tuỳ chỉnh theo sở thích của bạn."
+      }
+    }
+  },
+  "final": {
+    "title": "Sẵn sàng nâng trình từ vựng của bạn?",
+    "description": "Tham gia English Master ngay hôm nay — hoàn toàn miễn phí, không cần thẻ tín dụng."
+  },
+  "footer": {
+    "copyright": "© {{year}} English Master. Học từ vựng mỗi ngày."
+  }
+}
