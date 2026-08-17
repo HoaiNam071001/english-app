@@ -1,5 +1,7 @@
 import { SimpleTooltip } from "@/components/SimpleTooltip";
 import { Button } from "@/components/ui/button";
+import { SkeletonBox } from "@/components/ui/skeleton";
+import { flashcardSkeleton } from "@/lib/skeleton";
 import { STORAGE_KEY } from "@/constants";
 import { useShortcuts } from "@/contexts/ShortcutsContext";
 import { useConfirm } from "@/hooks/useConfirm";
@@ -314,11 +316,7 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
 
     // Loading State
     if (!isLoaded || !activeTab)
-      return (
-        <div className="h-full w-full flex items-center justify-center text-muted-foreground animate-pulse">
-          {t("session.loading")}
-        </div>
-      );
+      return <SkeletonBox instance={flashcardSkeleton} className="h-full" />;
 
     return (
       <div className="flex flex-col h-full gap-0">

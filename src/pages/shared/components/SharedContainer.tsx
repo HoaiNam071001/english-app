@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
+import { SkeletonBox } from "@/components/ui/skeleton";
+import { sharedListSkeleton } from "@/lib/skeleton";
 import {
   Tooltip,
   TooltipContent,
@@ -394,10 +396,7 @@ export const SharedContainer = () => {
       {/* CONTENT AREA */}
       <div className="flex-1 pt-4">
         {loading && items.length === 0 ? (
-          <div className="h-64 flex flex-col items-center justify-center text-muted-foreground italic">
-            <Loader2 className="h-8 w-8 animate-spin mb-2 opacity-20" />
-            <p>{t("loadingLibrary")}</p>
-          </div>
+          <SkeletonBox instance={sharedListSkeleton} className="pb-20" />
         ) : (
           <div className="pb-20 space-y-6">
             {sortedDateKeys.length === 0 && !loading ? (

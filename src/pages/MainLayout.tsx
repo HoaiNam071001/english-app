@@ -7,8 +7,9 @@ import { ProtectedRoute } from "@/components/Auth/ProtectedRoute";
 import { StatusGuard } from "@/components/Auth/StatusGuard";
 import { ROUTES } from "@/constants";
 import { useAuth } from "@/hooks/useAuth";
+import { SkeletonBox } from "@/components/ui/skeleton";
+import { appShellSkeleton } from "@/lib/skeleton";
 import { useAppSelector } from "@/store/hooks";
-import { Loader2 } from "lucide-react";
 import { AppLayout } from "./AppLayout";
 
 import HomePage from "./home";
@@ -19,9 +20,10 @@ const ProfilePage = lazy(() => import("./profile"));
 const UsersPage = lazy(() => import("@/pages/admin/UsersPage"));
 
 const PageLoader = () => (
-  <div className="h-screen flex items-center justify-center">
-    <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-  </div>
+  <SkeletonBox
+    instance={appShellSkeleton}
+    className="h-screen overflow-hidden mx-auto max-w-7xl"
+  />
 );
 
 export const MainLayout = () => {

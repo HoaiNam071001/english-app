@@ -64,6 +64,10 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+  /* skeleton-styler: nền + vệt sáng của skeleton (tên riêng để không bị
+     :root trong dist/index.css của thư viện ghi đè) */
+  --skeleton-base: oklch(0.92 0.004 240);
+  --skeleton-highlight: oklch(0.968 0.002 240);
 }
 
 body {
@@ -168,6 +172,9 @@ body {
   --sidebar-accent-foreground: oklch(0.96 0.005 240);
   --sidebar-border: oklch(0.4 0.02 240 / 0.4);
   --sidebar-ring: oklch(0.55 0.05 240);
+  /* skeleton-styler: bản dark, sáng hơn nền card một chút để vẫn thấy rõ */
+  --skeleton-base: oklch(0.37 0.018 240);
+  --skeleton-highlight: oklch(0.45 0.02 240);
 }
 
 @layer base {

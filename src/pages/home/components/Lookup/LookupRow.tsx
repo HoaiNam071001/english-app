@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { SkeletonBox } from "@/components/ui/skeleton";
+import { lookupRowSkeleton } from "@/lib/skeleton";
 import { PartOfSpeech } from "@/types";
 import { CheckedState } from "@radix-ui/react-checkbox";
 import { Loader2, X } from "lucide-react";
@@ -27,13 +29,13 @@ export const LookupRow: React.FC<LookupRowProps> = ({
 
   if (status === "loading") {
     return (
-      <tr className="animate-pulse opacity-60">
+      <tr>
         <td className="p-2 md:p-3 font-bold border-r flex items-center gap-1 md:gap-2 bg-background z-10">
           <Loader2 size={12} className="md:w-3.5 md:h-3.5 animate-spin" />
           <span className="text-xs md:text-sm truncate max-w-[100px] md:max-w-none">{original.text}</span>
         </td>
-        <td colSpan={3} className="p-2 md:p-3 text-[10px] md:text-xs text-muted-foreground italic">
-          {t("lookup.fetching")}
+        <td colSpan={3} className="p-2 md:p-3">
+          <SkeletonBox instance={lookupRowSkeleton} />
         </td>
       </tr>
     );

@@ -7,7 +7,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { SkeletonBox } from "@/components/ui/skeleton";
 import { UserAvatar } from "@/components/UserAvatar";
+import { userCardsSkeleton } from "@/lib/skeleton";
 import { useAdmin } from "@/hooks/useAdmin";
 import { useAuth } from "@/hooks/useAuth";
 import { UserRole, UserStatus } from "@/types";
@@ -131,12 +133,10 @@ const UsersPage = () => {
 
       {/* LIST */}
       {loading ? (
-        <Card className="border shadow-sm bg-card mt-4 md:mt-6">
-          <CardContent className="py-16 text-center text-muted-foreground">
-            <Clock className="animate-spin mb-3 h-8 w-8 mx-auto text-blue-500" />
-            <p className="text-sm font-medium">{t("users.syncing")}</p>
-          </CardContent>
-        </Card>
+        <SkeletonBox
+          instance={userCardsSkeleton}
+          className="mt-4 md:mt-6 mb-8"
+        />
       ) : allUsers.length === 0 ? (
         <Card className="border shadow-sm bg-card mt-4 md:mt-6">
           <CardContent className="py-16 text-center text-muted-foreground">

@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SkeletonBox } from "@/components/ui/skeleton";
+import { noteListSkeleton } from "@/lib/skeleton";
 import { STORAGE_KEY } from "@/constants";
 import { useConfirm } from "@/hooks/useConfirm";
 import useLocalStorage from "@/hooks/useLocalStorage";
@@ -16,7 +18,7 @@ import {
   Plus,
   Search,
 } from "lucide-react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { NoteCard } from "./components/NoteCard";
 import { NoteEditorModal } from "./components/NoteEditorModal";
@@ -43,6 +45,8 @@ const NotePage = () => {
   const [isGrouped, setIsGrouped] = useState(
     getStorage(STORAGE_KEY.NOTE_GROUPED) || false,
   );
+  // Giữ identity ổn định để skeleton không bị dựng lại (mất animation) mỗi render
+  const listSkeleton = useCallback(() => noteListSkeleton(layout), [layout]);
   const { confirm } = useConfirm();
   // Hook Data
   const {
@@ -273,12 +277,7 @@ const NotePage = () => {
 
       {/* CONTENT SECTION */}
       {loading && notes.length === 0 ? (
-        <div className="flex flex-col justify-center items-center h-64 gap-3">
-          <Loader2 className="animate-spin text-primary" size={32} />
-          <p className="text-sm text-muted-foreground">
-            {t("list.syncing")}
-          </p>
-        </div>
+        <SkeletonBox instance={listSkeleton} className="pb-20" />
       ) : (
         <div className="space-y-8 pb-20">
           {Object.entries(groupedNotes).map(([groupName, groupNotes]) => (
