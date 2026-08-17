@@ -1,4 +1,5 @@
 import { ConfirmProvider } from "./contexts/ConfirmContext";
+import { ShortcutsProvider } from "./contexts/ShortcutsContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { ToastProvider } from "./contexts/ToastContext";
 import { MainLayout } from "./pages/MainLayout";
@@ -14,7 +15,9 @@ const App = () => {
       <ThemeProvider>
         <ConfirmProvider>
           <ToastProvider>
-            <MainLayout />
+            <ShortcutsProvider>
+              <MainLayout />
+            </ShortcutsProvider>
           </ToastProvider>
         </ConfirmProvider>
       </ThemeProvider>

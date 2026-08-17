@@ -64,6 +64,8 @@ export const STORAGE_KEY = {
   NOTE_EXPANDED: "NOTE_EXPANDED",
 
   MOBILE_HOME_COLLAPSE_ACTION: "MOBILE_HOME_COLLAPSE_ACTION",
+
+  SHORTCUT_OVERRIDES: "SHORTCUT_OVERRIDES",
 };
 
 export const ADMIN_INFO = {
@@ -338,6 +340,7 @@ export const ROUTES = {
   HOME: "/app",
   SHARED: "/shared",
   NOTE: "/note",
+  PROFILE: "/profile",
 
   // Admin Area
   ADMIN: {

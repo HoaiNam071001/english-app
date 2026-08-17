@@ -15,6 +15,7 @@ import HomePage from "./home";
 const LandingPage = lazy(() => import("./landing"));
 const NotePage = lazy(() => import("./note"));
 const SharedPage = lazy(() => import("./shared"));
+const ProfilePage = lazy(() => import("./profile"));
 const UsersPage = lazy(() => import("@/pages/admin/UsersPage"));
 
 const PageLoader = () => (
@@ -56,6 +57,7 @@ export const MainLayout = () => {
                 <Route path={ROUTES.HOME} element={<HomePage />} />
                 <Route path={ROUTES.SHARED} element={<SharedPage />} />
                 <Route path={ROUTES.NOTE} element={<NotePage />} />
+                <Route path={ROUTES.PROFILE} element={<ProfilePage />} />
 
                 <Route path={ROUTES.ADMIN.ROOT} element={<AdminRoute />}>
                   <Route

@@ -14,11 +14,18 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Label } from "@/components/ui/label";
 import { AddReport, VocabularyItem } from "@/types";
 import { Loader2, Plus, Trash2, Save, FileText, List } from "lucide-react";
-import React, { useState, useEffect } from "react";
+import React, {
+  useState,
+  useRef,
+  useImperativeHandle,
+  forwardRef,
+} from "react";
 import { useToast } from "@/hooks/useToast";
 import { ImageIllustration } from "@/components/ImageIllustration";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { STORAGE_KEY } from "@/constants";
+import { useShortcuts } from "@/contexts/ShortcutsContext";
+import { VOCAB_MODAL_SHORTCUT_DEFS } from "@/lib/shortcutRegistry";
 
 // ==========================================
 // 1. SUB-COMPONENT: ROW ITEM (Giữ nguyên)
@@ -46,6 +53,13 @@ const VocabularyRow: React.FC<VocabularyRowProps> = ({
     setIsSaving(false);
   };
 
+  const handleEnterToSave = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      if (!isSaving && data.text) handleSaveClick();
+    }
+  };
+
   return (
     <div className="flex gap-3 items-start p-3 border rounded-md bg-background hover:bg-accent/10 transition-colors shadow-sm">
       <div className="shrink-0">
@@ -66,6 +80,7 @@ const VocabularyRow: React.FC<VocabularyRowProps> = ({
               placeholder="e.g. Apple"
               value={data.text || ""}
               onChange={(e) => onChange(id, "text", e.target.value)}
+              onKeyDown={handleEnterToSave}
               className="h-9 text-sm font-semibold "
               disabled={isSaving}
             />
@@ -76,6 +91,7 @@ const VocabularyRow: React.FC<VocabularyRowProps> = ({
               placeholder="Meaning"
               value={data.meaning || ""}
               onChange={(e) => onChange(id, "meaning", e.target.value)}
+              onKeyDown={handleEnterToSave}
               className="h-9 text-sm"
               disabled={isSaving}
             />
@@ -143,12 +159,14 @@ interface StructuredImportTabProps {
   setRows: React.Dispatch<React.SetStateAction<RowItem[]>>;
 }
 
-const StructuredImportTab: React.FC<StructuredImportTabProps> = ({
-  onAdd,
-  onSuccess,
-  rows,
-  setRows,
-}) => {
+export interface StructuredImportHandle {
+  triggerSaveAll: () => void;
+}
+
+const StructuredImportTab = forwardRef<
+  StructuredImportHandle,
+  StructuredImportTabProps
+>(({ onAdd, onSuccess, rows, setRows }, ref) => {
   const toast = useToast();
   const [loading, setLoading] = useState(false);
 
@@ -283,6 +301,12 @@ const StructuredImportTab: React.FC<StructuredImportTabProps> = ({
     }
   };
 
+  useImperativeHandle(ref, () => ({
+    triggerSaveAll: () => {
+      if (!loading && isValid) handleSave();
+    },
+  }));
+
   return (
     <div className="flex flex-col h-full gap-2 overflow-hidden">
       <div className="flex items-center px-1">
@@ -332,7 +356,8 @@ const StructuredImportTab: React.FC<StructuredImportTabProps> = ({
       </div>
     </div>
   );
-};
+});
+StructuredImportTab.displayName = "StructuredImportTab";
 
 // ==========================================
 // 3. SUB-COMPONENT: RAW TEXT IMPORT TAB
@@ -346,123 +371,135 @@ interface RawTextImportTabProps {
   setInputText: (text: string) => void;
 }
 
-const RawTextImportTab: React.FC<RawTextImportTabProps> = ({
-  onAdd,
-  onSuccess,
-  inputText,
-  setInputText,
-}) => {
-  const [loading, setLoading] = useState(false);
-  const [report, setReport] = useState<AddReport | null>(null);
+export interface RawTextImportHandle {
+  triggerSave: () => void;
+}
 
-  const handleProcessAndAdd = async () => {
-    if (!inputText.trim()) return;
-    setLoading(true);
-    setReport(null);
+const RawTextImportTab = forwardRef<RawTextImportHandle, RawTextImportTabProps>(
+  ({ onAdd, onSuccess, inputText, setInputText }, ref) => {
+    const [loading, setLoading] = useState(false);
+    const [report, setReport] = useState<AddReport | null>(null);
 
-    const rawLines = inputText.split(/[\n;]+/);
-    const newEntries: Partial<VocabularyItem>[] = [];
+    const handleProcessAndAdd = async () => {
+      if (!inputText.trim()) return;
+      setLoading(true);
+      setReport(null);
 
-    rawLines.forEach((line) => {
-      const cleanLine = line.trim();
-      if (!cleanLine) return;
+      const rawLines = inputText.split(/[\n;]+/);
+      const newEntries: Partial<VocabularyItem>[] = [];
 
-      let english = "";
-      let vietnamese = "";
-      let example = "";
+      rawLines.forEach((line) => {
+        const cleanLine = line.trim();
+        if (!cleanLine) return;
 
-      let contentPart = cleanLine;
-      if (cleanLine.includes("|")) {
-        const parts = cleanLine.split("|");
-        contentPart = parts[0].trim();
-        example = parts.slice(1).join("|").trim();
+        let english = "";
+        let vietnamese = "";
+        let example = "";
+
+        let contentPart = cleanLine;
+        if (cleanLine.includes("|")) {
+          const parts = cleanLine.split("|");
+          contentPart = parts[0].trim();
+          example = parts.slice(1).join("|").trim();
+        }
+
+        if (contentPart.includes(":")) {
+          const parts = contentPart.split(":");
+          english = parts[0].trim();
+          vietnamese = parts.slice(1).join(":").trim();
+        } else {
+          english = contentPart;
+        }
+
+        if (english) {
+          newEntries.push({
+            text: english,
+            meaning: vietnamese,
+            normalized: english.toLowerCase(),
+            example: example,
+          });
+        }
+      });
+
+      try {
+        const result = await onAdd(newEntries);
+        setReport(result);
+        if (result.added.length > 0) {
+          setInputText(""); // Clear text khi thành công
+          onSuccess();
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
       }
+    };
 
-      if (contentPart.includes(":")) {
-        const parts = contentPart.split(":");
-        english = parts[0].trim();
-        vietnamese = parts.slice(1).join(":").trim();
-      } else {
-        english = contentPart;
-      }
+    useImperativeHandle(ref, () => ({
+      triggerSave: () => {
+        if (!loading && inputText.trim()) handleProcessAndAdd();
+      },
+    }));
 
-      if (english) {
-        newEntries.push({
-          text: english,
-          meaning: vietnamese,
-          normalized: english.toLowerCase(),
-          example: example,
-        });
-      }
-    });
-
-    try {
-      const result = await onAdd(newEntries);
-      setReport(result);
-      if (result.added.length > 0) {
-        setInputText(""); // Clear text khi thành công
-        onSuccess();
-      }
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  return (
-    <div className="flex flex-col gap-2 overflow-hidden h-full">
-      <div className="bg-muted/30 p-3 rounded text-sm text-muted-foreground space-y-1">
-        <p>
-          Format:{" "}
-          <code className="text-blue-600 font-bold">
-            Word: Meaning | Example
-          </code>
-        </p>
-        <p>
-          Or simple:{" "}
-          <code className="text-blue-600 font-bold">Word: Meaning</code>
-        </p>
-      </div>
-
-      <Textarea
-        placeholder={`mean: ý nghĩa | phần giải thích\nHello | He said hello to me\nApple: Quả táo`}
-        className="font-mono text-sm flex-1 overflow-auto mb-4"
-        value={inputText}
-        onChange={(e) => setInputText(e.target.value)}
-        disabled={loading}
-      />
-
-      {report && (
-        <div className="text-sm space-y-2 bg-muted/50 p-3 rounded-md border max-h-[150px] overflow-y-auto">
-          {report.added.length > 0 && (
-            <div className="text-green-600 flex items-start gap-2">
-              <span>✅</span>
-              <span>
-                Added ({report.added.length}): {report.added.join(", ")}
-              </span>
-            </div>
-          )}
-          {report.skipped.length > 0 && (
-            <div className="text-red-500 flex items-start gap-2">
-              <span>⚠️</span>
-              <span>
-                Duplicate ({report.skipped.length}): {report.skipped.join(", ")}
-              </span>
-            </div>
-          )}
+    return (
+      <div className="flex flex-col gap-2 overflow-hidden h-full">
+        <div className="bg-muted/30 p-3 rounded text-sm text-muted-foreground space-y-1">
+          <p>
+            Format:{" "}
+            <code className="text-blue-600 font-bold">
+              Word: Meaning | Example
+            </code>
+          </p>
+          <p>
+            Or simple:{" "}
+            <code className="text-blue-600 font-bold">Word: Meaning</code>
+          </p>
         </div>
-      )}
 
-      <div className="flex justify-end mt-auto">
-        <Button onClick={handleProcessAndAdd} disabled={loading || !inputText}>
-          {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Save
-        </Button>
+        <Textarea
+          placeholder={`mean: ý nghĩa | phần giải thích\nHello | He said hello to me\nApple: Quả táo`}
+          className="font-mono text-sm flex-1 overflow-auto mb-4"
+          value={inputText}
+          onChange={(e) => setInputText(e.target.value)}
+          disabled={loading}
+        />
+
+        {report && (
+          <div className="text-sm space-y-2 bg-muted/50 p-3 rounded-md border max-h-[150px] overflow-y-auto">
+            {report.added.length > 0 && (
+              <div className="text-green-600 flex items-start gap-2">
+                <span>✅</span>
+                <span>
+                  Added ({report.added.length}): {report.added.join(", ")}
+                </span>
+              </div>
+            )}
+            {report.skipped.length > 0 && (
+              <div className="text-red-500 flex items-start gap-2">
+                <span>⚠️</span>
+                <span>
+                  Duplicate ({report.skipped.length}):{" "}
+                  {report.skipped.join(", ")}
+                </span>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="flex justify-end mt-auto">
+          <Button
+            onClick={handleProcessAndAdd}
+            disabled={loading || !inputText}
+          >
+            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Save
+          </Button>
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  },
+);
+RawTextImportTab.displayName = "RawTextImportTab";
 
 // ==========================================
 // 4. MAIN COMPONENT (Nơi chứa State)
@@ -483,7 +520,7 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
 }) => {
   const [open, setOpen] = useState(false);
   const { getStorage, setStorage } = useLocalStorage();
-  const [defaultTab, setDefaultTab] = useState(
+  const [activeTab, setActiveTab] = useState(
     getStorage(STORAGE_KEY.HOME_CREATE_MODE) || CreateVolMode.Raw,
   );
 
@@ -506,16 +543,50 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
   const [rawInput, setRawInput] = useState("");
   // ========================================
 
+  // Ref tới các tab con để phím tắt "Save" gọi trực tiếp hàm lưu tương ứng
+  const rawTabRef = useRef<RawTextImportHandle>(null);
+  const structuredTabRef = useRef<StructuredImportHandle>(null);
+
   const onModeChange = (val: CreateVolMode) => {
-    setDefaultTab(val);
+    setActiveTab(val);
     setStorage(STORAGE_KEY.HOME_CREATE_MODE, val);
   };
 
   const handleSuccess = () => {
     if (onSuccess) onSuccess();
     // Tùy chọn: Nếu muốn đóng dialog sau khi save thành công thì bỏ comment dòng dưới
-    // setOpen(false); 
+    // setOpen(false);
   };
+
+  useShortcuts(
+    { page: "Trang chủ", section: "Thêm từ vựng mới" },
+    [
+      {
+        ...VOCAB_MODAL_SHORTCUT_DEFS.tabRaw,
+        handler: () => onModeChange(CreateVolMode.Raw),
+      },
+      {
+        ...VOCAB_MODAL_SHORTCUT_DEFS.tabStructured,
+        handler: () => onModeChange(CreateVolMode.Structured),
+      },
+      {
+        ...VOCAB_MODAL_SHORTCUT_DEFS.save,
+        description:
+          activeTab === CreateVolMode.Raw
+            ? "Lưu nội dung (Raw Text)"
+            : "Lưu tất cả từ (Structured List)",
+        handler: () => {
+          if (activeTab === CreateVolMode.Raw) {
+            rawTabRef.current?.triggerSave();
+          } else {
+            structuredTabRef.current?.triggerSaveAll();
+          }
+        },
+      },
+      VOCAB_MODAL_SHORTCUT_DEFS.saveRowHint,
+    ],
+    { enabled: open },
+  );
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -533,7 +604,7 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
         </DialogHeader>
 
         <Tabs
-          defaultValue={defaultTab}
+          value={activeTab}
           className="w-full flex-1 flex flex-col overflow-hidden"
           onValueChange={(val) => onModeChange(val as CreateVolMode)}
         >
@@ -552,6 +623,7 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
               className="h-[60vh] mt-0"
             >
               <StructuredImportTab
+                ref={structuredTabRef}
                 onAdd={onAddVocabulary}
                 onSuccess={handleSuccess}
                 rows={structuredRows}
@@ -561,6 +633,7 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
 
             <TabsContent value={CreateVolMode.Raw} className="h-[60vh] mt-0">
               <RawTextImportTab
+                ref={rawTabRef}
                 onAdd={onAddVocabulary}
                 onSuccess={handleSuccess}
                 inputText={rawInput}

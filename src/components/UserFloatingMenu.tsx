@@ -4,13 +4,24 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { GUEST_INFO, STORAGE_KEY } from "@/constants";
+import { GUEST_INFO, ROUTES, STORAGE_KEY } from "@/constants";
+import { useShortcutsPanel } from "@/contexts/ShortcutsContext";
 import { useAuth } from "@/hooks/useAuth";
 import { useConfirm } from "@/hooks/useConfirm";
 import { useToast } from "@/hooks/useToast";
-import { ArrowLeftCircle, LogOut, Trash2, Users } from "lucide-react";
+import { formatComboLabel } from "@/lib/shortcuts";
+import {
+  ArrowLeftCircle,
+  Keyboard,
+  LogOut,
+  Trash2,
+  UserCog,
+  Users,
+} from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { ThemeToggle } from "./ThemeToggle";
 import { UserAvatar } from "./UserAvatar";
 
@@ -20,6 +31,8 @@ export const UserFloatingMenu = () => {
 
   const toast = useToast();
   const { confirm } = useConfirm();
+  const { open: openShortcutsHelp } = useShortcutsPanel();
+  const navigate = useNavigate();
 
   const onGuestClearData = async () => {
     const isConfirmed = await confirm({
@@ -85,10 +98,31 @@ export const UserFloatingMenu = () => {
 
         <DropdownMenuSeparator />
 
+        {/* PROFILE / SETTINGS */}
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={() => navigate(ROUTES.PROFILE)}
+        >
+          <UserCog className="mr-2 h-4 w-4" />
+          <span>Profile & Settings</span>
+        </DropdownMenuItem>
+
         {/* THEME TOGGLE */}
         <div className="px-2 py-1.5">
           <ThemeToggle text="Theme" />
         </div>
+
+        {/* KEYBOARD SHORTCUTS */}
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={openShortcutsHelp}
+        >
+          <Keyboard className="mr-2 h-4 w-4" />
+          <span>Keyboard Shortcuts</span>
+          <DropdownMenuShortcut>
+            {formatComboLabel("mod+/").join(" ")}
+          </DropdownMenuShortcut>
+        </DropdownMenuItem>
 
         <DropdownMenuSeparator />
 

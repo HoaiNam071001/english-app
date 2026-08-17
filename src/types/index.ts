@@ -62,6 +62,7 @@ export enum DataTable {
   USER = "users",
   WordType = "word_types",
   Notes = "notes",
+  UserSettings = "user_settings",
 }
 
 export interface TopicItem {

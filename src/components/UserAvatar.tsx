@@ -11,7 +11,7 @@ export const UserAvatar = ({
   isGuest?: boolean;
 }) => {
   const [imageError, setImageError] = React.useState(false);
-  const firstLetter = email.charAt(0).toUpperCase();
+  const firstLetter = (email || "").charAt(0).toUpperCase();
 
   if (photoUrl && !imageError) {
     return (
