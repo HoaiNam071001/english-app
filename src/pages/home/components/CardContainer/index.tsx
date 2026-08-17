@@ -1,9 +1,11 @@
 import { SimpleTooltip } from "@/components/SimpleTooltip";
 import { Button } from "@/components/ui/button";
 import { STORAGE_KEY } from "@/constants";
+import { useShortcuts } from "@/contexts/ShortcutsContext";
 import { useConfirm } from "@/hooks/useConfirm";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { useTabSession } from "@/hooks/useTabSession";
+import { HOME_SESSION_SHORTCUT_DEFS } from "@/lib/shortcutRegistry";
 import { AddReport, TabSession, TopicItem, VocabularyItem } from "@/types";
 import { isToday } from "@/utils";
 import {
@@ -24,7 +26,9 @@ import React, {
   useRef,
   useState,
 } from "react";
-import CreateVocabularyModal from "../CreateVocabularyModal";
+import CreateVocabularyModal, {
+  CreateVocabularyModalHandle,
+} from "../CreateVocabularyModal";
 import FlashcardSection from "./FlashcardSection";
 import { TabItem } from "./TabItem"; // Giả sử bạn đã tách file TabItem
 
@@ -83,6 +87,7 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
     );
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const hasInitialized = useRef(false);
+    const createModalRef = useRef<CreateVocabularyModalHandle>(null);
 
     useEffect(() => {
       if (isCollapsed !== getStorage(STORAGE_KEY.MOBILE_HOME_COLLAPSE_ACTION)) {
@@ -225,15 +230,41 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
       }, 100);
     };
 
-    const handleCloseTab = (e: React.MouseEvent, tabId: string) => {
-      e.stopPropagation();
+    const closeTab = (tabId: string) => {
       if (tabs.length === 1) return;
       const newTabs = tabs.filter((t) => t.id !== tabId);
+      if (newTabs.length === tabs.length) return;
       setTabs(newTabs);
       if (activeTabId === tabId) {
         setActiveTabId(newTabs[newTabs.length - 1].id);
       }
     };
+
+    const handleCloseTab = (e: React.MouseEvent, tabId: string) => {
+      e.stopPropagation();
+      closeTab(tabId);
+    };
+
+    // --- Phím tắt của trang (session + mở modal thêm từ) ---
+    useShortcuts({ page: "Trang chủ", section: "Phiên học (Session)" }, [
+      {
+        ...HOME_SESSION_SHORTCUT_DEFS.openCreateVocab,
+        handler: () => createModalRef.current?.openModal(),
+      },
+      {
+        ...HOME_SESSION_SHORTCUT_DEFS.newSession,
+        handler: () => handleAddTab(),
+      },
+      {
+        ...HOME_SESSION_SHORTCUT_DEFS.closeSession,
+        handler: () => closeTab(activeTabId),
+        when: () => tabs.length > 1,
+      },
+      {
+        ...HOME_SESSION_SHORTCUT_DEFS.resetSession,
+        handler: () => handleManualReset(),
+      },
+    ]);
 
     const handleRename = (id: string, newTitle: string) => {
       const trimmed = newTitle.trim();
@@ -401,7 +432,12 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
               </Button>
             </SimpleTooltip>
             <div className="w-[1px] h-4 md:h-5 bg-border mx-0.5 md:mx-1"></div>
-            <CreateVocabularyModal onAddVocabulary={handleAddVocabulary} />
+            {/* Instance này luôn được mount (desktop bar chỉ bị ẩn bằng CSS trên
+                mobile) nên dùng làm đích cho phím tắt "Mở modal thêm từ". */}
+            <CreateVocabularyModal
+              ref={createModalRef}
+              onAddVocabulary={handleAddVocabulary}
+            />
           </div>
           {/* Reset Button - Mobile only */}
           <div className="flex items-center shrink-0 px-1 md:hidden">

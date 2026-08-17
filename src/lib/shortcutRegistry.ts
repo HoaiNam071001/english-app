@@ -18,6 +18,29 @@ export const GLOBAL_SHORTCUT_DEFS = {
   },
 } satisfies Record<string, StaticShortcutDef>;
 
+export const HOME_SESSION_SHORTCUT_DEFS = {
+  openCreateVocab: {
+    id: "home.open-create-vocab",
+    combo: "mod+shift+a",
+    description: "Mở modal Thêm từ vựng mới",
+  },
+  newSession: {
+    id: "home.new-session",
+    combo: "mod+shift+s",
+    description: "Tạo session (tab) mới",
+  },
+  closeSession: {
+    id: "home.close-session",
+    combo: "mod+shift+x",
+    description: "Đóng session đang mở (cần có từ 2 session trở lên)",
+  },
+  resetSession: {
+    id: "home.reset-session",
+    combo: "mod+shift+y",
+    description: "Reset toàn bộ session (có xác nhận trước khi xoá)",
+  },
+} satisfies Record<string, StaticShortcutDef>;
+
 export const VOCAB_MODAL_SHORTCUT_DEFS = {
   tabRaw: {
     id: "vocab-modal.tab-raw",
@@ -44,6 +67,11 @@ export const VOCAB_MODAL_SHORTCUT_DEFS = {
 
 export const STATIC_SHORTCUT_CATALOG: StaticShortcutGroup[] = [
   { page: "Toàn ứng dụng", defs: Object.values(GLOBAL_SHORTCUT_DEFS) },
+  {
+    page: "Trang chủ",
+    section: "Phiên học (Session)",
+    defs: Object.values(HOME_SESSION_SHORTCUT_DEFS),
+  },
   {
     page: "Trang chủ",
     section: "Thêm từ vựng mới",

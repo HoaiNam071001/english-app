@@ -514,11 +514,20 @@ interface CreateVocabularyModalProps {
   onSuccess?: () => void;
 }
 
-const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
-  onAddVocabulary,
-  onSuccess,
-}) => {
+/** Cho phép nơi khác (vd: phím tắt ở CardContainer) mở modal mà không cần click nút */
+export interface CreateVocabularyModalHandle {
+  openModal: () => void;
+}
+
+const CreateVocabularyModal = forwardRef<
+  CreateVocabularyModalHandle,
+  CreateVocabularyModalProps
+>(({ onAddVocabulary, onSuccess }, ref) => {
   const [open, setOpen] = useState(false);
+
+  useImperativeHandle(ref, () => ({
+    openModal: () => setOpen(true),
+  }));
   const { getStorage, setStorage } = useLocalStorage();
   const [activeTab, setActiveTab] = useState(
     getStorage(STORAGE_KEY.HOME_CREATE_MODE) || CreateVolMode.Raw,
@@ -645,6 +654,7 @@ const CreateVocabularyModal: React.FC<CreateVocabularyModalProps> = ({
       </DialogContent>
     </Dialog>
   );
-};
+});
+CreateVocabularyModal.displayName = "CreateVocabularyModal";
 
 export default CreateVocabularyModal;
