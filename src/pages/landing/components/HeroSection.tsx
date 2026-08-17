@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/constants";
 import { useAuth } from "@/hooks/useAuth";
+import { useThemedImage } from "@/hooks/useThemedImage";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -13,6 +14,7 @@ export const HeroSection = () => {
   const { userProfile, isGuest } = useAuth();
   const { t } = useTranslation("landing");
   const isAuthed = !!userProfile || isGuest;
+  const heroImage = useThemedImage("/home-1.png");
 
   return (
     <section
@@ -95,7 +97,7 @@ export const HeroSection = () => {
         >
           <div className="absolute inset-x-8 -bottom-6 h-24 rounded-full bg-primary/15 blur-3xl" />
           <BrowserFrame
-            src="/home-1.png"
+            src={heroImage}
             alt={t("hero.imageAlt")}
             className="relative"
           />

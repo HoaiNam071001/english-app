@@ -1,3 +1,4 @@
+import { useThemedImage } from "@/hooks/useThemedImage";
 import { NotebookPen, Table, ListChecks, Users, Import, Sparkles } from "lucide-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -11,6 +12,8 @@ import { MobileShowcase } from "./components/MobileShowcase";
 
 const LandingPage = () => {
   const { t } = useTranslation("landing");
+  const notesImage = useThemedImage("/home-2.png");
+  const communityImage = useThemedImage("/home-3.png");
 
   useEffect(() => {
     document.title = t("documentTitle");
@@ -44,7 +47,7 @@ const LandingPage = () => {
             { icon: ListChecks, text: t("notes.points.checklist") },
             { icon: NotebookPen, text: t("notes.points.editor") },
           ]}
-          image="/home-2.png"
+          image={notesImage}
           imageAlt={t("notes.imageAlt")}
         />
 
@@ -65,7 +68,7 @@ const LandingPage = () => {
             { icon: Import, text: t("community.points.import") },
             { icon: Sparkles, text: t("community.points.updates") },
           ]}
-          image="/home-3.png"
+          image={communityImage}
           imageAlt={t("community.imageAlt")}
           reverse
         />

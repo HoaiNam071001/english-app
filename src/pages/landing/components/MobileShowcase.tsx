@@ -1,3 +1,4 @@
+import { useThemedImage } from "@/hooks/useThemedImage";
 import { WifiOff, Zap, Smartphone } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { GradientBlob } from "./GradientBlob";
@@ -12,6 +13,7 @@ const POINTS = [
 
 export const MobileShowcase = () => {
   const { t } = useTranslation("landing");
+  const mobileImage = useThemedImage("/home-4.png");
 
   return (
     <section id="mobile" className="relative overflow-hidden py-16 md:py-24">
@@ -22,7 +24,7 @@ export const MobileShowcase = () => {
       <div className="relative mx-auto max-w-7xl px-4 md:px-8">
         <div className="grid items-center gap-12 md:grid-cols-2 md:gap-16">
           <Reveal direction="left" className="order-2 flex justify-center md:order-1">
-            <PhoneFrame src="/home-4.png" alt={t("mobile.imageAlt")} />
+            <PhoneFrame src={mobileImage} alt={t("mobile.imageAlt")} />
           </Reveal>
 
           <Reveal direction="right" className="order-1 text-center md:order-2 md:text-left">

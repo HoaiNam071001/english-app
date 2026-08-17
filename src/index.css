@@ -31,9 +31,16 @@
   --brand-end: #c2410c;
   --brand-hover-start: #b45309;
   --brand-hover-end: #9a3412;
-  --brand-card-start: #d97706;
-  --brand-card-mid: #ea580c;
+  /* Mặt sau flashcard (light): tông primary rực rỡ, chuyển màu êm từ amber -> orange */
+  --brand-card-start: #fbbf24;
+  --brand-card-mid: #f97316;
+  --brand-card-glow: #ea580c;
   --brand-card-end: #c2410c;
+  /* Mặt trước flashcard (light): nền trắng ấm nhẹ theo primary */
+  --brand-face-start: #ffffff;
+  --brand-face-end: #fff3e6;
+  /* Độ sáng của vệt highlight trên mặt úp */
+  --brand-card-sheen: 0.2;
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
@@ -86,7 +93,10 @@ body {
   --color-brand-hover-end: var(--brand-hover-end);
   --color-brand-card-start: var(--brand-card-start);
   --color-brand-card-mid: var(--brand-card-mid);
+  --color-brand-card-glow: var(--brand-card-glow);
   --color-brand-card-end: var(--brand-card-end);
+  --color-brand-face-start: var(--brand-face-start);
+  --color-brand-face-end: var(--brand-face-end);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -126,9 +136,15 @@ body {
   --brand-end: #9a3412;
   --brand-hover-start: #78350f;
   --brand-hover-end: #7c2d12;
-  --brand-card-start: #2f1d18;
-  --brand-card-mid: #54281a;
-  --brand-card-end: #351b16;
+  /* Mặt sau flashcard (dark): tông primary sẫm, chuyển màu êm và sâu */
+  --brand-card-start: #7c2d12;
+  --brand-card-mid: #9a3412;
+  --brand-card-glow: #6b2410;
+  --brand-card-end: #2c1109;
+  /* Mặt trước flashcard (dark): nền tối ấm nhẹ theo primary */
+  --brand-face-start: oklch(0.32 0.028 45);
+  --brand-face-end: oklch(0.27 0.032 35);
+  --brand-card-sheen: 0.12;
   --secondary: oklch(0.35 0.02 240);
   --secondary-foreground: oklch(0.96 0.005 240);
   --muted: oklch(0.35 0.02 240);
