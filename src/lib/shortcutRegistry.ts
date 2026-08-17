@@ -41,7 +41,7 @@ export const HOME_SESSION_SHORTCUT_DEFS = {
   },
   newSession: {
     id: "home.new-session",
-    combo: "mod+shift+s",
+    combo: "mod+shift+d",
     description: "defs.newSession",
   },
   closeSession: {
