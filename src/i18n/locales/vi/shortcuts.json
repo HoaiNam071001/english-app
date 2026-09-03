@@ -28,7 +28,8 @@
     "zoomSpeak": "Phát âm từ",
     "zoomMarkLearned": "Đánh dấu đã thuộc / chưa thuộc",
     "zoomEdit": "Mở form chỉnh sửa từ",
-    "zoomToggleImage": "Ẩn / hiện hình ảnh"
+    "zoomToggleImage": "Ẩn / hiện hình ảnh",
+    "zoomToggleNote": "Ẩn / hiện ghi chú của từ"
   },
   "keyGroups": {
     "modifiers": "Phím bổ trợ",

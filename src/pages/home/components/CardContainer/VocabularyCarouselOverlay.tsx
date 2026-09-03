@@ -51,6 +51,7 @@ export const VocabularyCarouselOverlay: React.FC<
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isNoteOpen, setIsNoteOpen] = useState(false);
   const [transitionState, setTransitionState] = useState<"idle" | "fading">(
     "idle",
   );
@@ -61,6 +62,11 @@ export const VocabularyCarouselOverlay: React.FC<
       if (idx !== -1) setCurrentIndex(idx);
     }
   }, [isOpen, defaultActiveId, items]);
+
+  // Đóng note popover mỗi khi đổi thẻ để tránh hiện nhầm note của thẻ cũ
+  useEffect(() => {
+    setIsNoteOpen(false);
+  }, [currentIndex]);
 
   const currentItem = items[currentIndex];
 
@@ -168,6 +174,11 @@ export const VocabularyCarouselOverlay: React.FC<
         handler: () => onToggleImage(!hideImage),
         when: () => !isEditOpen && !!currentItem?.imageUrl,
       },
+      {
+        ...ZOOM_MODE_SHORTCUT_DEFS.toggleNote,
+        handler: () => setIsNoteOpen((prev) => !prev),
+        when: () => !isEditOpen && !!currentItem?.example,
+      },
     ],
     { enabled: isOpen },
   );
@@ -245,6 +256,8 @@ export const VocabularyCarouselOverlay: React.FC<
                 onMarkLearned={handleMarkAsLearned}
                 onEditOpen={() => setIsEditOpen(true)}
                 onToggleExpand={onClose}
+                noteOpen={isNoteOpen}
+                onNoteOpenChange={setIsNoteOpen}
               />
             </Card>
           </div>

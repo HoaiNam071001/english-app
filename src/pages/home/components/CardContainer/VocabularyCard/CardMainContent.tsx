@@ -16,6 +16,10 @@ interface CardMainContentProps {
   showMeaning: boolean;
   hideImage: boolean;
   isZoomMode: boolean;
+  /** Truyền vào để điều khiển Popover note bằng bên ngoài (vd: phím tắt ở zoom mode).
+   *  Bỏ trống thì Popover tự quản lý trạng thái mở/đóng (hành vi cũ, click để mở). */
+  noteOpen?: boolean;
+  onNoteOpenChange?: (open: boolean) => void;
 }
 
 export const CardMainContent: React.FC<CardMainContentProps> = ({
@@ -23,6 +27,8 @@ export const CardMainContent: React.FC<CardMainContentProps> = ({
   showMeaning,
   hideImage,
   isZoomMode,
+  noteOpen,
+  onNoteOpenChange,
 }) => {
   const { t } = useTranslation("home");
   return (
@@ -47,7 +53,7 @@ export const CardMainContent: React.FC<CardMainContentProps> = ({
 
         {/* Main Text */}
         {item.example ? (
-          <Popover>
+          <Popover open={noteOpen} onOpenChange={onNoteOpenChange}>
             <PopoverTrigger asChild>
               <div
                 className={cn(

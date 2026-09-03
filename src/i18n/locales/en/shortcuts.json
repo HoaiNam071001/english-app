@@ -28,7 +28,8 @@
     "zoomSpeak": "Play pronunciation",
     "zoomMarkLearned": "Mark as learned / not learned",
     "zoomEdit": "Open the edit form for this word",
-    "zoomToggleImage": "Show / hide the image"
+    "zoomToggleImage": "Show / hide the image",
+    "zoomToggleNote": "Show / hide the word's note"
   },
   "keyGroups": {
     "modifiers": "Modifier keys",

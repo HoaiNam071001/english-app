@@ -99,6 +99,11 @@ export const ZOOM_MODE_SHORTCUT_DEFS = {
     combo: "i",
     description: "defs.zoomToggleImage",
   },
+  toggleNote: {
+    id: "home.zoom-toggle-note",
+    combo: "n",
+    description: "defs.zoomToggleNote",
+  },
 } satisfies Record<string, StaticShortcutDef>;
 
 export const VOCAB_MODAL_SHORTCUT_DEFS = {

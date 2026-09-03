@@ -21,6 +21,8 @@ interface CardFrontProps {
   onMarkLearned: (e: React.MouseEvent) => void;
   onEditOpen: () => void;
   onToggleExpand: (e: React.MouseEvent) => void;
+  noteOpen?: boolean;
+  onNoteOpenChange?: (open: boolean) => void;
 }
 
 export const CardFront: React.FC<CardFrontProps> = ({
@@ -39,6 +41,8 @@ export const CardFront: React.FC<CardFrontProps> = ({
   onMarkLearned,
   onEditOpen,
   onToggleExpand,
+  noteOpen,
+  onNoteOpenChange,
 }) => {
   return (
     <div
@@ -68,6 +72,8 @@ export const CardFront: React.FC<CardFrontProps> = ({
         showMeaning={showMeaning}
         hideImage={hideImage}
         isZoomMode={isZoomMode}
+        noteOpen={noteOpen}
+        onNoteOpenChange={onNoteOpenChange}
       />
 
       <div
