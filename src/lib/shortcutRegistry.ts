@@ -18,6 +18,7 @@ export const SHORTCUT_PAGES = {
 export const SHORTCUT_SECTIONS = {
   SESSION: "sections.session",
   CREATE_VOCAB: "sections.createVocab",
+  ZOOM_MODE: "sections.zoomMode",
 } as const;
 
 export const GLOBAL_SHORTCUT_DEFS = {
@@ -56,6 +57,50 @@ export const HOME_SESSION_SHORTCUT_DEFS = {
   },
 } satisfies Record<string, StaticShortcutDef>;
 
+/** Phím tắt khi 1 thẻ từ vựng đang được phóng to (VocabularyCarouselOverlay) */
+export const ZOOM_MODE_SHORTCUT_DEFS = {
+  next: {
+    id: "home.zoom-next",
+    combo: "arrowright",
+    description: "defs.zoomNext",
+  },
+  prev: {
+    id: "home.zoom-prev",
+    combo: "arrowleft",
+    description: "defs.zoomPrev",
+  },
+  close: {
+    id: "home.zoom-close",
+    combo: "escape",
+    description: "defs.zoomClose",
+  },
+  toggleMeaning: {
+    id: "home.zoom-toggle-meaning",
+    combo: "enter",
+    description: "defs.zoomToggleMeaning",
+  },
+  speak: {
+    id: "home.zoom-speak",
+    combo: "p",
+    description: "defs.zoomSpeak",
+  },
+  markLearned: {
+    id: "home.zoom-mark-learned",
+    combo: "l",
+    description: "defs.zoomMarkLearned",
+  },
+  edit: {
+    id: "home.zoom-edit",
+    combo: "e",
+    description: "defs.zoomEdit",
+  },
+  toggleImage: {
+    id: "home.zoom-toggle-image",
+    combo: "i",
+    description: "defs.zoomToggleImage",
+  },
+} satisfies Record<string, StaticShortcutDef>;
+
 export const VOCAB_MODAL_SHORTCUT_DEFS = {
   tabRaw: {
     id: "vocab-modal.tab-raw",
@@ -91,5 +136,10 @@ export const STATIC_SHORTCUT_CATALOG: StaticShortcutGroup[] = [
     page: SHORTCUT_PAGES.HOME,
     section: SHORTCUT_SECTIONS.CREATE_VOCAB,
     defs: Object.values(VOCAB_MODAL_SHORTCUT_DEFS),
+  },
+  {
+    page: SHORTCUT_PAGES.HOME,
+    section: SHORTCUT_SECTIONS.ZOOM_MODE,
+    defs: Object.values(ZOOM_MODE_SHORTCUT_DEFS),
   },
 ];

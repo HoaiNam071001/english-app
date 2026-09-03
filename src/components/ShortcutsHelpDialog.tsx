@@ -6,7 +6,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { useShortcutsPanel } from "@/contexts/ShortcutsContext";
 import { buildPageGroups } from "@/lib/shortcuts";
 import { STATIC_SHORTCUT_CATALOG } from "@/lib/shortcutRegistry";
@@ -25,7 +24,7 @@ export const ShortcutsHelpDialog = () => {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && close()}>
-      <DialogContent className="sm:max-w-[560px] max-h-[85vh] flex flex-col">
+      <DialogContent className="sm:max-w-[560px] max-h-[85vh] flex flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Keyboard size={18} /> {t("help.title")}
@@ -35,9 +34,9 @@ export const ShortcutsHelpDialog = () => {
           </DialogDescription>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 -mr-4 pr-4">
+        <div className="flex-1 min-h-0 overflow-y-auto -mr-4 pr-4">
           <ShortcutGroupList pageGroups={pageGroups} overrides={overrides} />
-        </ScrollArea>
+        </div>
       </DialogContent>
     </Dialog>
   );

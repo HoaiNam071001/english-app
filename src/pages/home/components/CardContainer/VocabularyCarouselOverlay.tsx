@@ -1,7 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { TOPIC_COLORS } from "@/constants";
-import { TopicItem, VocabularyItem } from "@/types";
+import { useShortcuts } from "@/contexts/ShortcutsContext";
+import {
+  SHORTCUT_PAGES,
+  SHORTCUT_SECTIONS,
+  ZOOM_MODE_SHORTCUT_DEFS,
+} from "@/lib/shortcutRegistry";
+import { AccentType, TopicItem, VocabularyItem } from "@/types";
+import { playAudio } from "@/utils";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import React, { useEffect, useMemo, useState } from "react";
 import { EditVocabularyModal } from "../common/EditVocabularyModal";
@@ -91,8 +98,8 @@ export const VocabularyCarouselOverlay: React.FC<
     }, 200);
   };
 
-  const handleMarkAsLearned = async (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleMarkAsLearned = async (e?: React.MouseEvent) => {
+    e?.stopPropagation();
     if (!currentItem) return;
     setLoading(true);
     try {
@@ -104,6 +111,66 @@ export const VocabularyCarouselOverlay: React.FC<
       setLoading(false);
     }
   };
+
+  const handleSpeak = () => {
+    if (!currentItem) return;
+    const usAudio = currentItem.phonetics?.find(
+      (p) => p.audio && p.accent === AccentType.US,
+    );
+    const otherAudio = currentItem.phonetics?.find((p) => p.audio);
+    playAudio(
+      usAudio?.audio || otherAudio?.audio,
+      currentItem.text,
+      usAudio?.accent || otherAudio?.accent,
+    );
+  };
+
+  useShortcuts(
+    { page: SHORTCUT_PAGES.HOME, section: SHORTCUT_SECTIONS.ZOOM_MODE },
+    [
+      {
+        ...ZOOM_MODE_SHORTCUT_DEFS.next,
+        handler: () => handleNext(),
+        when: () => !isEditOpen,
+      },
+      {
+        ...ZOOM_MODE_SHORTCUT_DEFS.prev,
+        handler: () => handlePrev(),
+        when: () => !isEditOpen,
+      },
+      {
+        ...ZOOM_MODE_SHORTCUT_DEFS.close,
+        handler: () => onClose(),
+        when: () => !isEditOpen,
+      },
+      {
+        ...ZOOM_MODE_SHORTCUT_DEFS.toggleMeaning,
+        handler: () => onToggleMeaning(!showMeaning),
+        when: () => !isEditOpen,
+      },
+      {
+        ...ZOOM_MODE_SHORTCUT_DEFS.speak,
+        handler: () => handleSpeak(),
+        when: () => !isEditOpen,
+      },
+      {
+        ...ZOOM_MODE_SHORTCUT_DEFS.markLearned,
+        handler: () => handleMarkAsLearned(),
+        when: () => !isEditOpen,
+      },
+      {
+        ...ZOOM_MODE_SHORTCUT_DEFS.edit,
+        handler: () => setIsEditOpen(true),
+        when: () => !isEditOpen,
+      },
+      {
+        ...ZOOM_MODE_SHORTCUT_DEFS.toggleImage,
+        handler: () => onToggleImage(!hideImage),
+        when: () => !isEditOpen && !!currentItem?.imageUrl,
+      },
+    ],
+    { enabled: isOpen },
+  );
 
   if (!isOpen || !currentItem) return null;
 

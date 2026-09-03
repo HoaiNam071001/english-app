@@ -5,7 +5,8 @@
   },
   "sections": {
     "session": "Phiên học (Session)",
-    "createVocab": "Thêm từ vựng mới"
+    "createVocab": "Thêm từ vựng mới",
+    "zoomMode": "Thẻ khi phóng to"
   },
   "defs": {
     "toggleTheme": "Chuyển giao diện Sáng / Tối",
@@ -19,7 +20,15 @@
     "save": "Lưu (Raw Text hoặc Structured List, tuỳ tab đang mở)",
     "saveRaw": "Lưu nội dung (Raw Text)",
     "saveStructured": "Lưu tất cả từ (Structured List)",
-    "saveRowHint": "Lưu từ đang nhập (khi focus ở ô Word/Meaning)"
+    "saveRowHint": "Lưu từ đang nhập (khi focus ở ô Word/Meaning)",
+    "zoomNext": "Xem từ tiếp theo",
+    "zoomPrev": "Xem từ trước đó",
+    "zoomClose": "Đóng thẻ đang phóng to",
+    "zoomToggleMeaning": "Ẩn / hiện nghĩa của từ",
+    "zoomSpeak": "Phát âm từ",
+    "zoomMarkLearned": "Đánh dấu đã thuộc / chưa thuộc",
+    "zoomEdit": "Mở form chỉnh sửa từ",
+    "zoomToggleImage": "Ẩn / hiện hình ảnh"
   },
   "keyGroups": {
     "modifiers": "Phím bổ trợ",

@@ -5,7 +5,8 @@
   },
   "sections": {
     "session": "Study session",
-    "createVocab": "Add new vocabulary"
+    "createVocab": "Add new vocabulary",
+    "zoomMode": "Zoomed card"
   },
   "defs": {
     "toggleTheme": "Switch between Light / Dark theme",
@@ -19,7 +20,15 @@
     "save": "Save (Raw Text or Structured List, depending on the open tab)",
     "saveRaw": "Save content (Raw Text)",
     "saveStructured": "Save all words (Structured List)",
-    "saveRowHint": "Save the word being typed (when the Word/Meaning field is focused)"
+    "saveRowHint": "Save the word being typed (when the Word/Meaning field is focused)",
+    "zoomNext": "Go to the next card",
+    "zoomPrev": "Go to the previous card",
+    "zoomClose": "Close the zoomed card",
+    "zoomToggleMeaning": "Show / hide the meaning",
+    "zoomSpeak": "Play pronunciation",
+    "zoomMarkLearned": "Mark as learned / not learned",
+    "zoomEdit": "Open the edit form for this word",
+    "zoomToggleImage": "Show / hide the image"
   },
   "keyGroups": {
     "modifiers": "Modifier keys",
