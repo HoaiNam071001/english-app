@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { TOPIC_COLORS } from "@/constants";
+import { useInViewport } from "@/hooks/useInViewport";
 import { TopicItem, VocabularyItem } from "@/types";
 import { Pin } from "lucide-react";
 import React, { useMemo, useState } from "react";
@@ -46,6 +47,10 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
   const { t } = useTranslation("home");
   const [loading, setLoading] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+
+  // Chỉ render nội dung nặng (ảnh, popover...) khi card ở gần/trong vùng nhìn thấy,
+  // giúp scroll mượt hơn khi danh sách có nhiều card.
+  const { ref: cardWrapperRef, isVisible } = useInViewport<HTMLDivElement>();
 
   // Tính toán màu sắc topic
   const currentTopic = useMemo(() => {
@@ -110,57 +115,66 @@ const VocabularyCard: React.FC<VocabularyCardProps> = ({
       )}
 
       {/* THẺ BÌNH THƯỜNG TRONG LIST */}
-      <div className="relative w-38 md:w-40 h-50 group perspective-1000">
-        
-        {/* Pin Icon */}
-        {isFlipped && item.isPinned && (
-          <div
-            className="absolute -top-1 -right-1 z-40 transition-all duration-300 pointer-events-none"
-            title={t("card.pinned")}
-          >
-            <Pin
-              size={16}
-              className="text-orange-500 fill-orange-500 rotate-[45deg] drop-shadow-[0_2px_2px_rgba(0,0,0,0.1)]"
-            />
-          </div>
+      <div
+        ref={cardWrapperRef}
+        className="relative w-38 md:w-40 h-50 group perspective-1000"
+      >
+        {isVisible ? (
+          <>
+            {/* Pin Icon */}
+            {isFlipped && item.isPinned && (
+              <div
+                className="absolute -top-1 -right-1 z-40 transition-all duration-300 pointer-events-none"
+                title={t("card.pinned")}
+              >
+                <Pin
+                  size={16}
+                  className="text-orange-500 fill-orange-500 rotate-45 drop-shadow-[0_2px_2px_rgba(0,0,0,0.1)]"
+                />
+              </div>
+            )}
+
+            <Card
+              onClick={handleCardClick}
+              className={`
+                relative w-full h-full flex flex-col items-center justify-center pt-2 pb-0.5 px-0.5 text-center shadow-lg border-2 overflow-hidden cursor-pointer
+                transition-all duration-500 ease-in-out
+                ${
+                  isFlipped
+                    ? "flashcard-face-surface border-primary/35 hover:border-primary/70 dark:border-primary/45 dark:hover:border-primary/80"
+                    : "flashcard-back-surface border-primary/30 dark:border-primary/40 shadow-xl shadow-primary/25 dark:shadow-black/45"
+                }
+              `}
+            >
+              {/* --- BACK SIDE (ÚP) --- */}
+              {!isFlipped && <CardBack handleRemove={handleRemove} />}
+
+              {/* --- FRONT SIDE (NGỬA) --- */}
+              {isFlipped && (
+                <CardFront
+                  item={item}
+                  currentTopic={currentTopic}
+                  topicColorStyle={topicColorStyle}
+                  isZoomMode={false} // Card nhỏ
+                  showMeaning={showMeaning}
+                  hideImage={hideImage}
+                  loading={loading}
+                  isExpanded={false}
+                  onRemove={handleRemove}
+                  onToggleMeaning={() => onToggleMeaning(!showMeaning)}
+                  onToggleImage={() => onToggleImage(!hideImage)}
+                  onUpdate={onUpdate}
+                  onMarkLearned={handleMarkAsLearned}
+                  onEditOpen={() => setIsEditOpen(true)}
+                  onToggleExpand={handleToggleExpand} // Trigger ra ngoài
+                />
+              )}
+            </Card>
+          </>
+        ) : (
+          // Placeholder giữ đúng kích thước để layout/scrollbar không bị nhảy
+          <div className="w-full h-full rounded-xl border-2 border-transparent bg-muted/40 animate-pulse" />
         )}
-
-        <Card
-          onClick={handleCardClick}
-          className={`
-            relative w-full h-full flex flex-col items-center justify-center pt-2 pb-[2px] px-[2px] text-center shadow-lg border-2 overflow-hidden cursor-pointer
-            transition-all duration-500 ease-in-out
-            ${
-              isFlipped
-                ? "flashcard-face-surface border-primary/35 hover:border-primary/70 dark:border-primary/45 dark:hover:border-primary/80"
-                : "flashcard-back-surface border-primary/30 dark:border-primary/40 shadow-xl shadow-primary/25 dark:shadow-black/45"
-            }
-          `}
-        >
-          {/* --- BACK SIDE (ÚP) --- */}
-          {!isFlipped && <CardBack handleRemove={handleRemove} />}
-
-          {/* --- FRONT SIDE (NGỬA) --- */}
-          {isFlipped && (
-            <CardFront
-              item={item}
-              currentTopic={currentTopic}
-              topicColorStyle={topicColorStyle}
-              isZoomMode={false} // Card nhỏ
-              showMeaning={showMeaning}
-              hideImage={hideImage}
-              loading={loading}
-              isExpanded={false}
-              onRemove={handleRemove}
-              onToggleMeaning={() => onToggleMeaning(!showMeaning)}
-              onToggleImage={() => onToggleImage(!hideImage)}
-              onUpdate={onUpdate}
-              onMarkLearned={handleMarkAsLearned}
-              onEditOpen={() => setIsEditOpen(true)}
-              onToggleExpand={handleToggleExpand} // Trigger ra ngoài
-            />
-          )}
-        </Card>
       </div>
     </>
   );
