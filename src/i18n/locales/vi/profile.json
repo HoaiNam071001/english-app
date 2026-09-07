@@ -13,5 +13,10 @@
     "description": "Nhóm \"Chưa mở\" là những trang/thành phần bạn chưa mở trong phiên này — hãy mở chúng ít nhất 1 lần để phím tắt xuất hiện ở đây. Mỗi phím tắt có thể sửa tối đa 4 phím (tối đa 3 phím bổ trợ + 1 phím chính).",
     "fixed": "Cố định",
     "edit": "Sửa phím tắt"
+  },
+  "fieldsConfig": {
+    "title": "Trường khi thêm từ",
+    "description": "Chọn các trường sẽ hiển thị khi thêm từ ở tab Danh sách có cấu trúc.",
+    "button": "Tuỳ chỉnh trường"
   }
 }

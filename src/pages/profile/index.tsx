@@ -6,7 +6,8 @@ import { useTheme } from "@/contexts/ThemeContext";
 import { useLanguage } from "@/hooks/useLanguage";
 import { buildPageGroups, ShortcutBinding } from "@/lib/shortcuts";
 import { STATIC_SHORTCUT_CATALOG } from "@/lib/shortcutRegistry";
-import { Check, Moon, Pencil, Sun } from "lucide-react";
+import { VocabFieldsConfigModal } from "@/pages/home/components/VocabFieldsConfigModal";
+import { Check, Moon, Pencil, Settings2, Sun } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -21,6 +22,7 @@ const ProfilePage = () => {
   const { catalog, overrides } = useShortcutsPanel();
   const { t } = useTranslation(["profile", "common"]);
   const [editing, setEditing] = useState<EditingState | null>(null);
+  const [fieldsConfigOpen, setFieldsConfigOpen] = useState(false);
 
   const pageGroups = useMemo(
     () => buildPageGroups(catalog, STATIC_SHORTCUT_CATALOG),
@@ -125,6 +127,33 @@ const ProfilePage = () => {
         onOpenChange={(open) => !open && setEditing(null)}
         binding={editing?.binding ?? null}
         groupLabel={editing?.groupLabel ?? ""}
+      />
+
+      {/* TRƯỜNG DỮ LIỆU KHI THÊM TỪ */}
+      <section className="space-y-3">
+        <div>
+          <h2 className="text-sm font-bold uppercase text-muted-foreground tracking-wide">
+            {t("fieldsConfig.title")}
+          </h2>
+          <p className="text-xs text-muted-foreground mt-1">
+            {t("fieldsConfig.description")}
+          </p>
+        </div>
+        <div className="flex items-center border rounded-md p-3">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            onClick={() => setFieldsConfigOpen(true)}
+          >
+            <Settings2 size={14} /> {t("fieldsConfig.button")}
+          </Button>
+        </div>
+      </section>
+
+      <VocabFieldsConfigModal
+        open={fieldsConfigOpen}
+        onOpenChange={setFieldsConfigOpen}
       />
     </div>
   );

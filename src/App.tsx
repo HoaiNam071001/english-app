@@ -2,6 +2,7 @@ import { ConfirmProvider } from "./contexts/ConfirmContext";
 import { ShortcutsProvider } from "./contexts/ShortcutsContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { ToastProvider } from "./contexts/ToastContext";
+import { VocabFieldsConfigProvider } from "./contexts/VocabFieldsConfigContext";
 import { MainLayout } from "./pages/MainLayout";
 // Redux imports
 import { AuthInitializer } from "@/components/AuthInitializer";
@@ -17,8 +18,10 @@ const App = () => {
         <ConfirmProvider>
           <ToastProvider>
             <ShortcutsProvider>
-              <MainLayout />
-              <PWAInstallPrompt />
+              <VocabFieldsConfigProvider>
+                <MainLayout />
+                <PWAInstallPrompt />
+              </VocabFieldsConfigProvider>
             </ShortcutsProvider>
           </ToastProvider>
         </ConfirmProvider>

@@ -3,6 +3,7 @@ import { AccentType } from "./dictionary";
 export * from "./dictionary";
 export * from "./note";
 export * from "./wordType";
+export * from "./vocabFieldsConfig";
 
 export enum PartOfSpeech {
   NOUN = "noun",
@@ -63,6 +64,7 @@ export enum DataTable {
   WordType = "word_types",
   Notes = "notes",
   UserSettings = "user_settings",
+  VocabFieldsConfig = "vocab_fields_config",
 }
 
 export interface TopicItem {

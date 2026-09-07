@@ -103,7 +103,15 @@
     "orSimple": "Or simple:",
     "rawPlaceholder": "mean: meaning | explanation\nHello | He said hello to me\nApple: An apple",
     "addedReport": "Added ({{count}}): {{words}}",
-    "duplicateReport": "Duplicate ({{count}}): {{words}}"
+    "duplicateReport": "Duplicate ({{count}}): {{words}}",
+    "fieldsConfig": {
+      "button": "Configure fields",
+      "title": "Customize word fields",
+      "description": "Choose which fields appear when adding words in the Structured List tab.",
+      "wordAlwaysOn": "Word (always required)",
+      "image": "Image",
+      "reset": "Reset to default"
+    }
   },
   "edit": {
     "word": "Word",

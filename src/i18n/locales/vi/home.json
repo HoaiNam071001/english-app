@@ -103,7 +103,15 @@
     "orSimple": "Hoặc đơn giản:",
     "rawPlaceholder": "mean: ý nghĩa | phần giải thích\nHello | He said hello to me\nApple: Quả táo",
     "addedReport": "Đã thêm ({{count}}): {{words}}",
-    "duplicateReport": "Trùng ({{count}}): {{words}}"
+    "duplicateReport": "Trùng ({{count}}): {{words}}",
+    "fieldsConfig": {
+      "button": "Tuỳ chỉnh trường",
+      "title": "Tuỳ chỉnh trường thông tin",
+      "description": "Chọn các trường sẽ hiển thị khi thêm từ ở tab Danh sách có cấu trúc.",
+      "wordAlwaysOn": "Từ (luôn bắt buộc)",
+      "image": "Hình ảnh",
+      "reset": "Đặt lại mặc định"
+    }
   },
   "edit": {
     "word": "Từ",

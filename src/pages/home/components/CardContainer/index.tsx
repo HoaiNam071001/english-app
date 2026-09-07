@@ -23,6 +23,7 @@ import {
   PanelLeftClose,
   Plus,
   RotateCcw,
+  Settings2,
 } from "lucide-react";
 import React, {
   forwardRef,
@@ -35,6 +36,7 @@ import React, {
 import CreateVocabularyModal, {
   CreateVocabularyModalHandle,
 } from "../CreateVocabularyModal";
+import { VocabFieldsConfigModal } from "../VocabFieldsConfigModal";
 import FlashcardSection from "./FlashcardSection";
 import { TabItem } from "./TabItem"; // Giả sử bạn đã tách file TabItem
 import { useTranslation } from "react-i18next";
@@ -96,6 +98,7 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const hasInitialized = useRef(false);
     const createModalRef = useRef<CreateVocabularyModalHandle>(null);
+    const [fieldsConfigOpen, setFieldsConfigOpen] = useState(false);
 
     useEffect(() => {
       if (isCollapsed !== getStorage(STORAGE_KEY.MOBILE_HOME_COLLAPSE_ACTION)) {
@@ -344,7 +347,20 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
               <ChevronsUpDown size={18} />
             </Button>
           </div>
-          <CreateVocabularyModal onAddVocabulary={handleAddVocabulary} />
+          <div className="flex items-center gap-1.5">
+            <CreateVocabularyModal onAddVocabulary={handleAddVocabulary} />
+            <SimpleTooltip content={t("create.fieldsConfig.button")}>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setFieldsConfigOpen(true)}
+                className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                title={t("create.fieldsConfig.button")}
+              >
+                <Settings2 size={16} />
+              </Button>
+            </SimpleTooltip>
+          </div>
         </div>
 
         {/* --- TAB BAR CONTAINER --- */}
@@ -443,6 +459,17 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
               ref={createModalRef}
               onAddVocabulary={handleAddVocabulary}
             />
+            <SimpleTooltip content={t("create.fieldsConfig.button")}>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setFieldsConfigOpen(true)}
+                className="h-8 w-8 md:h-9 md:w-9 shrink-0 text-muted-foreground hover:text-foreground"
+                title={t("create.fieldsConfig.button")}
+              >
+                <Settings2 size={14} className="md:w-4 md:h-4" />
+              </Button>
+            </SimpleTooltip>
           </div>
           {/* Reset Button - Mobile only */}
           <div className="flex items-center shrink-0 px-1 md:hidden">
@@ -498,6 +525,11 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
             }}
           />
         </div>
+
+        <VocabFieldsConfigModal
+          open={fieldsConfigOpen}
+          onOpenChange={setFieldsConfigOpen}
+        />
       </div>
     );
   },

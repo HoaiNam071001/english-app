@@ -13,5 +13,10 @@
     "description": "The \"Not opened\" group contains pages and components you have not opened in this session — open them at least once for their shortcuts to appear here. Each shortcut can use up to 4 keys (at most 3 modifiers + 1 main key).",
     "fixed": "Fixed",
     "edit": "Edit shortcut"
+  },
+  "fieldsConfig": {
+    "title": "Word creation fields",
+    "description": "Choose which fields appear when adding words in the Structured List tab.",
+    "button": "Configure fields"
   }
 }

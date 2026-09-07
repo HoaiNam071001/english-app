@@ -1,3 +1,4 @@
+import { SimpleTooltip } from "@/components/SimpleTooltip";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -12,7 +13,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Label } from "@/components/ui/label";
-import { AddReport, VocabularyItem } from "@/types";
+import {
+  AccentType,
+  AddReport,
+  VocabFieldsConfig,
+  VocabularyItem,
+} from "@/types";
 import { Loader2, Plus, Trash2, Save, FileText, List } from "lucide-react";
 import React, {
   useState,
@@ -25,12 +31,17 @@ import { ImageIllustration } from "@/components/ImageIllustration";
 import useLocalStorage from "@/hooks/useLocalStorage";
 import { STORAGE_KEY } from "@/constants";
 import { useShortcuts } from "@/contexts/ShortcutsContext";
+import { useVocabFieldsConfig } from "@/contexts/VocabFieldsConfigContext";
 import {
   SHORTCUT_PAGES,
   SHORTCUT_SECTIONS,
   VOCAB_MODAL_SHORTCUT_DEFS,
 } from "@/lib/shortcutRegistry";
 import { useTranslation } from "react-i18next";
+import PartOfSpeechSelector from "./common/PartOfSpeechSelector";
+import TopicSelector from "./common/TopicSelector";
+import WordTypeSelector from "./common/WordTypeSelector";
+import { PhoneticRow } from "./EditPopoverContent/PhoneticRow";
 
 // ==========================================
 // 1. SUB-COMPONENT: ROW ITEM (Giữ nguyên)
@@ -38,7 +49,12 @@ import { useTranslation } from "react-i18next";
 interface VocabularyRowProps {
   id: string;
   data: Partial<VocabularyItem>;
-  onChange: (id: string, field: keyof VocabularyItem, value: string) => void;
+  fieldsConfig: VocabFieldsConfig;
+  onChange: <K extends keyof VocabularyItem>(
+    id: string,
+    field: K,
+    value: VocabularyItem[K],
+  ) => void;
   onRemove: (id: string) => void;
   onSave: (id: string) => Promise<void>;
 }
@@ -46,6 +62,7 @@ interface VocabularyRowProps {
 const VocabularyRow: React.FC<VocabularyRowProps> = ({
   id,
   data,
+  fieldsConfig,
   onChange,
   onRemove,
   onSave,
@@ -66,56 +83,164 @@ const VocabularyRow: React.FC<VocabularyRowProps> = ({
     }
   };
 
+  const showExtraFieldsRow =
+    fieldsConfig.partOfSpeech ||
+    fieldsConfig.wordTypes ||
+    fieldsConfig.topic ||
+    fieldsConfig.phonetics;
+
   return (
     <div className="flex gap-3 items-start p-3 border rounded-md bg-background hover:bg-accent/10 transition-colors shadow-sm">
-      <div className="shrink-0">
-        <ImageIllustration
-          className="w-18 h-18  md:w-25 md:h-25"
-          url={data.imageUrl || ""}
-          onApply={(newUrl) => onChange(id, "imageUrl", newUrl)}
-        />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 flex-1">
-        <div className="space-y-2">
-          <div className="space-y-1">
-            <Label className="text-[10px] text-muted-foreground uppercase font-bold">
-              {t("create.word")}
-            </Label>
-            <Input
-              placeholder={t("create.wordPlaceholder")}
-              value={data.text || ""}
-              onChange={(e) => onChange(id, "text", e.target.value)}
-              onKeyDown={handleEnterToSave}
-              className="h-9 text-sm font-semibold "
-              disabled={isSaving}
-            />
-          </div>
-
-          <div className="">
-            <Input
-              placeholder={t("create.meaningPlaceholder")}
-              value={data.meaning || ""}
-              onChange={(e) => onChange(id, "meaning", e.target.value)}
-              onKeyDown={handleEnterToSave}
-              className="h-9 text-sm"
-              disabled={isSaving}
-            />
-          </div>
-        </div>
-
-        <div className="space-y-1">
-          <Label className="text-[10px] text-muted-foreground uppercase font-bold">
-            {t("create.note")}
-          </Label>
-          <Textarea
-            placeholder={t("create.examplePlaceholder")}
-            value={data.example || ""}
-            onChange={(e) => onChange(id, "example", e.target.value)}
-            className="min-h-[36px] h-9 text-xs py-2 leading-tight resize-none focus:h-20 transition-all z-10 relative"
-            disabled={isSaving}
+      {fieldsConfig.image && (
+        <div className="shrink-0">
+          <ImageIllustration
+            className="w-18 h-18  md:w-25 md:h-25"
+            url={data.imageUrl || ""}
+            onApply={(newUrl) => onChange(id, "imageUrl", newUrl)}
           />
         </div>
+      )}
+
+      <div className="flex flex-col gap-3 flex-1 min-w-0">
+        <div
+          className={
+            fieldsConfig.note
+              ? "grid grid-cols-1 md:grid-cols-2 gap-3"
+              : "grid grid-cols-1 gap-3"
+          }
+        >
+          <div className="space-y-2">
+            <div className="space-y-1">
+              <Label className="text-[10px] text-muted-foreground uppercase font-bold">
+                {t("create.word")}
+              </Label>
+              <Input
+                placeholder={t("create.wordPlaceholder")}
+                value={data.text || ""}
+                onChange={(e) => onChange(id, "text", e.target.value)}
+                onKeyDown={handleEnterToSave}
+                className="h-9 text-sm font-semibold "
+                disabled={isSaving}
+              />
+            </div>
+
+            {fieldsConfig.meaning && (
+              <div className="">
+                <Input
+                  placeholder={t("create.meaningPlaceholder")}
+                  value={data.meaning || ""}
+                  onChange={(e) => onChange(id, "meaning", e.target.value)}
+                  onKeyDown={handleEnterToSave}
+                  className="h-9 text-sm"
+                  disabled={isSaving}
+                />
+              </div>
+            )}
+          </div>
+
+          {fieldsConfig.note && (
+            <div className="space-y-1">
+              <Label className="text-[10px] text-muted-foreground uppercase font-bold">
+                {t("create.note")}
+              </Label>
+              <Textarea
+                placeholder={t("create.examplePlaceholder")}
+                value={data.example || ""}
+                onChange={(e) => onChange(id, "example", e.target.value)}
+                className="min-h-[36px] h-9 text-xs py-2 leading-tight resize-none focus:h-20 transition-all z-10 relative"
+                disabled={isSaving}
+              />
+            </div>
+          )}
+        </div>
+
+        {showExtraFieldsRow && (
+          <div className="flex flex-wrap gap-3 items-start">
+            {fieldsConfig.partOfSpeech && (
+              <div className="flex-1 min-w-[160px] space-y-1">
+                <Label className="text-[10px] text-muted-foreground uppercase font-bold">
+                  {t("edit.partOfSpeech")}
+                </Label>
+                <PartOfSpeechSelector
+                  value={data.partOfSpeech}
+                  onChange={(val) => onChange(id, "partOfSpeech", val)}
+                />
+              </div>
+            )}
+            {fieldsConfig.wordTypes && (
+              <div className="flex-1 min-w-[160px] space-y-1">
+                <Label className="text-[10px] text-muted-foreground uppercase font-bold">
+                  {t("edit.wordTypes")}
+                </Label>
+                <WordTypeSelector
+                  value={data.typeIds}
+                  onChange={(val) => onChange(id, "typeIds", val)}
+                  className="h-8 text-sm"
+                />
+              </div>
+            )}
+            {fieldsConfig.topic && (
+              <div className="flex-1 min-w-[160px] space-y-1">
+                <Label className="text-[10px] text-muted-foreground uppercase font-bold">
+                  {t("edit.topic")}
+                </Label>
+                <TopicSelector
+                  value={data.topicId}
+                  onChange={(val) => onChange(id, "topicId", val)}
+                  className="h-8 text-sm"
+                />
+              </div>
+            )}
+            {fieldsConfig.phonetics && (
+              <div className="flex-1 min-w-[160px] space-y-1">
+                <div className="flex items-center justify-between">
+                  <Label className="text-[10px] text-muted-foreground uppercase font-bold">
+                    {t("edit.phonetics")}
+                  </Label>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-5 w-5 p-0 hover:bg-transparent text-blue-600"
+                    onClick={() =>
+                      onChange(id, "phonetics", [
+                        ...(data.phonetics || []),
+                        { text: "", accent: AccentType.US, audio: "" },
+                      ])
+                    }
+                  >
+                    <Plus size={14} />
+                  </Button>
+                </div>
+                <div className="space-y-1">
+                  {data.phonetics?.map((pho, index) => (
+                    <PhoneticRow
+                      key={index}
+                      item={pho}
+                      wordText={data.text || ""}
+                      onUpdate={(updatedItem) => {
+                        const newArr = [...(data.phonetics || [])];
+                        newArr[index] = updatedItem;
+                        onChange(id, "phonetics", newArr);
+                      }}
+                      onDelete={() =>
+                        onChange(
+                          id,
+                          "phonetics",
+                          (data.phonetics || []).filter((_, i) => i !== index),
+                        )
+                      }
+                    />
+                  ))}
+                  {(!data.phonetics || data.phonetics.length === 0) && (
+                    <div className="text-[10px] text-muted-foreground italic text-center py-2 bg-muted/30 rounded-sm border border-dashed">
+                      {t("edit.noPhonetics")}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col gap-2 mt-6">
@@ -176,43 +301,39 @@ const StructuredImportTab = forwardRef<
   const { t } = useTranslation("home");
   const toast = useToast();
   const [loading, setLoading] = useState(false);
+  const { config: fieldsConfig } = useVocabFieldsConfig();
 
   const isValid = rows?.every((e) => e.text);
 
+  const blankRow = (): RowItem => ({
+    _id: crypto.randomUUID(),
+    text: "",
+    meaning: "",
+    example: "",
+    imageUrl: "",
+    partOfSpeech: [],
+    typeIds: [],
+    phonetics: [],
+    topicId: null,
+  });
+
   const addRow = () => {
-    setRows([
-      ...rows,
-      {
-        _id: crypto.randomUUID(),
-        text: "",
-        meaning: "",
-        example: "",
-        imageUrl: "",
-      },
-    ]);
+    setRows([...rows, blankRow()]);
   };
 
   const removeRow = (id: string) => {
     const newRows = rows.filter((r) => r._id !== id);
     if (newRows.length === 0) {
-      setRows([
-        {
-          _id: crypto.randomUUID(),
-          text: "",
-          meaning: "",
-          example: "",
-          imageUrl: "",
-        },
-      ]);
+      setRows([blankRow()]);
     } else {
       setRows(newRows);
     }
   };
 
-  const updateRow = (
+  const updateRow = <K extends keyof VocabularyItem>(
     id: string,
-    field: keyof VocabularyItem,
-    value: string,
+    field: K,
+    value: VocabularyItem[K],
   ) => {
     setRows((prev) =>
       prev.map((row) => (row._id === id ? { ...row, [field]: value } : row)),
@@ -231,6 +352,10 @@ const StructuredImportTab = forwardRef<
       meaning: rowToSave.meaning?.trim(),
       example: rowToSave.example?.trim(),
       imageUrl: rowToSave.imageUrl?.trim(),
+      partOfSpeech: rowToSave.partOfSpeech,
+      typeIds: rowToSave.typeIds,
+      phonetics: rowToSave.phonetics,
+      topicId: rowToSave.topicId,
       normalized: rowToSave.text.trim().toLowerCase(),
     };
 
@@ -292,15 +417,7 @@ const StructuredImportTab = forwardRef<
       const result = await onAdd(entries);
       if (result.added.length > 0) {
         // Reset về 1 dòng trống sau khi save thành công
-        setRows([
-          {
-            _id: crypto.randomUUID(),
-            text: "",
-            meaning: "",
-            example: "",
-            imageUrl: "",
-          },
-        ]);
+        setRows([blankRow()]);
         onSuccess();
       }
     } catch (error) {
@@ -336,6 +453,7 @@ const StructuredImportTab = forwardRef<
               key={row._id}
               id={row._id}
               data={row}
+              fieldsConfig={fieldsConfig}
               onChange={updateRow}
               onRemove={removeRow}
               onSave={handleSaveSingleRow}
@@ -563,6 +681,10 @@ const CreateVocabularyModal = forwardRef<
       meaning: "",
       example: "",
       imageUrl: "",
+      partOfSpeech: [],
+      typeIds: [],
+      phonetics: [],
+      topicId: null,
     },
   ]);
 
@@ -617,11 +739,13 @@ const CreateVocabularyModal = forwardRef<
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className="gap-2" variant="secondary">
-          <Plus size={16} /> {t("create.title")}
-        </Button>
-      </DialogTrigger>
+      <SimpleTooltip content={t("create.title")}>
+        <DialogTrigger asChild>
+          <Button size="icon" variant="secondary" title={t("create.title")}>
+            <Plus size={16} />
+          </Button>
+        </DialogTrigger>
+      </SimpleTooltip>
       <DialogContent className="sm:max-w-[800px] max-h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>{t("create.importVocabulary")}</DialogTitle>

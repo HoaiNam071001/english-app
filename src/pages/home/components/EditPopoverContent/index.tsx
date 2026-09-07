@@ -1,21 +1,15 @@
 import DictionarySearchButton from "@/components/DictionarySearchButton";
 import { ImageIllustration } from "@/components/ImageIllustration";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import { useDictionary } from "@/hooks/useDictionary";
 import { useToast } from "@/hooks/useToast";
-import { AccentType, PartOfSpeech, VocabularyItem, WordData } from "@/types";
-import { ChevronDown, Loader2, Plus, Save, Search, Trash2 } from "lucide-react";
+import { AccentType, VocabularyItem, WordData } from "@/types";
+import { Loader2, Plus, Save, Search, Trash2 } from "lucide-react";
 import React, { useState } from "react";
+import PartOfSpeechSelector from "../common/PartOfSpeechSelector";
 import TopicSelector from "../common/TopicSelector";
 import WordTypeSelector from "../common/WordTypeSelector"; // <--- Import mới
 import { DraftSelectionView } from "./DraftSelectionView";
@@ -64,15 +58,6 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
       setDraft(results[0]);
     } else {
       toast.error(t("edit.wordNotFound"));
-    }
-  };
-
-  const togglePos = (pos: PartOfSpeech) => {
-    const current = form.partOfSpeech || [];
-    if (current.includes(pos)) {
-      setForm({ ...form, partOfSpeech: current.filter((p) => p !== pos) });
-    } else {
-      setForm({ ...form, partOfSpeech: [...current, pos] });
     }
   };
 
@@ -198,45 +183,10 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
             <Label className="text-xs text-muted-foreground">
               {t("edit.partOfSpeech")}
             </Label>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  role="combobox"
-                  className="w-full justify-between h-8 px-2 text-left font-normal"
-                >
-                  <span className="truncate text-xs">
-                    {form.partOfSpeech && form.partOfSpeech.length > 0 ? (
-                      <span className="text-foreground font-medium">
-                        {form.partOfSpeech.join(", ")}
-                      </span>
-                    ) : (
-                      <span className="text-muted-foreground italic">
-                        {t("edit.selectType")}
-                      </span>
-                    )}
-                  </span>
-                  <ChevronDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-[280px]" align="start">
-                <ScrollArea className="h-[200px]">
-                  {Object.values(PartOfSpeech).map((pos) => (
-                    <div
-                      key={pos}
-                      className="flex items-center space-x-2 p-1.5 hover:bg-accent cursor-pointer rounded-sm"
-                      onClick={() => togglePos(pos)}
-                    >
-                      <Checkbox
-                        checked={form.partOfSpeech?.includes(pos)}
-                        className="h-3.5 w-3.5"
-                      />
-                      <span className="text-xs">{pos}</span>
-                    </div>
-                  ))}
-                </ScrollArea>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <PartOfSpeechSelector
+              value={form.partOfSpeech}
+              onChange={(val) => setForm({ ...form, partOfSpeech: val })}
+            />
           </div>
 
           {/* WORD TYPE (NEW) */}
