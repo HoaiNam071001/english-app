@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -60,14 +59,14 @@ const RoleBadge = ({ role }: { role: UserRole }) => {
   const isAdmin = role === UserRole.ADMIN;
   return (
     <span
-      className={`inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded font-semibold border ${
+      className={`inline-flex items-center gap-0.5 text-[10px] px-2 py-0.5 rounded-full font-semibold ${
         isAdmin
-          ? "bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-400 border-purple-200 dark:border-purple-800"
-          : "bg-muted text-muted-foreground border-border"
+          ? "bg-purple-500/12 text-purple-600 dark:bg-purple-400/15 dark:text-purple-300"
+          : "bg-muted text-muted-foreground"
       }`}
     >
       {isAdmin ? (
-        <Shield size={9} className="fill-purple-200 dark:fill-purple-400" />
+        <Shield size={9} className="fill-purple-300 dark:fill-purple-400" />
       ) : (
         <UserIcon size={9} />
       )}
@@ -80,11 +79,9 @@ const StatusBadge = ({ status }: { status: UserStatus }) => {
   const { t } = useTranslation("admin");
   const styles = {
     [UserStatus.PENDING]:
-      "bg-yellow-50 dark:bg-yellow-950/30 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800",
-    [UserStatus.APPROVED]:
-      "bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800",
-    [UserStatus.REJECTED]:
-      "bg-red-50 dark:bg-red-950/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800",
+      "bg-yellow-500/12 text-yellow-700 dark:text-yellow-400",
+    [UserStatus.APPROVED]: "bg-green-500/12 text-green-700 dark:text-green-400",
+    [UserStatus.REJECTED]: "bg-red-500/12 text-red-700 dark:text-red-400",
   };
 
   const icons = {
@@ -101,7 +98,7 @@ const StatusBadge = ({ status }: { status: UserStatus }) => {
 
   return (
     <span
-      className={`inline-flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded font-medium border ${styles[status]}`}
+      className={`inline-flex items-center gap-0.5 text-[10px] px-2 py-0.5 rounded-full font-medium ${styles[status]}`}
     >
       {icons[status]}
       <span className="ml-0.5">{labels[status]}</span>
@@ -120,12 +117,12 @@ const UsersPage = () => {
     formatDate(timestamp, i18n.language, t("users.notUpdated"));
 
   return (
-    <div className="bg-background relative">
+    <div className="admin-ambient bg-background relative">
       {/* HEADER */}
-      <div className="sticky top-0 z-10 bg-background/95 flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border pt-4 md:pt-6">
-        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-950/20 dark:to-cyan-950/20 px-4 py-2 rounded-lg border border-blue-200 dark:border-blue-800 text-sm font-medium text-card-foreground shrink-0">
-          {t("users.total")}{" "}
-          <span className="text-blue-600 dark:text-blue-400 font-bold text-base">
+      <div className="sticky top-0 z-10 bg-background/85 backdrop-blur-md flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border/60 pt-4 md:pt-6">
+        <div className="glass inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium text-card-foreground shrink-0 shadow-soft w-fit">
+          {t("users.total")}
+          <span className="inline-flex items-center justify-center rounded-full bg-primary/12 px-2.5 py-0.5 text-sm font-bold text-primary tabular-nums">
             {allUsers.length}
           </span>
         </div>
@@ -138,192 +135,190 @@ const UsersPage = () => {
           className="mt-4 md:mt-6 mb-8"
         />
       ) : allUsers.length === 0 ? (
-        <Card className="border shadow-sm bg-card mt-4 md:mt-6">
-          <CardContent className="py-16 text-center text-muted-foreground">
-            <UserIcon className="mx-auto h-12 w-12 text-muted-foreground/40 mb-3" />
-            <p className="text-sm font-medium">{t("users.empty")}</p>
-          </CardContent>
-        </Card>
+        <div className="glass rounded-2xl py-16 text-center text-muted-foreground mt-4 md:mt-6 shadow-card">
+          <div className="mx-auto mb-3 flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary">
+            <UserIcon className="size-7" />
+          </div>
+          <p className="text-sm font-medium">{t("users.empty")}</p>
+        </div>
       ) : (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-3 md:gap-4 mt-4 md:mt-6 mb-8">
           {allUsers.map((user) => (
-            <Card
+            <div
               key={user.id}
-              className="border shadow-sm bg-card hover:shadow-md transition-shadow py-0"
+              className="glass rounded-2xl shadow-card hover:shadow-glow transition-all p-3 md:p-4 relative"
             >
-              <CardContent className="p-3 md:p-4 relative">
-                {/* Actions - Top Right */}
-                <div className="absolute top-2 right-2 flex items-center gap-1">
-                  {/* Desktop Actions */}
-                  <div className="hidden md:flex items-center gap-1">
-                    {(user.status === UserStatus.PENDING ||
-                      user.status === UserStatus.REJECTED) && (
+              {/* Actions - Top Right */}
+              <div className="absolute top-2 right-2 flex items-center gap-1">
+                {/* Desktop Actions */}
+                <div className="hidden md:flex items-center gap-1">
+                  {(user.status === UserStatus.PENDING ||
+                    user.status === UserStatus.REJECTED) && (
+                    <Button
+                      size="sm"
+                      className="rounded-full bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 h-7 px-2.5 text-xs shadow-soft active:scale-[0.97]"
+                      onClick={() => approveUser(user.id)}
+                    >
+                      {user.status === UserStatus.REJECTED ? (
+                        <RefreshCw size={11} className="mr-1" />
+                      ) : (
+                        <Check size={11} className="mr-1" />
+                      )}
+                      {user.status === UserStatus.REJECTED
+                        ? t("actions.reopen")
+                        : t("actions.approve")}
+                    </Button>
+                  )}
+
+                  {user.role !== UserRole.ADMIN &&
+                    (user.status === UserStatus.PENDING ||
+                      user.status === UserStatus.APPROVED) && (
                       <Button
                         size="sm"
-                        className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-600 h-7 px-2.5 text-xs"
-                        onClick={() => approveUser(user.id)}
+                        variant="destructive"
+                        className="rounded-full h-7 px-2.5 text-xs shadow-soft active:scale-[0.97]"
+                        onClick={() => rejectUser(user.id)}
                       >
-                        {user.status === UserStatus.REJECTED ? (
-                          <RefreshCw size={11} className="mr-1" />
+                        {user.status === UserStatus.APPROVED ? (
+                          <Ban size={11} className="mr-1" />
                         ) : (
-                          <Check size={11} className="mr-1" />
+                          <X size={11} className="mr-1" />
                         )}
-                        {user.status === UserStatus.REJECTED
-                          ? t("actions.reopen")
-                          : t("actions.approve")}
+                        {user.status === UserStatus.APPROVED
+                          ? t("actions.block")
+                          : t("actions.reject")}
                       </Button>
                     )}
-
-                    {user.role !== UserRole.ADMIN &&
-                      (user.status === UserStatus.PENDING ||
-                        user.status === UserStatus.APPROVED) && (
-                        <Button
-                          size="sm"
-                          variant="destructive"
-                          className="h-7 px-2.5 text-xs"
-                          onClick={() => rejectUser(user.id)}
-                        >
-                          {user.status === UserStatus.APPROVED ? (
-                            <Ban size={11} className="mr-1" />
-                          ) : (
-                            <X size={11} className="mr-1" />
-                          )}
-                          {user.status === UserStatus.APPROVED
-                            ? t("actions.block")
-                            : t("actions.reject")}
-                        </Button>
-                      )}
-                  </div>
-
-                  {/* Mobile Actions Dropdown */}
-                  {user.role !== UserRole.ADMIN && (
-                    <div className="md:hidden">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 text-muted-foreground"
-                          >
-                            <MoreVertical size={14} />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
-                          {(user.status === UserStatus.PENDING ||
-                            user.status === UserStatus.REJECTED) && (
-                            <DropdownMenuItem
-                              onClick={() => approveUser(user.id)}
-                              className="text-green-600 dark:text-green-400 cursor-pointer"
-                            >
-                              {user.status === UserStatus.REJECTED ? (
-                                <RefreshCw size={14} className="mr-2" />
-                              ) : (
-                                <Check size={14} className="mr-2" />
-                              )}
-                              {user.status === UserStatus.REJECTED
-                                ? t("actions.reopen")
-                                : t("actions.approve")}
-                            </DropdownMenuItem>
-                          )}
-
-                          {(user.status === UserStatus.PENDING ||
-                            user.status === UserStatus.APPROVED) && (
-                            <>
-                              {user.status === UserStatus.PENDING && (
-                                <DropdownMenuSeparator />
-                              )}
-                              <DropdownMenuItem
-                                onClick={() => rejectUser(user.id)}
-                                className="text-red-600 dark:text-red-400 cursor-pointer"
-                              >
-                                {user.status === UserStatus.APPROVED ? (
-                                  <Ban size={14} className="mr-2" />
-                                ) : (
-                                  <X size={14} className="mr-2" />
-                                )}
-                                {user.status === UserStatus.APPROVED
-                                  ? t("actions.block")
-                                  : t("actions.reject")}
-                              </DropdownMenuItem>
-                            </>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </div>
-                  )}
                 </div>
 
-                {/* Main Content */}
-                <div className="flex items-start gap-3 pr-20 md:pr-28">
-                  {/* Avatar */}
-                  <div className="shrink-0">
-                    <UserAvatar email={user.email} photoUrl={user.photoURL} />
-                  </div>
+                {/* Mobile Actions Dropdown */}
+                {user.role !== UserRole.ADMIN && (
+                  <div className="md:hidden">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="rounded-full h-7 w-7 text-muted-foreground active:scale-[0.97]"
+                        >
+                          <MoreVertical size={14} />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        {(user.status === UserStatus.PENDING ||
+                          user.status === UserStatus.REJECTED) && (
+                          <DropdownMenuItem
+                            onClick={() => approveUser(user.id)}
+                            className="text-green-600 dark:text-green-400 cursor-pointer"
+                          >
+                            {user.status === UserStatus.REJECTED ? (
+                              <RefreshCw size={14} className="mr-2" />
+                            ) : (
+                              <Check size={14} className="mr-2" />
+                            )}
+                            {user.status === UserStatus.REJECTED
+                              ? t("actions.reopen")
+                              : t("actions.approve")}
+                          </DropdownMenuItem>
+                        )}
 
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex flex-col gap-2">
-                      {/* Email & Badges */}
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
-                        <span className="font-medium text-sm md:text-base text-foreground truncate">
-                          {user.email}
-                        </span>
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <RoleBadge role={user.role} />
-                          <StatusBadge status={user.status} />
-                        </div>
-                      </div>
-
-                      {/* Metadata */}
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <Calendar size={10} className="shrink-0" />
-                          <span className="hidden sm:inline whitespace-nowrap">
-                            {showDate(user.createdAt)}
-                          </span>
-                          <span className="sm:hidden whitespace-nowrap">
-                            {showDate(user.createdAt)}
-                          </span>
-                        </div>
-                        {user.lastLoginAt && (
+                        {(user.status === UserStatus.PENDING ||
+                          user.status === UserStatus.APPROVED) && (
                           <>
-                            <span className="hidden sm:inline whitespace-nowrap">
-                              •
+                            {user.status === UserStatus.PENDING && (
+                              <DropdownMenuSeparator />
+                            )}
+                            <DropdownMenuItem
+                              onClick={() => rejectUser(user.id)}
+                              className="text-red-600 dark:text-red-400 cursor-pointer"
+                            >
+                              {user.status === UserStatus.APPROVED ? (
+                                <Ban size={14} className="mr-2" />
+                              ) : (
+                                <X size={14} className="mr-2" />
+                              )}
+                              {user.status === UserStatus.APPROVED
+                                ? t("actions.block")
+                                : t("actions.reject")}
+                            </DropdownMenuItem>
+                          </>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                )}
+              </div>
+
+              {/* Main Content */}
+              <div className="flex items-start gap-3 pr-20 md:pr-28">
+                {/* Avatar */}
+                <div className="shrink-0">
+                  <UserAvatar email={user.email} photoUrl={user.photoURL} />
+                </div>
+
+                {/* Info */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-col gap-2">
+                    {/* Email & Badges */}
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2">
+                      <span className="font-medium text-sm md:text-base text-foreground truncate">
+                        {user.email}
+                      </span>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <RoleBadge role={user.role} />
+                        <StatusBadge status={user.status} />
+                      </div>
+                    </div>
+
+                    {/* Metadata */}
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-1">
+                        <Calendar size={10} className="shrink-0" />
+                        <span className="hidden sm:inline whitespace-nowrap">
+                          {showDate(user.createdAt)}
+                        </span>
+                        <span className="sm:hidden whitespace-nowrap">
+                          {showDate(user.createdAt)}
+                        </span>
+                      </div>
+                      {user.lastLoginAt && (
+                        <>
+                          <span className="hidden sm:inline whitespace-nowrap">
+                            •
+                          </span>
+                          <div className="flex items-center gap-1">
+                            <Clock size={10} className="shrink-0" />
+                            <span className="text-blue-600 dark:text-blue-400">
+                              <span className="hidden sm:inline whitespace-nowrap">
+                                {showDate(user.lastLoginAt)}
+                              </span>
+                              <span className="sm:hidden">
+                                {showDate(user.lastLoginAt)}
+                              </span>
                             </span>
+                          </div>
+                        </>
+                      )}
+                      {user.status !== UserStatus.PENDING &&
+                        user.approvedBy && (
+                          <>
+                            <span className="hidden sm:inline">•</span>
                             <div className="flex items-center gap-1">
-                              <Clock size={10} className="shrink-0" />
-                              <span className="text-blue-600 dark:text-blue-400">
-                                <span className="hidden sm:inline whitespace-nowrap">
-                                  {showDate(user.lastLoginAt)}
-                                </span>
-                                <span className="sm:hidden">
-                                  {showDate(user.lastLoginAt)}
-                                </span>
+                              <ShieldCheck
+                                size={10}
+                                className="text-green-600 dark:text-green-500 shrink-0"
+                              />
+                              <span className="font-mono text-[10px] truncate">
+                                {user.approvedBy || t("users.defaultAdmin")}
                               </span>
                             </div>
                           </>
                         )}
-                        {user.status !== UserStatus.PENDING &&
-                          user.approvedBy && (
-                            <>
-                              <span className="hidden sm:inline">•</span>
-                              <div className="flex items-center gap-1">
-                                <ShieldCheck
-                                  size={10}
-                                  className="text-green-600 dark:text-green-500 shrink-0"
-                                />
-                                <span className="font-mono text-[10px] truncate">
-                                  {user.approvedBy || t("users.defaultAdmin")}
-                                </span>
-                              </div>
-                            </>
-                          )}
-                      </div>
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ))}
         </div>
       )}

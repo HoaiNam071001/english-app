@@ -68,6 +68,10 @@
      :root trong dist/index.css của thư viện ghi đè) */
   --skeleton-base: oklch(0.92 0.004 240);
   --skeleton-highlight: oklch(0.968 0.002 240);
+  /* Shadow mềm cho .glass (xem styles/index.css) — dùng ở trang admin */
+  --shadow-soft: 0 2px 10px -4px oklch(0.2 0.02 40 / 0.14);
+  --shadow-card: 0 14px 34px -18px oklch(0.2 0.02 40 / 0.28);
+  --shadow-glow: 0 10px 28px -8px oklch(0.6 0.19 40 / 0.45);
 }
 
 body {
@@ -175,6 +179,9 @@ body {
   /* skeleton-styler: bản dark, sáng hơn nền card một chút để vẫn thấy rõ */
   --skeleton-base: oklch(0.37 0.018 240);
   --skeleton-highlight: oklch(0.45 0.02 240);
+  --shadow-soft: 0 2px 10px -4px oklch(0 0 0 / 0.4);
+  --shadow-card: 0 16px 36px -18px oklch(0 0 0 / 0.6);
+  --shadow-glow: 0 10px 30px -6px oklch(0.55 0.19 40 / 0.55);
 }
 
 @layer base {

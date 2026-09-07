@@ -109,7 +109,7 @@ export const userCardsSkeleton = (count = 6) =>
         row(12)
           .s_itemsStart()
           .s_p(16)
-          .s_rounded(12)
+          .s_rounded(20)
           .s_border(1, "solid", "var(--border)")
           .append(
             circle(40),
