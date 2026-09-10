@@ -131,6 +131,19 @@
     "autoGenerateUs": "Auto generate US Link",
     "autoGenerateUk": "Auto generate UK Link"
   },
+  "partOfSpeech": {
+    "noun": "Noun",
+    "verb": "Verb",
+    "adjective": "Adjective",
+    "adverb": "Adverb",
+    "pronoun": "Pronoun",
+    "preposition": "Preposition",
+    "conjunction": "Conjunction",
+    "interjection": "Interjection",
+    "phrasal verb": "Phrasal Verb",
+    "idiom": "Idiom",
+    "other": "Other"
+  },
   "draft": {
     "title": "Select Data to Apply",
     "description": "Select individual fields to override your current data.",

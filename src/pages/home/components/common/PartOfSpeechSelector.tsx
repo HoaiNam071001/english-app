@@ -11,6 +11,7 @@ import {
   getShortPartOfSpeech,
 } from "@/utils";
 import React from "react";
+import { useTranslation } from "react-i18next";
 
 interface PartOfSpeechSelectorProps {
   value: PartOfSpeech[] | null | undefined;
@@ -27,6 +28,7 @@ const PartOfSpeechSelector: React.FC<PartOfSpeechSelectorProps> = ({
   onChange,
   className,
 }) => {
+  const { t } = useTranslation("home");
   const selected = value || [];
 
   const togglePos = (pos: PartOfSpeech) => {
@@ -45,7 +47,7 @@ const PartOfSpeechSelector: React.FC<PartOfSpeechSelectorProps> = ({
           <button
             key={pos}
             type="button"
-            title={pos}
+            title={t(`partOfSpeech.${pos}`, { defaultValue: pos })}
             aria-pressed={isSelected}
             onClick={() => togglePos(pos)}
             className={cn(
@@ -68,6 +70,8 @@ const PartOfSpeechSelector: React.FC<PartOfSpeechSelectorProps> = ({
 export const PartOfSpeechLegend: React.FC<{ className?: string }> = ({
   className,
 }) => {
+  const { t } = useTranslation("home");
+
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -94,7 +98,9 @@ export const PartOfSpeechLegend: React.FC<{ className?: string }> = ({
               >
                 {getShortPartOfSpeech(pos)}
               </span>
-              <span className="capitalize text-foreground">{pos}</span>
+              <span className="text-foreground">
+                {t(`partOfSpeech.${pos}`, { defaultValue: pos })}
+              </span>
             </div>
           ))}
         </div>

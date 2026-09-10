@@ -131,6 +131,19 @@
     "autoGenerateUs": "Tự tạo link giọng Mỹ",
     "autoGenerateUk": "Tự tạo link giọng Anh"
   },
+  "partOfSpeech": {
+    "noun": "Danh từ",
+    "verb": "Động từ",
+    "adjective": "Tính từ",
+    "adverb": "Trạng từ",
+    "pronoun": "Đại từ",
+    "preposition": "Giới từ",
+    "conjunction": "Liên từ",
+    "interjection": "Thán từ",
+    "phrasal verb": "Cụm động từ",
+    "idiom": "Thành ngữ",
+    "other": "Khác"
+  },
   "draft": {
     "title": "Chọn dữ liệu để áp dụng",
     "description": "Chọn từng trường bạn muốn ghi đè lên dữ liệu hiện tại.",
