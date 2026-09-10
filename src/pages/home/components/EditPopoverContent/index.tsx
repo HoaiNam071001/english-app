@@ -9,7 +9,9 @@ import { useToast } from "@/hooks/useToast";
 import { AccentType, VocabularyItem, WordData } from "@/types";
 import { Loader2, Plus, Save, Search, Trash2 } from "lucide-react";
 import React, { useState } from "react";
-import PartOfSpeechSelector from "../common/PartOfSpeechSelector";
+import PartOfSpeechSelector, {
+  PartOfSpeechLegend,
+} from "../common/PartOfSpeechSelector";
 import TopicSelector from "../common/TopicSelector";
 import WordTypeSelector from "../common/WordTypeSelector"; // <--- Import mới
 import { DraftSelectionView } from "./DraftSelectionView";
@@ -180,9 +182,12 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {/* PART OF SPEECH */}
           <div className="space-y-1">
-            <Label className="text-xs text-muted-foreground">
-              {t("edit.partOfSpeech")}
-            </Label>
+            <div className="flex items-center gap-1">
+              <Label className="text-xs text-muted-foreground">
+                {t("edit.partOfSpeech")}
+              </Label>
+              <PartOfSpeechLegend />
+            </div>
             <PartOfSpeechSelector
               value={form.partOfSpeech}
               onChange={(val) => setForm({ ...form, partOfSpeech: val })}

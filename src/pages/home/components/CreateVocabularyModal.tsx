@@ -38,7 +38,9 @@ import {
   VOCAB_MODAL_SHORTCUT_DEFS,
 } from "@/lib/shortcutRegistry";
 import { useTranslation } from "react-i18next";
-import PartOfSpeechSelector from "./common/PartOfSpeechSelector";
+import PartOfSpeechSelector, {
+  PartOfSpeechLegend,
+} from "./common/PartOfSpeechSelector";
 import TopicSelector from "./common/TopicSelector";
 import WordTypeSelector from "./common/WordTypeSelector";
 import { PhoneticRow } from "./EditPopoverContent/PhoneticRow";
@@ -158,9 +160,12 @@ const VocabularyRow: React.FC<VocabularyRowProps> = ({
           <div className="flex flex-wrap gap-3 items-start">
             {fieldsConfig.partOfSpeech && (
               <div className="flex-1 min-w-[160px] space-y-1">
-                <Label className="text-[10px] text-muted-foreground uppercase font-bold">
-                  {t("edit.partOfSpeech")}
-                </Label>
+                <div className="flex items-center gap-1">
+                  <Label className="text-[10px] text-muted-foreground uppercase font-bold">
+                    {t("edit.partOfSpeech")}
+                  </Label>
+                  <PartOfSpeechLegend />
+                </div>
                 <PartOfSpeechSelector
                   value={data.partOfSpeech}
                   onChange={(val) => onChange(id, "partOfSpeech", val)}

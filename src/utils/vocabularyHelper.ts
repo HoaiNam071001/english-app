@@ -112,6 +112,23 @@ export const getPartOfSpeechStyle = (pos: PartOfSpeech | string): string => {
   );
 };
 
+// Bản đậm (solid) cùng tông màu với getPartOfSpeechStyle, dùng cho trạng thái đã chọn.
+export const getPartOfSpeechSolidStyle = (pos: PartOfSpeech | string): string => {
+  const styles: Record<string, string> = {
+    [PartOfSpeech.NOUN]: "bg-blue-600 text-white dark:bg-blue-500",
+    [PartOfSpeech.VERB]: "bg-rose-600 text-white dark:bg-rose-500",
+    [PartOfSpeech.ADJECTIVE]: "bg-emerald-600 text-white dark:bg-emerald-500",
+    [PartOfSpeech.ADVERB]: "bg-amber-600 text-white dark:bg-amber-500",
+    [PartOfSpeech.PRONOUN]: "bg-violet-600 text-white dark:bg-violet-500",
+    [PartOfSpeech.PREPOSITION]: "bg-cyan-600 text-white dark:bg-cyan-500",
+    [PartOfSpeech.CONJUNCTION]: "bg-orange-600 text-white dark:bg-orange-500",
+    [PartOfSpeech.PHRASAL_VERB]: "bg-indigo-600 text-white dark:bg-indigo-500",
+    [PartOfSpeech.IDIOM]: "bg-fuchsia-600 text-white dark:bg-fuchsia-500",
+  };
+
+  return styles[pos] || "bg-slate-600 text-white dark:bg-slate-500";
+};
+
 export const formatDateGroup = (dateString: string) => {
   const date = moment(dateString);
   if (!date.isValid()) return "Date unknown";

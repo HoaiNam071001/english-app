@@ -27,7 +27,6 @@ import {
   RotateCcw,
   Search,
   Share2,
-  Sparkles,
   Split,
   Tag,
   Trash2,
@@ -691,21 +690,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
                 </Tooltip>
               </TooltipProvider>
 
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setIsBulkLookupOpen(true)}
-                      className="h-8 w-8 text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-950"
-                    >
-                      <Sparkles size={16} />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>{t("sidebar.enrichVocabulary")}</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              {/* Enrich Vocabulary tạm ẩn do API chưa hoạt động */}
 
               <TooltipProvider>
                 <Tooltip>
