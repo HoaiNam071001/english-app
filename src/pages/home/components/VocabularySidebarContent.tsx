@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import TopicList from "@/pages/home/components/TopicContainer/TopicList";
 import VocabularySidebar from "@/pages/home/components/TopicContainer/VocabularySidebar";
-import { TopicItem, VocabularyItem } from "@/types";
+import { FocusWordRequest, TopicItem, VocabularyItem } from "@/types";
 import { ChevronLeft } from "lucide-react";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -30,6 +30,7 @@ interface VocabularySidebarContentProps {
     updates: Array<{ id: string; updates: Partial<VocabularyItem> }>,
   ) => void;
   onRemoveFromPractice: (word: VocabularyItem) => void;
+  focusRequest?: FocusWordRequest | null;
 }
 
 export const VocabularySidebarContent = ({
@@ -52,6 +53,7 @@ export const VocabularySidebarContent = ({
   onBulkMarkLearned,
   batchUpdateWords,
   onRemoveFromPractice,
+  focusRequest,
 }: VocabularySidebarContentProps) => {
   const { t } = useTranslation(["home", "common"]);
   const currentTopic = useMemo(
@@ -103,6 +105,7 @@ export const VocabularySidebarContent = ({
               onBulkMarkLearned={onBulkMarkLearned}
               batchUpdateWords={batchUpdateWords}
               onRemoveFromPractice={onRemoveFromPractice}
+              focusRequest={focusRequest}
             />
           </div>
         </div>

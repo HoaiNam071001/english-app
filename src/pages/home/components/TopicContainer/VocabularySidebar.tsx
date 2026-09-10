@@ -1,7 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import moment from "moment";
 import "moment/locale/vi";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   Ampersand,
@@ -33,7 +33,10 @@ import {
   X,
 } from "lucide-react";
 
-import { SimpleGroupedList } from "@/components/SimpleGroupedList";
+import {
+  SimpleGroupedList,
+  SimpleGroupedListHandle,
+} from "@/components/SimpleGroupedList";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -63,7 +66,11 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useConfirm } from "@/hooks/useConfirm";
 import { cn } from "@/lib/utils";
-import { BatchUpdateVocabularyItem, VocabularyItem } from "@/types";
+import {
+  BatchUpdateVocabularyItem,
+  FocusWordRequest,
+  VocabularyItem,
+} from "@/types";
 import { formatDateGroup } from "@/utils";
 import { BulkLookupModal } from "../Lookup/BulkLookupModal";
 import MoveTopicModal from "../common/MoveTopicModal";
@@ -101,6 +108,8 @@ interface VocabularySidebarProps {
   onBulkMarkLearned?: (ids: string[], status: boolean) => void;
   onBulkUpdate?: (ids: string[], updates: Partial<VocabularyItem>) => void;
   batchUpdateWords?: (updates: BatchUpdateVocabularyItem[]) => void;
+  /** Yêu cầu mở & cuộn tới 1 từ cụ thể (vd: từ nút "mở trong danh sách" ở thanh ôn nhanh). */
+  focusRequest?: FocusWordRequest | null;
 }
 
 const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
@@ -116,6 +125,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
   onBulkMarkLearned,
   onBulkUpdate,
   batchUpdateWords,
+  focusRequest,
 }) => {
   const { t } = useTranslation(["home", "common"]);
   // State
@@ -141,6 +151,11 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
     new Set()
   );
   const [showPinnedOnly, setShowPinnedOnly] = useState(false);
+
+  // Highlight tạm thời item vừa được điều hướng tới từ nơi khác (vd: thanh ôn nhanh)
+  const [highlightId, setHighlightId] = useState<string | null>(null);
+  const listRef = useRef<SimpleGroupedListHandle>(null);
+  const lastFocusNonceRef = useRef<number | null>(null);
 
   const { confirm } = useConfirm();
   const { userProfile } = useAuth();
@@ -298,6 +313,56 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
     newSet.has(groupKey) ? newSet.delete(groupKey) : newSet.add(groupKey);
     setCollapsedGroups(newSet);
   };
+
+  // --- FOCUS 1 TỪ CỤ THỂ (vd: bấm "mở trong danh sách" từ thanh ôn nhanh) ---
+  // B1: gỡ mọi filter/search/nhóm-đang-thu-gọn có thể đang che từ đó đi.
+  useEffect(() => {
+    if (!focusRequest || focusRequest.nonce === lastFocusNonceRef.current)
+      return;
+    lastFocusNonceRef.current = focusRequest.nonce;
+
+    const target = allWords.find((w) => w.id === focusRequest.wordId);
+    if (!target) return;
+
+    setSearchTerm("");
+    setDebouncedTerm("");
+    setActiveFilters(DEFAULT_FILTER);
+    setShowPinnedOnly(false);
+    const dateKey = moment(target.createdAt).format("YYYY-MM-DD");
+    setCollapsedGroups((prev) => {
+      if (!prev.has(dateKey)) return prev;
+      const next = new Set(prev);
+      next.delete(dateKey);
+      return next;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusRequest]);
+
+  // B2: sau khi danh sách đã cập nhật (hết bị filter/thu gọn che), tìm đúng vị trí rồi cuộn + highlight.
+  useEffect(() => {
+    if (!focusRequest) return;
+    const groupIndex = displayGroups.findIndex((g) =>
+      g.items.some((w) => w.id === focusRequest.wordId)
+    );
+    if (groupIndex === -1) return;
+    const itemIndex = displayGroups[groupIndex].items.findIndex(
+      (w) => w.id === focusRequest.wordId
+    );
+    if (itemIndex === -1) return;
+
+    const timer = setTimeout(() => {
+      listRef.current?.scrollToItem(groupIndex, itemIndex);
+      setHighlightId(focusRequest.wordId);
+    }, 60);
+    return () => clearTimeout(timer);
+  }, [focusRequest, displayGroups]);
+
+  // Tự tắt highlight sau vài giây
+  useEffect(() => {
+    if (!highlightId) return;
+    const timer = setTimeout(() => setHighlightId(null), 2200);
+    return () => clearTimeout(timer);
+  }, [highlightId]);
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) setSelectedIds(new Set(searchedWords.map((w) => w.id)));
@@ -865,6 +930,7 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
           </div>
         ) : (
           <SimpleGroupedList
+            ref={listRef}
             groupCounts={groupCounts}
             estimateRowHeight={HEIGHT_ITEM}
             groupContent={(index) => {
@@ -887,7 +953,11 @@ const VocabularySidebar: React.FC<VocabularySidebarProps> = ({
               const word = displayGroups[groupIndex].items[itemIndex];
               return (
                 <div
-                  className="pb-1 pr-1"
+                  className={cn(
+                    "pb-1 pr-1 rounded-md transition-shadow",
+                    word.id === highlightId &&
+                      "ring-2 ring-primary ring-offset-1 ring-offset-background animate-pulse",
+                  )}
                   style={{ height: HEIGHT_ITEM }}
                   key={word.id}
                 >

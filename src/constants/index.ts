@@ -65,11 +65,15 @@ export const STORAGE_KEY = {
 
   MOBILE_HOME_COLLAPSE_ACTION: "MOBILE_HOME_COLLAPSE_ACTION",
 
+  HOME_REVIEW_COLLAPSED: "HOME_REVIEW_COLLAPSED",
+
   SHORTCUT_OVERRIDES: "SHORTCUT_OVERRIDES",
 
   PWA_INSTALL_DISMISSED_AT: "PWA_INSTALL_DISMISSED_AT",
 
   VOCAB_FIELDS_CONFIG: "VOCAB_FIELDS_CONFIG",
+
+  REVIEW_CONFIG: "REVIEW_CONFIG",
 };
 
 export const ADMIN_INFO = {
@@ -116,6 +120,8 @@ export type TopicColor = {
   bg: string;
   text: string;
   border: string;
+  /** Badge nền nhạt + chữ đậm, có sẵn biến thể dark: để dùng ở nơi cần an toàn theme tối. */
+  badge: string;
 };
 // --- CONFIGURATION ---
 export const TOPIC_COLORS: TopicColor[] = [
@@ -124,108 +130,144 @@ export const TOPIC_COLORS: TopicColor[] = [
     bg: "bg-blue-100",
     text: "text-blue-600",
     border: "border-blue-200",
+    badge:
+      "bg-blue-100 text-blue-700 border-blue-200 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20",
   },
   {
     id: "red",
     bg: "bg-red-100",
     text: "text-red-600",
     border: "border-red-200",
+    badge:
+      "bg-red-100 text-red-700 border-red-200 dark:bg-red-500/10 dark:text-red-400 dark:border-red-500/20",
   },
   {
     id: "orange",
     bg: "bg-orange-100",
     text: "text-orange-600",
     border: "border-orange-200",
+    badge:
+      "bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-500/10 dark:text-orange-400 dark:border-orange-500/20",
   },
   {
     id: "amber",
     bg: "bg-amber-100",
     text: "text-amber-600",
     border: "border-amber-200",
+    badge:
+      "bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20",
   },
   {
     id: "yellow",
     bg: "bg-yellow-100",
     text: "text-yellow-600",
     border: "border-yellow-200",
+    badge:
+      "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-500/10 dark:text-yellow-400 dark:border-yellow-500/20",
   },
   {
     id: "lime",
     bg: "bg-lime-100",
     text: "text-lime-600",
     border: "border-lime-200",
+    badge:
+      "bg-lime-100 text-lime-700 border-lime-200 dark:bg-lime-500/10 dark:text-lime-400 dark:border-lime-500/20",
   },
   {
     id: "green",
     bg: "bg-green-100",
     text: "text-green-600",
     border: "border-green-200",
+    badge:
+      "bg-green-100 text-green-700 border-green-200 dark:bg-green-500/10 dark:text-green-400 dark:border-green-500/20",
   },
   {
     id: "emerald",
     bg: "bg-emerald-100",
     text: "text-emerald-600",
     border: "border-emerald-200",
+    badge:
+      "bg-emerald-100 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20",
   },
   {
     id: "teal",
     bg: "bg-teal-100",
     text: "text-teal-600",
     border: "border-teal-200",
+    badge:
+      "bg-teal-100 text-teal-700 border-teal-200 dark:bg-teal-500/10 dark:text-teal-400 dark:border-teal-500/20",
   },
   {
     id: "cyan",
     bg: "bg-cyan-100",
     text: "text-cyan-600",
     border: "border-cyan-200",
+    badge:
+      "bg-cyan-100 text-cyan-700 border-cyan-200 dark:bg-cyan-500/10 dark:text-cyan-400 dark:border-cyan-500/20",
   },
   {
     id: "sky",
     bg: "bg-sky-100",
     text: "text-sky-600",
     border: "border-sky-200",
+    badge:
+      "bg-sky-100 text-sky-700 border-sky-200 dark:bg-sky-500/10 dark:text-sky-400 dark:border-sky-500/20",
   },
   {
     id: "indigo",
     bg: "bg-indigo-100",
     text: "text-indigo-600",
     border: "border-indigo-200",
+    badge:
+      "bg-indigo-100 text-indigo-700 border-indigo-200 dark:bg-indigo-500/10 dark:text-indigo-400 dark:border-indigo-500/20",
   },
   {
     id: "violet",
     bg: "bg-violet-100",
     text: "text-violet-600",
     border: "border-violet-200",
+    badge:
+      "bg-violet-100 text-violet-700 border-violet-200 dark:bg-violet-500/10 dark:text-violet-400 dark:border-violet-500/20",
   },
   {
     id: "purple",
     bg: "bg-purple-100",
     text: "text-purple-600",
     border: "border-purple-200",
+    badge:
+      "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-500/10 dark:text-purple-400 dark:border-purple-500/20",
   },
   {
     id: "fuchsia",
     bg: "bg-fuchsia-100",
     text: "text-fuchsia-600",
     border: "border-fuchsia-200",
+    badge:
+      "bg-fuchsia-100 text-fuchsia-700 border-fuchsia-200 dark:bg-fuchsia-500/10 dark:text-fuchsia-400 dark:border-fuchsia-500/20",
   },
   {
     id: "pink",
     bg: "bg-pink-100",
     text: "text-pink-600",
     border: "border-pink-200",
+    badge:
+      "bg-pink-100 text-pink-700 border-pink-200 dark:bg-pink-500/10 dark:text-pink-400 dark:border-pink-500/20",
   },
   {
     id: "rose",
     bg: "bg-rose-100",
     text: "text-rose-600",
     border: "border-rose-200",
+    badge:
+      "bg-rose-100 text-rose-700 border-rose-200 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20",
   },
   {
     id: "slate",
     bg: "bg-slate-100",
     text: "text-slate-600",
     border: "border-slate-200",
+    badge:
+      "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-500/10 dark:text-slate-400 dark:border-slate-500/20",
   },
 ];
 

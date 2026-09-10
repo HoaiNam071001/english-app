@@ -16,6 +16,8 @@ interface VocabularyDetailPopupProps {
   trigger: React.ReactNode;
   side?: "top" | "right" | "bottom" | "left";
   align?: "start" | "center" | "end";
+  /** Báo ra ngoài khi popup/modal chi tiết mở hoặc đóng (vd: để tạm dừng auto-refresh). */
+  onOpenChange?: (open: boolean) => void;
 }
 
 export const VocabularyDetailPopup: React.FC<VocabularyDetailPopupProps> = ({
@@ -24,6 +26,7 @@ export const VocabularyDetailPopup: React.FC<VocabularyDetailPopupProps> = ({
   trigger,
   side = "right",
   align = "center",
+  onOpenChange,
 }) => {
   const { t } = useTranslation(["home", "common"]);
   const [isMobile, setIsMobile] = useState(false);
@@ -42,10 +45,11 @@ export const VocabularyDetailPopup: React.FC<VocabularyDetailPopupProps> = ({
   if (isMobile) {
     return (
       <>
-        <div 
+        <div
           onClick={(e) => {
             e.stopPropagation();
             setIsModalOpen(true);
+            onOpenChange?.(true);
           }}
           className="inline-block"
         >
@@ -53,7 +57,10 @@ export const VocabularyDetailPopup: React.FC<VocabularyDetailPopupProps> = ({
         </div>
         <CommonModal
           open={isModalOpen}
-          onOpenChange={setIsModalOpen}
+          onOpenChange={(open) => {
+            setIsModalOpen(open);
+            onOpenChange?.(open);
+          }}
           title={t("detail.title")}
           icon={<Info size={18} />}
           footer={null}
@@ -65,7 +72,7 @@ export const VocabularyDetailPopup: React.FC<VocabularyDetailPopupProps> = ({
   }
 
   return (
-    <Popover>
+    <Popover onOpenChange={onOpenChange}>
       <PopoverTrigger asChild onClick={(e) => e.stopPropagation()}>
         {trigger}
       </PopoverTrigger>

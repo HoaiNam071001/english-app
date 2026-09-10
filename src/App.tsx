@@ -1,4 +1,5 @@
 import { ConfirmProvider } from "./contexts/ConfirmContext";
+import { ReviewConfigProvider } from "./contexts/ReviewConfigContext";
 import { ShortcutsProvider } from "./contexts/ShortcutsContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { ToastProvider } from "./contexts/ToastContext";
@@ -19,8 +20,10 @@ const App = () => {
           <ToastProvider>
             <ShortcutsProvider>
               <VocabFieldsConfigProvider>
-                <MainLayout />
-                <PWAInstallPrompt />
+                <ReviewConfigProvider>
+                  <MainLayout />
+                  <PWAInstallPrompt />
+                </ReviewConfigProvider>
               </VocabFieldsConfigProvider>
             </ShortcutsProvider>
           </ToastProvider>

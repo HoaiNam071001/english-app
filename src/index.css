@@ -227,3 +227,42 @@ body {
     }
   }
 }
+
+/* --- Dual-thumb range slider (2 input[type=range] chồng lên nhau) ---
+   Bản thân input trong suốt & không bắt sự kiện chuột, chỉ "nút kéo" (thumb)
+   mới bắt sự kiện, nhờ vậy 2 input chồng nhau vẫn kéo độc lập từng đầu được. */
+input[type="range"].range-thumb-only {
+  pointer-events: none;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+input[type="range"].range-thumb-only::-webkit-slider-runnable-track {
+  -webkit-appearance: none;
+  background: transparent;
+}
+input[type="range"].range-thumb-only::-moz-range-track {
+  background: transparent;
+}
+input[type="range"].range-thumb-only::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  pointer-events: auto;
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: var(--primary);
+  border: 2px solid var(--background);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  margin-top: 0;
+}
+input[type="range"].range-thumb-only::-moz-range-thumb {
+  pointer-events: auto;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--background);
+  border-radius: 9999px;
+  background: var(--primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+}

@@ -4,9 +4,10 @@ import { useTopics } from "@/hooks/useTopics";
 import { useVocabulary } from "@/hooks/useVocabulary";
 import { useWordTypes } from "@/hooks/useWordTypes";
 import { cn } from "@/lib/utils";
-import { UserProfile, VocabularyItem } from "@/types";
+import { FocusWordRequest, UserProfile, VocabularyItem } from "@/types";
 import { useEffect, useMemo, useRef, useState } from "react";
 import CardContainer, { CardContainerRef } from "./CardContainer";
+import { ReviewStrip } from "./ReviewStrip";
 import { VocabularySidebarContent } from "./VocabularySidebarContent";
 import { useTranslation } from "react-i18next";
 
@@ -21,6 +22,9 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isSidebarModalOpen, setIsSidebarModalOpen] = useState(false);
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
+  const [focusRequest, setFocusRequest] = useState<FocusWordRequest | null>(
+    null,
+  );
   const cardContainerRef = useRef<CardContainerRef>(null);
 
   const {
@@ -68,6 +72,21 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
     }
   };
 
+  // Handle: ReviewStrip -> mở đúng từ trong danh sách từ vựng bên sidebar & cuộn tới nó.
+  const handleOpenInVocabulary = (word: VocabularyItem) => {
+    const targetTopicId =
+      word.topicId && topics.some((tp) => tp.id === word.topicId)
+        ? word.topicId
+        : ALL_TOPIC_KEY;
+    setSelectedTopicId(targetTopicId);
+    if (typeof window !== "undefined" && window.innerWidth < 768) {
+      setIsSidebarModalOpen(true);
+    } else {
+      setIsSidebarOpen(true);
+    }
+    setFocusRequest({ wordId: word.id, nonce: Date.now() });
+  };
+
   const filteredWords = useMemo(() => {
     if (!selectedTopicId || selectedTopicId === ALL_TOPIC_KEY) return allWords;
     return allWords.filter((w) => w.topicId === selectedTopicId);
@@ -106,26 +125,59 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
     batchUpdateWords,
     onRemoveFromPractice: (value: VocabularyItem) =>
       handleRemoveWordsToPractice([value]),
+    focusRequest,
   };
 
   return (
     <div
-      className="flex flex-1 gap-2 relative overflow-hidden mt-1"
+      className="flex flex-col gap-2 mt-1 overflow-hidden"
       style={{
         height: `calc(100vh - ${HEADER_HEIGHT + 50}px)`,
       }}
     >
-      {/* SIDEBAR AREA - Desktop: Sidebar, Mobile: Hidden (use modal instead) */}
-      <div
-        className={cn(
-          `h-full transition-all duration-300 ease-in-out border-r bg-card flex-col hidden md:flex`,
-          isSidebarOpen
-            ? "w-80 md:w-1/4 opacity-100 translate-x-0"
-            : "w-0 opacity-0 -translate-x-full mr-0 overflow-hidden border-none",
-        )}
-      >
-        <VocabularySidebarContent {...sidebarContentProps} />
+      {/* HÀNG CHÍNH: Sidebar + khu flashcard */}
+      <div className="flex flex-1 gap-2 relative overflow-hidden min-h-0">
+        {/* SIDEBAR AREA - Desktop: Sidebar, Mobile: Hidden (use modal instead) */}
+        <div
+          className={cn(
+            `h-full transition-all duration-300 ease-in-out border-r bg-card flex-col hidden md:flex`,
+            isSidebarOpen
+              ? "w-80 md:w-1/4 opacity-100 translate-x-0"
+              : "w-0 opacity-0 -translate-x-full mr-0 overflow-hidden border-none",
+          )}
+        >
+          <VocabularySidebarContent {...sidebarContentProps} />
+        </div>
+
+        {/* MAIN CONTENT AREA */}
+        <div className="relative flex-1 transition-all duration-300 min-w-0 h-full">
+          <CardContainer
+            ref={cardContainerRef}
+            allWords={allWords}
+            isLoaded={isLoaded}
+            topics={topics}
+            onActiveChanged={setMappingActiveWords}
+            onMarkLearned={markAsLearned}
+            onUpdateWord={updateWord}
+            onDeleteWord={deleteWord}
+            handleAddVocabulary={handleAddVocabularyWithTopic}
+            onSidebarToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+            isSidebarOpen={isSidebarOpen}
+            onSidebarModalOpen={() => setIsSidebarModalOpen(true)}
+          />
+        </div>
       </div>
+
+      {/* THANH ÔN NHANH - trải hết chiều ngang dưới sidebar & khu flashcard */}
+      <ReviewStrip
+        allWords={allWords}
+        topics={topics}
+        isLoaded={isLoaded}
+        onUpdateWord={updateWord}
+        onDeleteWord={deleteWord}
+        onOpenInVocabulary={handleOpenInVocabulary}
+        onAddToSession={(word) => handleAddWordsToPractice([word])}
+      />
 
       {/* SIDEBAR MODAL - Mobile only */}
       <CommonModal
@@ -140,24 +192,6 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
           <VocabularySidebarContent {...sidebarContentProps} />
         </div>
       </CommonModal>
-
-      {/* MAIN CONTENT AREA */}
-      <div className="relative flex-1 transition-all duration-300 min-w-0 h-full">
-        <CardContainer
-          ref={cardContainerRef}
-          allWords={allWords}
-          isLoaded={isLoaded}
-          topics={topics}
-          onActiveChanged={setMappingActiveWords}
-          onMarkLearned={markAsLearned}
-          onUpdateWord={updateWord}
-          onDeleteWord={deleteWord}
-          handleAddVocabulary={handleAddVocabularyWithTopic}
-          onSidebarToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-          isSidebarOpen={isSidebarOpen}
-          onSidebarModalOpen={() => setIsSidebarModalOpen(true)}
-        />
-      </div>
     </div>
   );
 };

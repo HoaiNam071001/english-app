@@ -4,6 +4,7 @@ export * from "./dictionary";
 export * from "./note";
 export * from "./wordType";
 export * from "./vocabFieldsConfig";
+export * from "./reviewConfig";
 
 export enum PartOfSpeech {
   NOUN = "noun",
@@ -65,6 +66,7 @@ export enum DataTable {
   Notes = "notes",
   UserSettings = "user_settings",
   VocabFieldsConfig = "vocab_fields_config",
+  ReviewConfig = "review_config",
 }
 
 export interface TopicItem {
@@ -108,6 +110,13 @@ export interface SavedAccount {
   displayName: string | null;
   photoURL: string | null;
   lastLogin: number;
+}
+
+/** Yêu cầu mở 1 từ cụ thể trong danh sách từ vựng (sidebar) và cuộn tới nó.
+ *  `nonce` đổi mỗi lần bấm để trigger lại effect dù bấm cùng 1 từ liên tiếp. */
+export interface FocusWordRequest {
+  wordId: string;
+  nonce: number;
 }
 
 // card tabs
