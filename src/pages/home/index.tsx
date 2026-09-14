@@ -7,7 +7,7 @@ const HomePage = () => {
   const { userProfile } = useAuth();
   return (
     <TopicProvider userId={userProfile?.id}>
-      <div className="relative">
+      <div className="relative h-full">
         <DashboardContent user={userProfile} />
       </div>
     </TopicProvider>

@@ -1,15 +1,20 @@
 import { CommonModal } from "@/components/CommonModal";
-import { HEADER_HEIGHT } from "@/constants";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { useTopics } from "@/hooks/useTopics";
 import { useVocabulary } from "@/hooks/useVocabulary";
 import { useWordTypes } from "@/hooks/useWordTypes";
-import { cn } from "@/lib/utils";
 import { FocusWordRequest, UserProfile, VocabularyItem } from "@/types";
 import { useEffect, useMemo, useRef, useState } from "react";
+import type { ImperativePanelHandle } from "react-resizable-panels";
+import { useTranslation } from "react-i18next";
 import CardContainer, { CardContainerRef } from "./CardContainer";
 import { ReviewStrip } from "./ReviewStrip";
 import { VocabularySidebarContent } from "./VocabularySidebarContent";
-import { useTranslation } from "react-i18next";
 
 interface DashboardContentProps {
   user: UserProfile | null;
@@ -26,6 +31,19 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
     null,
   );
   const cardContainerRef = useRef<CardContainerRef>(null);
+  const topicPanelRef = useRef<ImperativePanelHandle>(null);
+  const quickReviewPanelRef = useRef<ImperativePanelHandle>(null);
+  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const [isQuickReviewCollapsed, setIsQuickReviewCollapsed] = useState(false);
+
+  // ReviewStrip tự quản lý trạng thái thu gọn (nút collapse) - khi nó đổi,
+  // co/giãn panel Quick Review theo cho khớp thay vì giữ nguyên khoảng trống.
+  const handleQuickReviewCollapsedChange = (collapsed: boolean) => {
+    const panel = quickReviewPanelRef.current;
+    if (!panel) return;
+    if (collapsed && !panel.isCollapsed()) panel.collapse();
+    if (!collapsed && panel.isCollapsed()) panel.expand();
+  };
 
   const {
     allWords,
@@ -87,6 +105,17 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
     setFocusRequest({ wordId: word.id, nonce: Date.now() });
   };
 
+  // Đồng bộ 2 chiều với panel topic (kéo-resize/thu gọn bằng tay cũng phải
+  // cập nhật lại isSidebarOpen, và ngược lại các nơi set isSidebarOpen bằng
+  // code - vd handleOpenInVocabulary - cũng phải mở/đóng panel tương ứng).
+  useEffect(() => {
+    if (!isDesktop) return;
+    const panel = topicPanelRef.current;
+    if (!panel) return;
+    if (isSidebarOpen && panel.isCollapsed()) panel.expand();
+    if (!isSidebarOpen && !panel.isCollapsed()) panel.collapse();
+  }, [isDesktop, isSidebarOpen]);
+
   const filteredWords = useMemo(() => {
     if (!selectedTopicId || selectedTopicId === ALL_TOPIC_KEY) return allWords;
     return allWords.filter((w) => w.topicId === selectedTopicId);
@@ -129,55 +158,110 @@ export const DashboardContent = ({ user }: DashboardContentProps) => {
   };
 
   return (
-    <div
-      className="flex flex-col gap-2 mt-1 overflow-hidden"
-      style={{
-        height: `calc(100vh - ${HEADER_HEIGHT + 50}px)`,
-      }}
-    >
-      {/* HÀNG CHÍNH: Sidebar + khu flashcard */}
-      <div className="flex flex-1 gap-2 relative overflow-hidden min-h-0">
-        {/* SIDEBAR AREA - Desktop: Sidebar, Mobile: Hidden (use modal instead) */}
-        <div
-          className={cn(
-            `h-full transition-all duration-300 ease-in-out border-r bg-card flex-col hidden md:flex`,
-            isSidebarOpen
-              ? "w-80 md:w-1/4 opacity-100 translate-x-0"
-              : "w-0 opacity-0 -translate-x-full mr-0 overflow-hidden border-none",
-          )}
+    <div className="flex flex-col gap-2 h-full overflow-hidden">
+      {isDesktop ? (
+        // DESKTOP: 3 khối topic / sessions / quick review đều resize tự do được (kéo thanh chia),
+        // kích cỡ được nhớ lại giữa các lần vào trang (autoSaveId -> localStorage).
+        <ResizablePanelGroup
+          direction="vertical"
+          autoSaveId="vocab-dashboard-v"
+          className="flex-1 min-h-0"
         >
-          <VocabularySidebarContent {...sidebarContentProps} />
-        </div>
+          <ResizablePanel id="top-row" defaultSize={72} minSize={35} className="min-h-0">
+            <ResizablePanelGroup direction="horizontal" autoSaveId="vocab-dashboard-h">
+              <ResizablePanel
+                id="topic"
+                ref={topicPanelRef}
+                defaultSize={24}
+                minSize={16}
+                maxSize={40}
+                collapsible
+                collapsedSize={0}
+                onCollapse={() => setIsSidebarOpen(false)}
+                onExpand={() => setIsSidebarOpen(true)}
+                className="h-full border-r bg-card flex flex-col overflow-hidden"
+              >
+                <VocabularySidebarContent {...sidebarContentProps} />
+              </ResizablePanel>
+              <ResizableHandle withHandle />
+              <ResizablePanel id="sessions" defaultSize={76} minSize={30} className="relative min-w-0 h-full">
+                <CardContainer
+                  ref={cardContainerRef}
+                  allWords={allWords}
+                  isLoaded={isLoaded}
+                  topics={topics}
+                  onActiveChanged={setMappingActiveWords}
+                  onMarkLearned={markAsLearned}
+                  onUpdateWord={updateWord}
+                  onDeleteWord={deleteWord}
+                  handleAddVocabulary={handleAddVocabularyWithTopic}
+                  onSidebarToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+                  isSidebarOpen={isSidebarOpen}
+                  onSidebarModalOpen={() => setIsSidebarModalOpen(true)}
+                />
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          </ResizablePanel>
+          <ResizableHandle withHandle />
+          <ResizablePanel
+            id="quick-review"
+            ref={quickReviewPanelRef}
+            defaultSize={28}
+            minSize={14}
+            maxSize={55}
+            collapsible
+            collapsedSize={6}
+            onCollapse={() => setIsQuickReviewCollapsed(true)}
+            onExpand={() => setIsQuickReviewCollapsed(false)}
+            className="min-h-0"
+          >
+            <ReviewStrip
+              allWords={allWords}
+              topics={topics}
+              isLoaded={isLoaded}
+              onUpdateWord={updateWord}
+              onDeleteWord={deleteWord}
+              onOpenInVocabulary={handleOpenInVocabulary}
+              onAddToSession={(word) => handleAddWordsToPractice([word])}
+              fillHeight
+              onCollapsedChange={handleQuickReviewCollapsedChange}
+              panelCollapsed={isQuickReviewCollapsed}
+            />
+          </ResizablePanel>
+        </ResizablePanelGroup>
+      ) : (
+        // MOBILE: topic mở qua modal riêng (không đủ chỗ để chia cột), sessions full width.
+        <>
+          <div className="flex flex-1 relative overflow-hidden min-h-0">
+            <div className="relative flex-1 min-w-0 h-full">
+              <CardContainer
+                ref={cardContainerRef}
+                allWords={allWords}
+                isLoaded={isLoaded}
+                topics={topics}
+                onActiveChanged={setMappingActiveWords}
+                onMarkLearned={markAsLearned}
+                onUpdateWord={updateWord}
+                onDeleteWord={deleteWord}
+                handleAddVocabulary={handleAddVocabularyWithTopic}
+                onSidebarToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+                isSidebarOpen={isSidebarOpen}
+                onSidebarModalOpen={() => setIsSidebarModalOpen(true)}
+              />
+            </div>
+          </div>
 
-        {/* MAIN CONTENT AREA */}
-        <div className="relative flex-1 transition-all duration-300 min-w-0 h-full">
-          <CardContainer
-            ref={cardContainerRef}
+          <ReviewStrip
             allWords={allWords}
-            isLoaded={isLoaded}
             topics={topics}
-            onActiveChanged={setMappingActiveWords}
-            onMarkLearned={markAsLearned}
+            isLoaded={isLoaded}
             onUpdateWord={updateWord}
             onDeleteWord={deleteWord}
-            handleAddVocabulary={handleAddVocabularyWithTopic}
-            onSidebarToggle={() => setIsSidebarOpen(!isSidebarOpen)}
-            isSidebarOpen={isSidebarOpen}
-            onSidebarModalOpen={() => setIsSidebarModalOpen(true)}
+            onOpenInVocabulary={handleOpenInVocabulary}
+            onAddToSession={(word) => handleAddWordsToPractice([word])}
           />
-        </div>
-      </div>
-
-      {/* THANH ÔN NHANH - trải hết chiều ngang dưới sidebar & khu flashcard */}
-      <ReviewStrip
-        allWords={allWords}
-        topics={topics}
-        isLoaded={isLoaded}
-        onUpdateWord={updateWord}
-        onDeleteWord={deleteWord}
-        onOpenInVocabulary={handleOpenInVocabulary}
-        onAddToSession={(word) => handleAddWordsToPractice([word])}
-      />
+        </>
+      )}
 
       {/* SIDEBAR MODAL - Mobile only */}
       <CommonModal

@@ -38,6 +38,7 @@
     "react-dom": "^19.2.0",
     "react-i18next": "^17.0.11",
     "react-redux": "^9.2.0",
+    "react-resizable-panels": "^2.1.9",
     "react-router-dom": "^7.11.0",
     "skeleton-styler": "^4.6.3",
     "tailwind-merge": "^3.4.0",

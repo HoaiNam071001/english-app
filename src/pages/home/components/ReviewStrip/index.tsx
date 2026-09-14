@@ -32,7 +32,23 @@ interface ReviewStripProps {
   onDeleteWord: (id: string) => void;
   onOpenInVocabulary: (item: VocabularyItem) => void;
   onAddToSession: (item: VocabularyItem) => void;
+  /** true khi khu này nằm trong panel có thể resize (chiếm hết chiều cao được cấp,
+   * card bên trong co giãn theo). Mặc định false = giữ chiều cao tự nhiên như cũ. */
+  fillHeight?: boolean;
+  /** Báo ra ngoài mỗi khi trạng thái thu gọn đổi, để panel bọc ngoài (nếu có)
+   * tự co/giãn chiều cao theo cho khớp thay vì giữ nguyên khoảng trống. */
+  onCollapsedChange?: (collapsed: boolean) => void;
+  /** Trạng thái collapse thực tế của panel bọc ngoài (nếu có) - dùng để đồng
+   * bộ ngược lại: kéo tay panel xuống dưới minSize cũng tự collapse (theo cơ
+   * chế `collapsible` của thư viện), nút/hàng card ở đây phải cập nhật theo. */
+  panelCollapsed?: boolean;
 }
+
+// Card "gốc" cao CARD_HEIGHT (xem ReviewMiniCard) - dùng làm mốc quy đổi scale
+// theo chiều cao thực tế đang có khi khu Quick Review được resize.
+const BASE_CARD_ROW_HEIGHT = 112;
+const MIN_CARD_SCALE = 0.72;
+const MAX_CARD_SCALE = 1.55;
 
 export const ReviewStrip: React.FC<ReviewStripProps> = ({
   allWords,
@@ -42,6 +58,9 @@ export const ReviewStrip: React.FC<ReviewStripProps> = ({
   onDeleteWord,
   onOpenInVocabulary,
   onAddToSession,
+  fillHeight = false,
+  onCollapsedChange,
+  panelCollapsed,
 }) => {
   const { t } = useTranslation("home");
   const { getStorage, setStorage, hasValue } = useLocalStorage();
@@ -63,6 +82,55 @@ export const ReviewStrip: React.FC<ReviewStripProps> = ({
   const [isStyleOpen, setIsStyleOpen] = useState(false);
   const [reviewIds, setReviewIds] = useState<string[]>([]);
   const [progress, setProgress] = useState(0);
+  const [cardScale, setCardScale] = useState(1);
+  const cardRowObserverRef = useRef<ResizeObserver | null>(null);
+
+  // fillHeight (nằm trong panel resize được) -> đo chiều cao thực tế còn lại
+  // của hàng card, quy đổi thành hệ số scale để card co giãn theo (trong giới
+  // hạn MIN/MAX để không quá nhỏ/quá to). Dùng callback ref (thay vì useRef +
+  // useEffect chạy 1 lần) vì hàng card bị unmount/mount lại mỗi khi thu gọn/mở
+  // rộng (isCollapsed) - phải gắn lại ResizeObserver mỗi lần mount mới thì mới
+  // luôn theo dõi đúng phần tử đang hiển thị.
+  const setCardRowRef = useCallback(
+    (el: HTMLDivElement | null) => {
+      cardRowObserverRef.current?.disconnect();
+      cardRowObserverRef.current = null;
+      if (!fillHeight) {
+        setCardScale(1);
+        return;
+      }
+      if (!el) return;
+      const update = () => {
+        const h = el.clientHeight;
+        if (!h) return;
+        setCardScale(
+          Math.min(
+            MAX_CARD_SCALE,
+            Math.max(MIN_CARD_SCALE, h / BASE_CARD_ROW_HEIGHT),
+          ),
+        );
+      };
+      update();
+      const ro = new ResizeObserver(update);
+      ro.observe(el);
+      cardRowObserverRef.current = ro;
+    },
+    [fillHeight],
+  );
+
+  // Báo trạng thái thu gọn ra ngoài để panel bọc (nếu có) tự co/giãn theo.
+  useEffect(() => {
+    onCollapsedChange?.(isCollapsed);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isCollapsed]);
+
+  // Chiều ngược lại: panel bị kéo tay xuống dưới minSize thì tự collapse
+  // (cơ chế `collapsible` của thư viện) mà không qua nút bấm ở đây -> đồng bộ
+  // lại state để nút/hàng card khớp với kích thước panel thực tế.
+  useEffect(() => {
+    if (panelCollapsed === undefined) return;
+    setIsCollapsed((prev) => (prev === panelCollapsed ? prev : panelCollapsed));
+  }, [panelCollapsed]);
 
   // Bộ lọc/số giây/số card "áp dụng tạm" cho phiên hiện tại - không lưu DB,
   // tắt trang hoặc load lại là mất, quay về đúng config đã lưu.
@@ -194,9 +262,14 @@ export const ReviewStrip: React.FC<ReviewStripProps> = ({
   if (isLoaded && !allWords.length) return null;
 
   return (
-    <div className="shrink-0 border rounded-lg bg-card/60 backdrop-blur overflow-hidden">
+    <div
+      className={cn(
+        "border rounded-lg bg-card/60 backdrop-blur overflow-hidden",
+        fillHeight ? "h-full flex flex-col" : "shrink-0",
+      )}
+    >
       {/* --- HEADER --- */}
-      <div className="flex items-center gap-1.5 px-2 h-8">
+      <div className="flex items-center gap-1.5 px-2 h-8 shrink-0">
         <Sparkles size={14} className="text-primary shrink-0" />
         <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide truncate">
           {t("review.title")}
@@ -274,7 +347,7 @@ export const ReviewStrip: React.FC<ReviewStripProps> = ({
 
       {/* --- THANH ĐẾM NGƯỢC TỰ LÀM MỚI --- */}
       {!isCollapsed && (
-        <div className="h-[3px] w-full bg-muted/50">
+        <div className="h-[3px] w-full bg-muted/50 shrink-0">
           <div
             className={cn(
               "h-full bg-primary/70 transition-[width] duration-200 ease-linear",
@@ -287,9 +360,18 @@ export const ReviewStrip: React.FC<ReviewStripProps> = ({
 
       {/* --- DÃY CARD (canh giữa; nếu tràn thì cuộn ngang như bình thường) --- */}
       {!isCollapsed && (
-        <div className="flex justify-center px-2 pt-1.5 pb-2">
+        <div
+          className={cn(
+            "flex justify-center px-2 pt-1.5 pb-2",
+            fillHeight && "flex-1 min-h-0",
+          )}
+        >
           <div
-            className="flex items-center gap-2 max-w-full overflow-x-auto overflow-y-hidden scrollbar-thin"
+            ref={setCardRowRef}
+            className={cn(
+              "flex items-center gap-2 max-w-full overflow-x-auto overflow-y-hidden scrollbar-thin",
+              fillHeight && "h-full",
+            )}
             onMouseEnter={() => setIsHoveringCards(true)}
             onMouseLeave={() => setIsHoveringCards(false)}
           >
@@ -305,6 +387,7 @@ export const ReviewStrip: React.FC<ReviewStripProps> = ({
                   onOpenInVocabulary={onOpenInVocabulary}
                   onAddToSession={onAddToSession}
                   onDetailOpenChange={handleDetailOpenChange}
+                  scale={fillHeight ? cardScale : 1}
                 />
               ))
             ) : (

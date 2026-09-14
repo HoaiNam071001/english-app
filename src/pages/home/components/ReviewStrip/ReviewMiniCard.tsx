@@ -38,6 +38,8 @@ interface ReviewMiniCardProps {
   onAddToSession: (item: VocabularyItem) => void;
   /** Báo ra ngoài khi tooltip/detail của card này mở hoặc đóng (để tạm dừng auto-refresh). */
   onDetailOpenChange?: (open: boolean) => void;
+  /** Hệ số co giãn kích thước card (1 = mặc định) - dùng khi khu Quick Review được resize. */
+  scale?: number;
 }
 
 // Chọn 1 màu trong danh sách theo hash của chữ, để cùng 1 từ luôn ra cùng 1 màu.
@@ -72,6 +74,8 @@ const iconBtnClass =
 // Chiều cao cố định cho mọi card (dù có ảnh hay không, chọn bao nhiêu field) để
 // hàng card luôn thẳng hàng, không bị "loang lổ" do mỗi card một chiều cao khác nhau.
 const CARD_HEIGHT = 112;
+// Bề rộng "gốc" (desktop) dùng làm mốc khi co giãn card theo scale.
+const CARD_WIDTH = 116;
 
 export const ReviewMiniCard: React.FC<ReviewMiniCardProps> = ({
   item,
@@ -82,6 +86,7 @@ export const ReviewMiniCard: React.FC<ReviewMiniCardProps> = ({
   onOpenInVocabulary,
   onAddToSession,
   onDetailOpenChange,
+  scale = 1,
 }) => {
   const { t } = useTranslation("home");
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -106,6 +111,10 @@ export const ReviewMiniCard: React.FC<ReviewMiniCardProps> = ({
   };
 
   const stop = (e: React.MouseEvent) => e.stopPropagation();
+
+  // scale != 1 khi khu Quick Review được resize (kéo cao/thấp) -> card co giãn
+  // theo 1 mức nhất định để lấp đầy không gian, thay vì giữ nguyên kích cỡ gốc.
+  const isScaled = scale !== 1;
 
   const renderDetailField = (field: ReviewCardDetailField) => {
     switch (field) {
@@ -207,9 +216,31 @@ export const ReviewMiniCard: React.FC<ReviewMiniCardProps> = ({
           trigger={
             <TooltipTrigger asChild>
               <div
+                className="relative shrink-0"
+                style={
+                  isScaled
+                    ? { width: CARD_WIDTH * scale, height: CARD_HEIGHT * scale }
+                    : undefined
+                }
+              >
+              <div
                 aria-label={t("review.viewDetail")}
-                style={{ height: CARD_HEIGHT }}
-                className="group relative shrink-0 w-[104px] md:w-[116px] rounded-lg border overflow-hidden cursor-pointer transition-colors hover:border-foreground/70 dark:hover:border-foreground/60"
+                style={
+                  isScaled
+                    ? {
+                        height: CARD_HEIGHT,
+                        width: CARD_WIDTH,
+                        transform: `scale(${scale})`,
+                        transformOrigin: "top left",
+                      }
+                    : { height: CARD_HEIGHT }
+                }
+                className={cn(
+                  "group relative rounded-lg border overflow-hidden cursor-pointer transition-colors hover:border-foreground/70 dark:hover:border-foreground/60",
+                  isScaled
+                    ? "absolute left-0 top-0"
+                    : "shrink-0 w-[104px] md:w-[116px]",
+                )}
               >
                 {showImage ? (
                   <>
@@ -333,6 +364,7 @@ export const ReviewMiniCard: React.FC<ReviewMiniCardProps> = ({
                 >
                   <SquareArrowOutUpRight size={11} />
                 </button>
+              </div>
               </div>
             </TooltipTrigger>
           }
