@@ -6,20 +6,26 @@ export const REVIEW_WORDS_SIZE = 10;
 /** Mốc "lần cuối đụng tới từ này" để ưu tiên từ lâu chưa gặp. */
 const lastSeenAt = (w: VocabularyItem) => w.updatedAt || w.createdAt || 0;
 
-const shuffle = <T>(list: T[]): T[] => {
-  const arr = [...list];
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-};
+/** Từ cũ nhất nặng gấp OLDEST_WEIGHT lần từ mới nhất - chỉ ưu tiên nhẹ, không độc chiếm. */
+const OLDEST_WEIGHT = 2;
 
-/** Lấy ngẫu nhiên trong nhóm cũ nhất để mỗi lần làm mới ra một bộ khác nhau. */
-const takeOldest = (pool: VocabularyItem[], amount: number) => {
+/**
+ * Random có trọng số trên TOÀN BỘ nhóm (Efraimidis–Spirakis): mọi từ đều có
+ * cơ hội được chọn, từ lâu chưa gặp chỉ được ưu tiên nhẹ theo thứ hạng. Trước đây
+ * chỉ random trong vài chục từ cũ nhất nên bộ từ luôn dồn về những ngày đầu.
+ */
+const takeWeightedRandom = (pool: VocabularyItem[], amount: number) => {
   if (amount <= 0 || !pool.length) return [];
   const sorted = [...pool].sort((a, b) => lastSeenAt(a) - lastSeenAt(b));
-  return shuffle(sorted.slice(0, Math.max(amount * 3, amount))).slice(0, amount);
+  const last = Math.max(sorted.length - 1, 1);
+  return sorted
+    .map((w, rank) => {
+      const weight = OLDEST_WEIGHT - ((OLDEST_WEIGHT - 1) * rank) / last;
+      return { w, key: Math.pow(Math.random(), 1 / weight) };
+    })
+    .sort((a, b) => b.key - a.key)
+    .slice(0, amount)
+    .map((e) => e.w);
 };
 
 /** Áp bộ lọc (ảnh/chủ đề/loại từ/từ loại/khoảng thời gian) lên kho từ. */
@@ -56,8 +62,8 @@ export const applyReviewFilter = (
 };
 
 /**
- * Chọn danh sách từ để ôn lại thụ động: ưu tiên từ chưa thuộc và lâu chưa gặp,
- * thiếu thì bù bằng từ đã thuộc (cũng theo thứ tự lâu chưa gặp nhất).
+ * Chọn danh sách từ để ôn lại thụ động: ưu tiên từ chưa thuộc, random trải đều
+ * toàn kho (từ lâu chưa gặp nhỉnh hơn chút), thiếu thì bù bằng từ đã thuộc.
  *
  * @param excludeIds Bộ từ đang hiển thị - né ra nếu kho từ (sau lọc) còn đủ để đổi bộ mới.
  */
@@ -75,14 +81,14 @@ export const pickReviewWords = (
     : filtered;
   const source = remaining.length >= size ? remaining : filtered;
 
-  const unlearned = takeOldest(
+  const unlearned = takeWeightedRandom(
     source.filter((w) => !w.isLearned),
     size,
   );
   if (unlearned.length >= size) return unlearned;
 
   const picked = new Set(unlearned.map((w) => w.id));
-  const fillers = takeOldest(
+  const fillers = takeWeightedRandom(
     source.filter((w) => w.isLearned && !picked.has(w.id)),
     size - unlearned.length,
   );
