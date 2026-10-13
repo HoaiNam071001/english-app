@@ -1,4 +1,5 @@
 import { CommonModal } from "@/components/CommonModal";
+import { SimpleTooltip } from "@/components/SimpleTooltip";
 import { Button } from "@/components/ui/button";
 import { DialogFooter } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/useToast";
@@ -56,37 +57,45 @@ export const VocabLinkProvider: React.FC<VocabLinkProviderProps> = ({
         onOpenChange={(open) => !open && setViewingId(null)}
         title={t("detail.title")}
         icon={<Info size={18} />}
+        autoFocus={false}
         footer={
           viewingItem && (onAddToSession || onOpenInVocabulary) ? (
-            <DialogFooter className="gap-2">
+            <DialogFooter className="flex-row justify-end gap-2">
               {onAddToSession && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
-                  onClick={() => {
-                    onAddToSession(viewingItem);
-                    toast.success(
-                      t("textLink.addedToSession", { word: viewingItem.text }),
-                    );
-                  }}
-                >
-                  <ListPlus size={14} /> {t("review.addToSession")}
-                </Button>
+                <SimpleTooltip content={t("review.addToSession")}>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8"
+                    aria-label={t("review.addToSession")}
+                    onClick={() => {
+                      onAddToSession(viewingItem);
+                      toast.success(
+                        t("textLink.addedToSession", {
+                          word: viewingItem.text,
+                        }),
+                      );
+                    }}
+                  >
+                    <ListPlus size={14} />
+                  </Button>
+                </SimpleTooltip>
               )}
               {onOpenInVocabulary && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
-                  onClick={() => {
-                    onOpenInVocabulary(viewingItem);
-                    setViewingId(null);
-                  }}
-                >
-                  <SquareArrowOutUpRight size={14} />{" "}
-                  {t("review.openInVocabulary")}
-                </Button>
+                <SimpleTooltip content={t("review.openInVocabulary")}>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8"
+                    aria-label={t("review.openInVocabulary")}
+                    onClick={() => {
+                      onOpenInVocabulary(viewingItem);
+                      setViewingId(null);
+                    }}
+                  >
+                    <SquareArrowOutUpRight size={14} />
+                  </Button>
+                </SimpleTooltip>
               )}
             </DialogFooter>
           ) : null

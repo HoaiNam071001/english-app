@@ -120,7 +120,7 @@ const VocabMatch: React.FC<VocabMatchProps> = ({ text, matches, onView }) => {
       </PopoverAnchor>
       <PopoverContent
         side="top"
-        className="w-auto max-w-[260px] p-1 flex flex-col gap-0.5"
+        className="w-auto max-w-[300px] p-1 flex flex-col divide-y divide-border"
         onMouseEnter={cancel}
         onMouseLeave={() => schedule(false, 200)}
         onOpenAutoFocus={(e) => e.preventDefault()}
@@ -128,23 +128,30 @@ const VocabMatch: React.FC<VocabMatchProps> = ({ text, matches, onView }) => {
         onClick={(e) => e.stopPropagation()}
       >
         {matches.map((m) => (
-          <button
-            key={m.id}
-            type="button"
-            className="flex items-center gap-2 rounded-sm px-2 py-1.5 text-left text-xs hover:bg-accent hover:text-accent-foreground"
-            onClick={() => {
-              setOpen(false);
-              onView(m);
-            }}
-          >
-            <Eye size={14} className="shrink-0 text-muted-foreground" />
-            <span className="text-muted-foreground">
-              {t("textLink.viewDetail")}
-            </span>
-            <span className="font-semibold text-blue-600 dark:text-blue-400 truncate">
+          <div key={m.id} className="flex flex-col gap-1 px-2 py-1.5">
+            <div className="text-sm font-semibold text-blue-600 dark:text-blue-400 break-words">
               {m.text}
-            </span>
-          </button>
+            </div>
+            {m.meaning && (
+              <div className="text-xs font-medium break-words">{m.meaning}</div>
+            )}
+            {m.example && (
+              <div className="text-[11px] italic leading-snug text-muted-foreground whitespace-pre-line line-clamp-3 break-words">
+                {m.example}
+              </div>
+            )}
+            <button
+              type="button"
+              className="mt-0.5 flex w-fit items-center gap-1.5 rounded-sm px-1.5 py-1 -ml-1.5 text-xs text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+              onClick={() => {
+                setOpen(false);
+                onView(m);
+              }}
+            >
+              <Eye size={14} className="shrink-0" />
+              {t("textLink.viewDetail")}
+            </button>
+          </div>
         ))}
       </PopoverContent>
     </Popover>

@@ -33,6 +33,8 @@ interface CommonModalProps {
   loading?: boolean;
   disableConfirm?: boolean;
   contentClassName?: string;
+  /** false: khi mở chỉ focus khung modal, không focus phần tử đầu tiên (tránh tooltip tự bật) */
+  autoFocus?: boolean;
 }
 
 export const CommonModal: React.FC<CommonModalProps> = ({
@@ -51,6 +53,7 @@ export const CommonModal: React.FC<CommonModalProps> = ({
   loading = false,
   disableConfirm = false,
   contentClassName = "",
+  autoFocus = true,
 }) => {
   const { t } = useTranslation("common");
 
@@ -59,6 +62,13 @@ export const CommonModal: React.FC<CommonModalProps> = ({
       <DialogContent
         className="!max-w-[95vw] md:!max-w-max !gap-2"
         // Chặn sự kiện đóng khi tương tác ra ngoài nếu flag là false
+        onOpenAutoFocus={(e) => {
+          if (autoFocus) return;
+          // Focus vào khung modal thay vì phần tử đầu tiên: vẫn kéo focus ra khỏi
+          // các popover đang mở (để chúng tự đóng) mà không bật tooltip của nút.
+          e.preventDefault();
+          (e.target as HTMLElement | null)?.focus();
+        }}
         onInteractOutside={(e) => {
           if (!closeOnInteractOutside) {
             e.preventDefault();
