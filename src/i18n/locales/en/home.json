@@ -334,6 +334,14 @@
       "genericFailed": "Failed to update"
     }
   },
+  "textLink": {
+    "addedToSession": "Added \"{{word}}\" to the current session",
+    "viewDetail": "View detail",
+    "copied": "Copied to clipboard",
+    "copyFailed": "Couldn't copy",
+    "cut": "Cut",
+    "createWord": "Create new word"
+  },
   "detail": {
     "title": "Vocabulary Details",
     "meaning": "Meaning",

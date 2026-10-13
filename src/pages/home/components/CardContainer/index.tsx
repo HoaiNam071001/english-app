@@ -44,6 +44,8 @@ import { useTranslation } from "react-i18next";
 export interface CardContainerRef {
   addWordsToSession: (words: VocabularyItem[]) => void;
   removeWordsToSession: (wordIds: string[]) => void;
+  /** Mở modal thêm từ (mode structured) với từ đã được điền sẵn */
+  openCreateWithText: (text: string) => void;
 }
 
 interface CardContainerProps {
@@ -156,6 +158,9 @@ const CardContainer = forwardRef<CardContainerRef, CardContainerProps>(
 
     // 2. EXPOSE METHODS
     useImperativeHandle(ref, () => ({
+      openCreateWithText: (text: string) => {
+        createModalRef.current?.openWithText(text);
+      },
       addWordsToSession: (newWords: VocabularyItem[]) => {
         setTabs((prevTabs) => {
           return prevTabs.map((tab) => {

@@ -1,5 +1,4 @@
 import DictionarySearchButton from "@/components/DictionarySearchButton";
-import { DisplayText } from "@/components/DisplayText";
 import { ImagePreview } from "@/components/ImagePreview";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -15,6 +14,7 @@ import moment from "moment";
 import React from "react";
 import { PartSpeech } from "./PartSpeech";
 import { Phonetic } from "./Phonetic/PhoneticItem";
+import { InteractiveText } from "./InteractiveText";
 import { useTranslation } from "react-i18next";
 
 interface VocabularyDetailContentProps {
@@ -144,7 +144,7 @@ export const VocabularyDetailContent: React.FC<
         {item.example && (
           <div className="bg-muted/30 p-3 rounded-md border border-border/50 max-h-[250px] overflow-auto">
             <div className="text-sm text-foreground/80 leading-relaxed">
-              <DisplayText text={item.example} />
+              <InteractiveText text={item.example} excludeId={item.id} />
             </div>
           </div>
         )}

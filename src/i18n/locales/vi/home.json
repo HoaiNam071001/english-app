@@ -334,6 +334,14 @@
       "genericFailed": "Cập nhật thất bại"
     }
   },
+  "textLink": {
+    "addedToSession": "Đã thêm \"{{word}}\" vào phiên hiện tại",
+    "viewDetail": "Xem chi tiết",
+    "copied": "Đã sao chép",
+    "copyFailed": "Không thể sao chép",
+    "cut": "Cắt",
+    "createWord": "Tạo từ mới"
+  },
   "detail": {
     "title": "Chi tiết từ vựng",
     "meaning": "Nghĩa",

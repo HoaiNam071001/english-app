@@ -1,4 +1,3 @@
-import { DisplayText } from "@/components/DisplayText";
 import { ImagePreview } from "@/components/ImagePreview";
 import {
   Popover,
@@ -7,6 +6,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { VocabularyItem } from "@/types";
+import { InteractiveText } from "../../common/InteractiveText";
 import { PartSpeech } from "../../common/PartSpeech";
 import { Phonetics } from "../../common/Phonetic";
 import { useTranslation } from "react-i18next";
@@ -74,7 +74,7 @@ export const CardMainContent: React.FC<CardMainContentProps> = ({
                 {t("card.note")}
               </div>
               <div className="text-popover-foreground/80 italic leading-relaxed max-h-[300px] overflow-auto">
-                <DisplayText text={item.example} />
+                <InteractiveText text={item.example} excludeId={item.id} />
               </div>
             </PopoverContent>
           </Popover>

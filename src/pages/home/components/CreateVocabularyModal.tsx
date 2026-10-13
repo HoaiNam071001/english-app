@@ -283,6 +283,18 @@ const VocabularyRow: React.FC<VocabularyRowProps> = ({
 // ==========================================
 type RowItem = Partial<VocabularyItem> & { _id: string };
 
+const createBlankRow = (): RowItem => ({
+  _id: crypto.randomUUID(),
+  text: "",
+  meaning: "",
+  example: "",
+  imageUrl: "",
+  partOfSpeech: [],
+  typeIds: [],
+  phonetics: [],
+  topicId: null,
+});
+
 // ==========================================
 // 2. SUB-COMPONENT: STRUCTURED IMPORT TAB
 // (Sửa đổi: Nhận rows và setRows từ props)
@@ -290,6 +302,7 @@ type RowItem = Partial<VocabularyItem> & { _id: string };
 interface StructuredImportTabProps {
   onAdd: (entries: Partial<VocabularyItem>[]) => Promise<AddReport>;
   onSuccess: () => void;
+  onCancel: () => void;
   // NEW PROPS: Nhận state từ cha
   rows: RowItem[];
   setRows: React.Dispatch<React.SetStateAction<RowItem[]>>;
@@ -302,7 +315,7 @@ export interface StructuredImportHandle {
 const StructuredImportTab = forwardRef<
   StructuredImportHandle,
   StructuredImportTabProps
->(({ onAdd, onSuccess, rows, setRows }, ref) => {
+>(({ onAdd, onSuccess, onCancel, rows, setRows }, ref) => {
   const { t } = useTranslation("home");
   const toast = useToast();
   const [loading, setLoading] = useState(false);
@@ -310,17 +323,7 @@ const StructuredImportTab = forwardRef<
 
   const isValid = rows?.every((e) => e.text);
 
-  const blankRow = (): RowItem => ({
-    _id: crypto.randomUUID(),
-    text: "",
-    meaning: "",
-    example: "",
-    imageUrl: "",
-    partOfSpeech: [],
-    typeIds: [],
-    phonetics: [],
-    topicId: null,
-  });
+  const blankRow = createBlankRow;
 
   const addRow = () => {
     setRows([...rows, blankRow()]);
@@ -476,7 +479,10 @@ const StructuredImportTab = forwardRef<
         </div>
       </ScrollArea>
 
-      <div className="flex justify-end pt-2">
+      <div className="flex justify-end gap-2 pt-2">
+        <Button variant="outline" onClick={onCancel} disabled={loading}>
+          {t("common:actions.cancel")}
+        </Button>
         <Button
           onClick={handleSave}
           disabled={loading || !isValid}
@@ -498,6 +504,7 @@ StructuredImportTab.displayName = "StructuredImportTab";
 interface RawTextImportTabProps {
   onAdd: (entries: Partial<VocabularyItem>[]) => Promise<AddReport>;
   onSuccess: () => void;
+  onCancel: () => void;
   // NEW PROPS: Nhận state từ cha
   inputText: string;
   setInputText: (text: string) => void;
@@ -508,7 +515,7 @@ export interface RawTextImportHandle {
 }
 
 const RawTextImportTab = forwardRef<RawTextImportHandle, RawTextImportTabProps>(
-  ({ onAdd, onSuccess, inputText, setInputText }, ref) => {
+  ({ onAdd, onSuccess, onCancel, inputText, setInputText }, ref) => {
     const { t } = useTranslation("home");
     const [loading, setLoading] = useState(false);
     const [report, setReport] = useState<AddReport | null>(null);
@@ -626,7 +633,10 @@ const RawTextImportTab = forwardRef<RawTextImportHandle, RawTextImportTabProps>(
           </div>
         )}
 
-        <div className="flex justify-end mt-auto">
+        <div className="flex justify-end gap-2 mt-auto">
+          <Button variant="outline" onClick={onCancel} disabled={loading}>
+            {t("common:actions.cancel")}
+          </Button>
           <Button
             onClick={handleProcessAndAdd}
             disabled={loading || !inputText}
@@ -657,6 +667,8 @@ interface CreateVocabularyModalProps {
 /** Cho phép nơi khác (vd: phím tắt ở CardContainer) mở modal mà không cần click nút */
 export interface CreateVocabularyModalHandle {
   openModal: () => void;
+  /** Mở modal ở mode structured, điền sẵn `text` vào dòng trống đầu tiên (hoặc thêm dòng mới) */
+  openWithText: (text: string) => void;
 }
 
 const CreateVocabularyModal = forwardRef<
@@ -666,9 +678,6 @@ const CreateVocabularyModal = forwardRef<
   const { t } = useTranslation("home");
   const [open, setOpen] = useState(false);
 
-  useImperativeHandle(ref, () => ({
-    openModal: () => setOpen(true),
-  }));
   const { getStorage, setStorage } = useLocalStorage();
   const [activeTab, setActiveTab] = useState(
     getStorage(STORAGE_KEY.HOME_CREATE_MODE) || CreateVolMode.Raw,
@@ -679,18 +688,8 @@ const CreateVocabularyModal = forwardRef<
   // nên state ở đây sẽ được bảo toàn.
 
   // 1. State cho Structured Tab
-  const [structuredRows, setStructuredRows] = useState<RowItem[]>([
-    {
-      _id: crypto.randomUUID(),
-      text: "",
-      meaning: "",
-      example: "",
-      imageUrl: "",
-      partOfSpeech: [],
-      typeIds: [],
-      phonetics: [],
-      topicId: null,
-    },
+  const [structuredRows, setStructuredRows] = useState<RowItem[]>(() => [
+    createBlankRow(),
   ]);
 
   // 2. State cho Raw Tab
@@ -704,6 +703,28 @@ const CreateVocabularyModal = forwardRef<
   const onModeChange = (val: CreateVolMode) => {
     setActiveTab(val);
     setStorage(STORAGE_KEY.HOME_CREATE_MODE, val);
+  };
+
+  useImperativeHandle(ref, () => ({
+    openModal: () => setOpen(true),
+    openWithText: (text: string) => {
+      onModeChange(CreateVolMode.Structured);
+      setStructuredRows((prev) => {
+        const blankIdx = prev.findIndex((r) => !r.text?.trim());
+        if (blankIdx >= 0) {
+          return prev.map((r, i) => (i === blankIdx ? { ...r, text } : r));
+        }
+        return [...prev, { ...createBlankRow(), text }];
+      });
+      setOpen(true);
+    },
+  }));
+
+  // Huỷ: bỏ toàn bộ dữ liệu đang nhập dở ở cả 2 tab rồi đóng modal
+  const handleCancel = () => {
+    setStructuredRows([createBlankRow()]);
+    setRawInput("");
+    setOpen(false);
   };
 
   const handleSuccess = () => {
@@ -782,6 +803,7 @@ const CreateVocabularyModal = forwardRef<
                 ref={structuredTabRef}
                 onAdd={onAddVocabulary}
                 onSuccess={handleSuccess}
+                onCancel={handleCancel}
                 rows={structuredRows}
                 setRows={setStructuredRows}
               />
@@ -792,6 +814,7 @@ const CreateVocabularyModal = forwardRef<
                 ref={rawTabRef}
                 onAdd={onAddVocabulary}
                 onSuccess={handleSuccess}
+                onCancel={handleCancel}
                 inputText={rawInput}
                 setInputText={setRawInput}
               />
