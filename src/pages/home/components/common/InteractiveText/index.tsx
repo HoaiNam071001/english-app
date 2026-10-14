@@ -3,19 +3,19 @@ import {
   PopoverAnchor,
   PopoverContent,
 } from "@/components/ui/popover";
-import { useToast } from "@/hooks/useToast";
 import { cn } from "@/lib/utils";
 import { VocabularyItem } from "@/types";
-import { Copy, Eye, PlusCircle, Scissors } from "lucide-react";
+import { Eye } from "lucide-react";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { useVocabLink } from "./context";
 import { segmentByVocab } from "./matchVocab";
-
-// Giữ vùng bôi đen bao lâu thì hiện menu
-const SELECTION_HOLD_MS = 1000;
-const MENU_WIDTH = 180;
+import {
+  MenuState,
+  SELECTION_HOLD_MS,
+  SelectionMenu,
+} from "./SelectionMenu";
 
 interface InteractiveTextProps {
   text: string;
@@ -161,13 +161,6 @@ const VocabMatch: React.FC<VocabMatchProps> = ({ text, matches, onView }) => {
 // ==========================================
 // Menu khi bôi đen
 // ==========================================
-interface MenuState {
-  x: number;
-  top: number;
-  bottom: number;
-  text: string;
-}
-
 const getSelectionIn = (container: HTMLElement | null) => {
   const sel = window.getSelection();
   if (!container || !sel || sel.isCollapsed || sel.rangeCount === 0)
@@ -244,88 +237,3 @@ const useSelectionMenu = (
 
   return [state, setState] as const;
 };
-
-interface SelectionMenuProps extends MenuState {
-  onCreate?: (text: string) => void;
-  onDone: () => void;
-}
-
-const SelectionMenu = React.forwardRef<HTMLDivElement, SelectionMenuProps>(
-  ({ x, top, bottom, text, onCreate, onDone }, ref) => {
-    const { t } = useTranslation(["home", "common"]);
-    const toast = useToast();
-
-    const left = Math.min(
-      Math.max(8, x - MENU_WIDTH / 2),
-      window.innerWidth - MENU_WIDTH - 8,
-    );
-    // Không đủ chỗ phía dưới thì hiện lên trên vùng chọn
-    const placeAbove = bottom + 140 > window.innerHeight;
-
-    const writeClipboard = async () => {
-      try {
-        await navigator.clipboard.writeText(text);
-        toast.success(t("textLink.copied"));
-      } catch {
-        toast.error(t("textLink.copyFailed"));
-      }
-    };
-
-    const run = (action: () => void) => () => {
-      action();
-      window.getSelection()?.removeAllRanges();
-      onDone();
-    };
-
-    const itemClass =
-      "flex w-full items-center gap-2 rounded-sm px-2 py-1.5 text-left text-sm hover:bg-accent hover:text-accent-foreground";
-
-    return (
-      <div
-        ref={ref}
-        role="menu"
-        className="fixed z-[300] rounded-md border bg-popover p-1 text-popover-foreground shadow-lg animate-in fade-in-0 zoom-in-95"
-        style={{
-          left,
-          width: MENU_WIDTH,
-          pointerEvents: "auto",
-          ...(placeAbove
-            ? { bottom: window.innerHeight - top + 6 }
-            : { top: bottom + 6 }),
-        }}
-        // Giữ nguyên vùng bôi đen & focus khi bấm vào menu
-        onMouseDown={(e) => e.preventDefault()}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <button
-          type="button"
-          className={itemClass}
-          onClick={run(writeClipboard)}
-        >
-          <Copy size={14} /> {t("common:actions.copy")}
-        </button>
-        {/* Nội dung chỉ đọc nên Cut = copy rồi bỏ vùng chọn */}
-        <button
-          type="button"
-          className={itemClass}
-          onClick={run(writeClipboard)}
-        >
-          <Scissors size={14} /> {t("textLink.cut")}
-        </button>
-        {onCreate && (
-          <>
-            <div className="my-1 h-px bg-border" />
-            <button
-              type="button"
-              className={cn(itemClass, "text-blue-600 dark:text-blue-400")}
-              onClick={run(() => onCreate(text))}
-            >
-              <PlusCircle size={14} /> {t("textLink.createWord")}
-            </button>
-          </>
-        )}
-      </div>
-    );
-  },
-);
-SelectionMenu.displayName = "SelectionMenu";

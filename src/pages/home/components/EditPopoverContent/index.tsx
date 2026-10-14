@@ -3,7 +3,6 @@ import { ImageIllustration } from "@/components/ImageIllustration";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { useDictionary } from "@/hooks/useDictionary";
 import { useToast } from "@/hooks/useToast";
 import { AccentType, VocabularyItem, WordData } from "@/types";
@@ -12,6 +11,7 @@ import React, { useState } from "react";
 import PartOfSpeechSelector, {
   PartOfSpeechLegend,
 } from "../common/PartOfSpeechSelector";
+import { SelectableTextarea } from "../common/InteractiveText/SelectableTextarea";
 import TopicSelector from "../common/TopicSelector";
 import WordTypeSelector from "../common/WordTypeSelector"; // <--- Import mới
 import { DraftSelectionView } from "./DraftSelectionView";
@@ -269,7 +269,7 @@ export const EditPopoverContent: React.FC<EditPopoverContentProps> = ({
           <Label htmlFor="note" className="text-xs text-muted-foreground">
             {t("edit.note")}
           </Label>
-          <Textarea
+          <SelectableTextarea
             id="note"
             value={form.example}
             onChange={(e) => setForm({ ...form, example: e.target.value })}

@@ -44,6 +44,7 @@ import PartOfSpeechSelector, {
 import TopicSelector from "./common/TopicSelector";
 import WordTypeSelector from "./common/WordTypeSelector";
 import { PhoneticRow } from "./EditPopoverContent/PhoneticRow";
+import { SelectableTextarea } from "./common/InteractiveText/SelectableTextarea";
 
 // ==========================================
 // 1. SUB-COMPONENT: ROW ITEM (Giữ nguyên)
@@ -145,7 +146,7 @@ const VocabularyRow: React.FC<VocabularyRowProps> = ({
               <Label className="text-[10px] text-muted-foreground uppercase font-bold">
                 {t("create.note")}
               </Label>
-              <Textarea
+              <SelectableTextarea
                 placeholder={t("create.examplePlaceholder")}
                 value={data.example || ""}
                 onChange={(e) => onChange(id, "example", e.target.value)}
